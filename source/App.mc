@@ -21,11 +21,18 @@ class App extends Application.AppBase {
 }
 
 class AppView extends WatchUi.View {
-    var image;
+    var images;
+    var currentImageIndex;
+    var imageY;
 
     function initialize() {
         View.initialize();
-        image = Application.loadResource(Rez.Drawables.DisplayImage);
+        images = [
+            Application.loadResource(Rez.Drawables.DisplayImage1),
+            Application.loadResource(Rez.Drawables.DisplayImage2)
+        ];
+        currentImageIndex = 0;
+        imageY = 0;
     }
 
     function onLayout(dc) {
@@ -41,18 +48,33 @@ class AppView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
         
-        // Draw the image in the center
+        // Draw the current image
+        var image = images[currentImageIndex];
         var imageWidth = image.getWidth();
         var imageHeight = image.getHeight();
         var screenWidth = dc.getWidth();
-        var screenHeight = dc.getHeight();
         
         var x = (screenWidth - imageWidth) / 2;
-        var y = (screenHeight - imageHeight) / 2;
         
-        dc.drawBitmap(x, y, image);
+        dc.drawBitmap(x, imageY, image);
     }
 
     function onHide() {
+    }
+
+    function onSwipe(swipeEvent) {
+        if (swipeEvent.getDirection() == WatchUi.SWIPE_UP) {
+            // Scroll up to next image
+            currentImageIndex = (currentImageIndex + 1) % images.size();
+            WatchUi.requestUpdate();
+        } else if (swipeEvent.getDirection() == WatchUi.SWIPE_DOWN) {
+            // Scroll down to previous image
+            currentImageIndex = (currentImageIndex - 1) % images.size();
+            if (currentImageIndex < 0) {
+                currentImageIndex = images.size() - 1;
+            }
+            WatchUi.requestUpdate();
+        }
+        return true;
     }
 } 

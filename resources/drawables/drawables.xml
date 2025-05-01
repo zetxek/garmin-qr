@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bitmap id="LauncherIcon" filename="qr.png"/>
-    <bitmap id="DisplayImage" filename="qr.png"/>
+    <bitmap id="DisplayImage1" filename="qr.png"/>
+    <bitmap id="DisplayImage2" filename="qr2.png"/>
 </resources> 
