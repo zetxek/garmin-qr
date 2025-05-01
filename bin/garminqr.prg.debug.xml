@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<debugInfo>
+<manifest filename="/Users/adrianmorenopena/Projects/garmin-qr/manifest.xml"/>
+<pcToLineNum>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="1" lineNum="6" parent="globals/App" pc="268435460" symbol="&lt;init&gt;"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="2" lineNum="22" parent="globals/AppView" pc="268435472" symbol="&lt;init&gt;"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/bin/gen/006-B4534-00/source/Rez.mcgen" id="3" lineNum="7" parent="globals/Rez" pc="268435484" symbol="&lt;init&gt;"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="4" lineNum="11" parent="globals/App" pc="268435504" symbol="onStart"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="5" lineNum="17" parent="globals/App" pc="268435507" symbol="getInitialView"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="5" lineNum="18" parent="globals/App" pc="268435509" symbol="getInitialView"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="6" lineNum="7" parent="globals/App" pc="268435539" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="6" lineNum="8" parent="globals/App" pc="268435541" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="7" lineNum="14" parent="globals/App" pc="268435554" symbol="onStop"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="9" lineNum="27" parent="globals/AppView" pc="268435557" symbol="onLayout"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="23" parent="globals/AppView" pc="268435560" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="24" parent="globals/AppView" pc="268435562" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="12" lineNum="33" parent="globals/AppView" pc="268435575" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="12" lineNum="34" parent="globals/AppView" pc="268435577" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="12" lineNum="37" parent="globals/AppView" pc="268435593" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="12" lineNum="38" parent="globals/AppView" pc="268435609" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="12" lineNum="41" parent="globals/AppView" pc="268435617" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="12" lineNum="42" parent="globals/AppView" pc="268435634" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/bin/gen/006-B4534-00/source/Rez.mcgen" id="13" lineNum="13" parent="globals/Rez/Layouts" pc="268435674" symbol="MainLayout"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/bin/gen/006-B4534-00/source/Rez.mcgen" id="13" lineNum="14" parent="globals/Rez/Layouts" pc="268435685" symbol="MainLayout"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/bin/gen/006-B4534-00/source/Rez.mcgen" id="13" lineNum="16" parent="globals/Rez/Layouts" pc="268435784" symbol="MainLayout"/>
+</pcToLineNum>
+<symbolTable>
+<entry id="8388639" module="true" symbol="Graphics"/>
+<entry id="8389346" symbol="text"/>
+<entry id="8388632" method="true" symbol="&lt;init&gt;"/>
+<entry id="10" method="true" symbol="MainLayout"/>
+<entry field="true" id="8388611" module="true" symbol="Toybox"/>
+<entry id="6" object="true" symbol="App"/>
+<entry id="7" object="true" symbol="AppView"/>
+<entry field="true" id="11" symbol="AppName"/>
+<entry id="5" module="true" symbol="globals/Rez/Strings"/>
+<entry id="8388648" module="true" symbol="WatchUi"/>
+<entry id="2" module="true" symbol="globals/Rez"/>
+<entry id="8389124" method="true" symbol="onUpdate"/>
+<entry field="true" id="8389065" symbol="locY"/>
+<entry field="true" id="8389064" symbol="locX"/>
+<entry id="8388771" module="true" object="true" symbol="Drawables"/>
+<entry id="8389348" symbol="font"/>
+<entry id="4" module="true" symbol="globals/Rez/Layouts"/>
+<entry id="8389122" method="true" symbol="onLayout"/>
+<entry id="8389349" symbol="justification"/>
+<entry id="3" module="true" symbol="globals/Rez/Drawables"/>
+<entry id="8388644" module="true" symbol="System"/>
+<entry id="8388769" module="true" object="true" symbol="Rez"/>
+<entry id="8388640" module="true" symbol="Lang"/>
+<entry field="true" id="9" symbol="LauncherIcon"/>
+<entry id="8388610" symbol="statics"/>
+<entry id="8389123" method="true" symbol="onShow"/>
+<entry id="8389350" module="true" symbol="globals"/>
+<entry id="8388770" module="true" object="true" symbol="Strings"/>
+<entry id="8388702" method="true" symbol="initialize"/>
+<entry id="8389279" method="true" symbol="onStart"/>
+<entry id="8389280" method="true" symbol="getInitialView"/>
+<entry id="8389281" method="true" symbol="onStop"/>
+<entry field="true" id="8389347" symbol="color"/>
+<entry id="8" module="true" symbol="Layouts"/>
+<entry id="8389125" method="true" symbol="onHide"/>
+<entry id="8388635" module="true" symbol="Application"/>
+</symbolTable>
+<localVars>
+<entry arg="true" endPc="268435673" name="dc" stackId="1" startPc="268435575"/>
+<entry arg="true" endPc="268435793" name="dc" stackId="1" startPc="268435674"/>
+<entry endPc="268435793" name="rez_cmp_local_text_1193959466" stackId="2" startPc="268435685"/>
+</localVars>
+<deviceInfo deviceVersion="3498c925c73f4a7573519482416d86e407dea347" partNumber="006-B4534-00"/>
+<annotations>
+<annotationEntry annotation="initialized" class="Drawables" module="globals/Rez" symbol="LauncherIcon"/>
+<annotationEntry annotation="initialized" class="Strings" module="globals/Rez" symbol="AppName"/>
+</annotations>
+<dataEntryOffsetMappings>
+<dataEntry label="globals" offset="58" parentId="" symbolId="globals" type="module"/>
+<dataEntry label="globals/App" offset="116" parentId="globals" symbolId="App" type="class"/>
+<dataEntry label="globals/AppView" offset="187" parentId="globals" symbolId="AppView" type="class"/>
+<dataEntry label="globals/Rez" offset="267" parentId="globals" symbolId="Rez" type="module"/>
+<dataEntry label="globals/Rez/Drawables" offset="320" parentId="Rez" symbolId="Drawables" type="module"/>
+<dataEntry label="globals/Rez/Layouts" offset="355" parentId="Rez" symbolId="Layouts" type="module"/>
+<dataEntry label="globals/Rez/Strings" offset="390" parentId="Rez" symbolId="Strings" type="module"/>
+</dataEntryOffsetMappings>
+<functions>
+<functionEntry accessMode="public" endPc="268435471" name="&lt;init&gt;" parent="App" startPc="268435460">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435483" name="&lt;init&gt;" parent="AppView" startPc="268435472">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435503" name="&lt;init&gt;" parent="Rez" startPc="268435484">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435506" name="onStart" parent="App" startPc="268435504">
+<param id="state"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435538" name="getInitialView" parent="App" startPc="268435507">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435553" name="initialize" parent="App" startPc="268435539">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435556" name="onStop" parent="App" startPc="268435554">
+<param id="state"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" name="onShow" parent="AppView">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435559" name="onLayout" parent="AppView" startPc="268435557">
+<param id="dc"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435574" name="initialize" parent="AppView" startPc="268435560">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" name="onHide" parent="AppView">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435673" name="onUpdate" parent="AppView" startPc="268435575">
+<param id="dc"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" name="&lt;init&gt;" parent="Drawables">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" name="&lt;init&gt;" parent="Layouts">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" name="&lt;init&gt;" parent="Strings">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268435793" name="MainLayout" parent="Layouts" startPc="268435674">
+<param id="dc"/>
+<documentation/>
+</functionEntry>
+</functions>
+</debugInfo>
