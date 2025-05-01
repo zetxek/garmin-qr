@@ -1,4 +1,5 @@
 bin/*
+bin/
 .vscode/
 .idea/
 .DS_Store
