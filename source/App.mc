@@ -2,6 +2,7 @@ using Toybox.Application;
 using Toybox.WatchUi;
 using Toybox.System;
 using Toybox.Graphics;
+using Toybox.Lang;
 
 class App extends Application.AppBase {
     function initialize() {
@@ -20,8 +21,11 @@ class App extends Application.AppBase {
 }
 
 class AppView extends WatchUi.View {
+    var image;
+
     function initialize() {
         View.initialize();
+        image = Application.loadResource(Rez.Drawables.DisplayImage);
     }
 
     function onLayout(dc) {
@@ -37,15 +41,16 @@ class AppView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
         
-        // Draw some text
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(
-            dc.getWidth() / 2,
-            dc.getHeight() / 2,
-            Graphics.FONT_MEDIUM,
-            "Garmin QR",
-            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-        );
+        // Draw the image in the center
+        var imageWidth = image.getWidth();
+        var imageHeight = image.getHeight();
+        var screenWidth = dc.getWidth();
+        var screenHeight = dc.getHeight();
+        
+        var x = (screenWidth - imageWidth) / 2;
+        var y = (screenHeight - imageHeight) / 2;
+        
+        dc.drawBitmap(x, y, image);
     }
 
     function onHide() {
