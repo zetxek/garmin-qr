@@ -24,7 +24,7 @@ class App extends Application.AppBase {
 }
 
 class AppView extends WatchUi.View {
-    var image as Null or Graphics.BitmapResource;
+    var image as Null or WatchUi.BitmapResource;
     var isDownloading;
 
     function initialize() {
@@ -32,6 +32,17 @@ class AppView extends WatchUi.View {
         System.println("AppView initialized");
         image = null;
         isDownloading = false;        
+        
+        // Try to load cached image first
+        try {
+            var cachedImage = Storage.getValue("qr_image");
+            if (cachedImage != null) {
+                System.println("Loaded cached image");
+                image = cachedImage as WatchUi.BitmapResource;
+            }
+        } catch (e) {
+            System.println("Error loading cached image: " + e.getErrorMessage());
+        }
     }
 
 
@@ -67,6 +78,12 @@ class AppView extends WatchUi.View {
         responseCode = responseCode;
         if (responseCode == 200) {
             image = data;
+            try {
+                Storage.setValue("qr_image", data);
+                System.println("Image cached");
+            } catch (e) {
+                System.println("Error caching image: " + e.getErrorMessage());
+            }
             WatchUi.requestUpdate();
             System.println("Image downloaded");
         } else {
