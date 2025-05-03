@@ -36,6 +36,7 @@ class AppView extends WatchUi.View {
     var isNewCodeMode;
     var errorMessage as Null or Lang.String;
     var errorTimer as Null or Timer.Timer;
+    var pendingText as Null or Lang.String;
 
     function initialize() {
         View.initialize();
@@ -111,9 +112,18 @@ class AppView extends WatchUi.View {
                 System.println("Processing downloaded image");
                 var bitmapResource = data as WatchUi.BitmapResource;
                 
-                // Update current code
-                images[currentIndex] = bitmapResource;
+                if (currentIndex < images.size()) {
+                    // Edit existing code
+                    images[currentIndex] = bitmapResource;
+                } else {
+                    // Add new code
+                    images.add(bitmapResource);
+                    currentIndex = images.size() - 1;
+                }
                 Storage.setValue("qr_image_" + currentIndex, bitmapResource);
+                Storage.setValue("qr_text_" + currentIndex, self.pendingText);
+                Storage.setValue("qr_count", images.size());
+                self.pendingText = null;
                 System.println("Updated code at index: " + currentIndex);
                 
                 WatchUi.requestUpdate();
@@ -379,6 +389,7 @@ class CodeMenuDelegate extends WatchUi.MenuInputDelegate {
         } else if (item == :remove) {
             view.removeCurrentCode();
         } else if (item == :add) {
+            view.currentIndex = view.images.size();
             view.startNewCodeMode();
         }
         // :none is intentionally not handled
@@ -422,12 +433,8 @@ class TextPickerDelegate extends WatchUi.TextPickerDelegate {
         System.println("Text entered: " + text);
         if (text != null && text.length() > 0) {
             try {
-                if (changed) {
-                    System.println("Text changed, regenerating QR code");
-                    view.downloadImage(text);
-                } else {
-                    System.println("Text unchanged, keeping current QR code");
-                }
+                System.println("Generating QR code for entered text");
+                view.downloadImage(text);
             } catch (e) {
                 System.println("Error in onTextEntered: " + e.getErrorMessage());
             }
