@@ -507,47 +507,29 @@ class GlanceView extends WatchUi.GlanceView {
             var bmp = images[0] as WatchUi.BitmapResource;
             var bmpWidth = bmp.getWidth();
             var bmpHeight = bmp.getHeight();
-            var screenWidth = dc.getWidth();
             var screenHeight = dc.getHeight();
 
-            // Only draw if it fits
-            if (bmpWidth <= screenWidth && bmpHeight <= screenHeight) {
-                var x = (screenWidth - bmpWidth) / 2;
-                var y = (screenHeight - bmpHeight) / 2;
-                dc.drawBitmap(x, y, bmp);
-            } else {
-                // Optionally, show a message or icon
-                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(
-                    screenWidth / 2,
-                    screenHeight / 2,
-                    Graphics.FONT_XTINY,
-                    "QR too large",
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-                );
-            }
+            var marginLeft = 0; // Increase margin for clarity
+            var x = marginLeft;
+            var y = (screenHeight - bmpHeight) / 2;
+            dc.drawBitmap(x, y, bmp);
 
-            // Draw count if more than one code
-            if (images.size() > 1) {
-                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-                dc.drawText(
-                    screenWidth / 2,
-                    screenHeight - 15,
-                    Graphics.FONT_XTINY,
-                    images.size().toString() + " codes",
-                    Graphics.TEXT_JUSTIFY_CENTER
-                );
+            // Draw the QR text to the right of the QR code
+            var text = Storage.getValue("qr_text_0");
+            if (text == null) {
+                text = "";
             }
-        } else {
-            // Show empty state
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            var textX = x + bmpWidth + 10; // 10px padding to the right of the QR
+            var textY = screenHeight / 2;
             dc.drawText(
-                dc.getWidth() / 2,
-                dc.getHeight() / 2,
-                Graphics.FONT_MEDIUM,
-                "No QR codes",
-                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+                textX,
+                textY,
+                Graphics.FONT_XTINY,
+                text,
+                Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
             );
         }
+        // No code count or other text is drawn
     }
 } 
