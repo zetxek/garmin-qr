@@ -141,6 +141,16 @@ class AppView extends WatchUi.View {
             // Show current QR code
             System.println("Drawing image " + currentIndex);
             drawImage(dc, images[currentIndex]);
+            
+            // Draw text at the bottom
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(
+                dc.getWidth() / 2,
+                dc.getHeight() - 40,  // 40 pixels from bottom
+                Graphics.FONT_XTINY,
+                "Code " + (currentIndex + 1) + " of " + images.size(),
+                Graphics.TEXT_JUSTIFY_CENTER
+            );
         } else if (isDownloading) {
             // Show loading message
             System.println("Drawing loading");
@@ -208,6 +218,14 @@ class AppView extends WatchUi.View {
                     currentIndex++;
                     System.println("Moved to next code: " + currentIndex);
                     WatchUi.requestUpdate();
+                } else if (images.size() > 0) {
+                    // Show menu to add new code
+                    System.println("Showing add code menu");
+                    var menu = new WatchUi.Menu();
+                    menu.setTitle("Add New Code?");
+                    menu.addItem("Yes", :add);
+                    menu.addItem("No", :cancel);
+                    WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
                 }
                 return true;
             } else if (key == WatchUi.KEY_ENTER && images.size() > 0) {
@@ -244,6 +262,11 @@ class AppView extends WatchUi.View {
             WatchUi.requestUpdate();
         }
     }
+
+    function startNewCodeMode() {
+        isNewCodeMode = true;
+        WatchUi.requestUpdate();
+    }
 }
 
 class CodeMenuDelegate extends WatchUi.MenuInputDelegate {
@@ -257,6 +280,8 @@ class CodeMenuDelegate extends WatchUi.MenuInputDelegate {
     function onMenuItem(item) {
         if (item == :remove) {
             view.removeCurrentCode();
+        } else if (item == :add) {
+            view.startNewCodeMode();
         }
     }
 }
