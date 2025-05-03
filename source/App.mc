@@ -123,7 +123,6 @@ class AppView extends WatchUi.View {
                 Storage.setValue("qr_image_" + currentIndex, bitmapResource);
                 Storage.setValue("qr_text_" + currentIndex, self.pendingText);
                 Storage.setValue("qr_count", images.size());
-                self.pendingText = null;
                 System.println("Updated code at index: " + currentIndex);
                 
                 WatchUi.requestUpdate();
@@ -142,6 +141,8 @@ class AppView extends WatchUi.View {
                     options,
                     method(:glanceCallback)
                 );
+
+                self.pendingText = null;
             } catch (e) {
                 System.println("Error saving image: " + e.getErrorMessage());
                 showError("Failed to save QR code");
@@ -340,7 +341,15 @@ class AppView extends WatchUi.View {
 
     function startNewCodeMode() {
         System.println("Starting text input");
-        var textPicker = new WatchUi.TextPicker("Enter QR Text");
+        var initialText = "";
+        if (currentIndex < images.size()) {
+            // Editing: load saved text if available
+            var savedText = Storage.getValue("qr_text_" + currentIndex);
+            if (savedText != null) {
+                initialText = savedText;
+            }
+        }
+        var textPicker = new WatchUi.TextPicker(initialText == "" ? "Your_text" : initialText);
         WatchUi.pushView(textPicker, new TextPickerDelegate(self), WatchUi.SLIDE_UP);
     }
 
