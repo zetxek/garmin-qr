@@ -86,1786 +86,1895 @@ class AppView extends WatchUi.View {
     var isDownloading;
     [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 31; @position = 8; @symbol_vardef = [isNewCodeMode,31,8,21]; ]
     var isNewCodeMode;
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 33; @symbol_functiondef = [initialize,33,13,23]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 32; @position = 8; @symbol_vardef = [errorMessage,32,8,20]; @symbol_type<0> = [Lang,32,32,36]; @symbol_type<1> = [String,32,37,43]; ]
+    var errorMessage as Null or Lang.String;
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 33; @position = 8; @symbol_vardef = [errorTimer,33,8,18]; @symbol_type<0> = [Timer,33,30,35]; @symbol_type<1> = [Timer,33,36,41]; ]
+    var errorTimer as Null or Timer.Timer;
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 35; @symbol_functiondef = [initialize,35,13,23]; ]
     function initialize() as Void {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_33_26_43_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 34 8 ]
-        symbol [ View %tmp.2 34 8 12 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_35_26_45_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 36 8 ]
+        symbol [ View %tmp.2 36 8 12 ];
         %tmp.2 = getv ? :View;
-        symbol [ initialize %tmp.3 34 13 23 ];
+        symbol [ initialize %tmp.3 36 13 23 ];
         %tmp.3 = getv function %tmp.2 :initialize;
         invoke %tmp.2 %tmp.3();
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 35 8 ]
-        symbol [ System %tmp.4 35 8 14 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 37 8 ]
+        symbol [ System %tmp.4 37 8 14 ];
         %tmp.4 = getm $.Toybox.System;
-        symbol [ println %tmp.5 35 15 22 ];
+        symbol [ println %tmp.5 37 15 22 ];
         %tmp.5 = getv function %tmp.4 :println;
         %tmp.6 = "AppView initialized";
         invoke %tmp.4 %tmp.5(%tmp.6);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 36 8 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 38 8 ]
         %tmp.8 = 0;
         %tmp.7 = newa %tmp.8;
-        symbol [ images ? 36 8 14 ];
+        symbol [ images ? 38 8 14 ];
         putv self :images %tmp.7;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 37 8 ]
-        %tmp.9 = 0;
-        symbol [ currentIndex ? 37 8 20 ];
-        putv self :currentIndex %tmp.9;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 38 8 ]
-        %tmp.10 = false;
-        symbol [ isDownloading ? 38 8 21 ];
-        putv self :isDownloading %tmp.10;
 [ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 39 8 ]
+        %tmp.9 = 0;
+        symbol [ currentIndex ? 39 8 20 ];
+        putv self :currentIndex %tmp.9;
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 40 8 ]
+        %tmp.10 = false;
+        symbol [ isDownloading ? 40 8 21 ];
+        putv self :isDownloading %tmp.10;
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 41 8 ]
         %tmp.11 = false;
-        symbol [ isNewCodeMode ? 39 8 21 ];
+        symbol [ isNewCodeMode ? 41 8 21 ];
         putv self :isNewCodeMode %tmp.11;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 42 8 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 44 8 ]
         %tmp.12 = self;
-        symbol [ loadCachedImages %tmp.13 42 8 24 ];
+        symbol [ loadCachedImages %tmp.13 44 8 24 ];
         %tmp.13 = getv function %tmp.12 :loadCachedImages;
         invoke %tmp.12 %tmp.13();
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_33_26_43_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_35_26_45_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 45; @symbol_functiondef = [loadCachedImages,45,13,29]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 47; @symbol_functiondef = [loadCachedImages,47,13,29]; ]
     function loadCachedImages() {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_45_32_64_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 46 8 ]
-        symbol [ System %tmp.1 46 8 14 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_32_66_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 48 8 ]
+        symbol [ System %tmp.1 48 8 14 ];
         %tmp.1 = getm $.Toybox.System;
-        symbol [ println %tmp.2 46 15 22 ];
+        symbol [ println %tmp.2 48 15 22 ];
         %tmp.2 = getv function %tmp.1 :println;
         %tmp.3 = "Loading cached images";
         invoke %tmp.1 %tmp.2(%tmp.3);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 47 8 ]
-        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_beginTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_endTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_finally;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_beginTry:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_12_61_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 48 12 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_12_61_8_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_12_61_8_stop" ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 49 8 ]
+        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_beginTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_endTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_finally;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_beginTry:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_63_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 50 12 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_63_8_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_63_8_stop" ]
         %count.1 = local;
-        symbol [ count %count.1 48 16 21 ];
-        symbol [ Storage %tmp.4 48 24 31 ];
+        symbol [ count %count.1 50 16 21 ];
+        symbol [ Storage %tmp.4 50 24 31 ];
         %tmp.4 = getm $.Toybox.Application.Storage;
-        symbol [ getValue %tmp.5 48 32 40 ];
+        symbol [ getValue %tmp.5 50 32 40 ];
         %tmp.5 = getv function %tmp.4 :getValue;
         %tmp.6 = "qr_count";
         %tmp.7 = invoke %tmp.4 %tmp.5(%tmp.6);
         lputv %count.1 %tmp.7;
-        symbol [ count %count.1 48 16 21 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 49 12 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_60_12_if_stmt:
+        symbol [ count %count.1 50 16 21 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 51 12 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_12_62_12_if_stmt:
         %tmp.8 = lgetv %count.1;
-        symbol [ count %tmp.8 49 16 21 ];
+        symbol [ count %tmp.8 51 16 21 ];
         %tmp.9 = null;
         %tmp.10 = ne %tmp.8 %tmp.9;
-        bf %tmp.10 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_60_12_if_else_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_60_12_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_31_58_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 50 16 ]
-        symbol [ System %tmp.11 50 16 22 ];
+        bf %tmp.10 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_12_62_12_if_else_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_12_62_12_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_31_60_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 52 16 ]
+        symbol [ System %tmp.11 52 16 22 ];
         %tmp.11 = getm $.Toybox.System;
-        symbol [ println %tmp.12 50 23 30 ];
+        symbol [ println %tmp.12 52 23 30 ];
         %tmp.12 = getv function %tmp.11 :println;
         %tmp.13 = "Count: ";
         %tmp.14 = lgetv %count.1;
-        symbol [ count %tmp.14 50 43 48 ];
+        symbol [ count %tmp.14 52 43 48 ];
         %tmp.15 = as %tmp.14 { (!Null) };
         %tmp.16 = add %tmp.13 %tmp.15;
         invoke %tmp.11 %tmp.12(%tmp.16);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 51 16 ]
-        for @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_test @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_incr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_init:
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_begin" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_end" ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 53 16 ]
+        for @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_test @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_incr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_init:
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_begin" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_end" ]
         %i.2 = local;
-        symbol [ i %i.2 51 25 26 ];
+        symbol [ i %i.2 53 25 26 ];
         %tmp.17 = 0;
         lputv %i.2 %tmp.17;
-        symbol [ i %i.2 51 25 26 ];
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_test:
+        symbol [ i %i.2 53 25 26 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_test:
         %tmp.18 = lgetv %i.2;
-        symbol [ i %tmp.18 51 32 33 ];
+        symbol [ i %tmp.18 53 32 33 ];
         %tmp.19 = lgetv %count.1;
-        symbol [ count %tmp.19 51 36 41 ];
+        symbol [ count %tmp.19 53 36 41 ];
         %tmp.20 = as %tmp.19 { (!Null) };
         %tmp.21 = lt %tmp.18 %tmp.20;
-        bf %tmp.21 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_begin:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_48_56_16_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 52 20 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_48_56_16_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_48_56_16_stop" ]
+        bf %tmp.21 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_begin:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_48_58_16_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 54 20 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_48_58_16_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_48_58_16_stop" ]
         %cachedImage.3 = local;
-        symbol [ cachedImage %cachedImage.3 52 24 35 ];
-        symbol [ Storage %tmp.22 52 38 45 ];
+        symbol [ cachedImage %cachedImage.3 54 24 35 ];
+        symbol [ Storage %tmp.22 54 38 45 ];
         %tmp.22 = getm $.Toybox.Application.Storage;
-        symbol [ getValue %tmp.23 52 46 54 ];
+        symbol [ getValue %tmp.23 54 46 54 ];
         %tmp.23 = getv function %tmp.22 :getValue;
         %tmp.24 = "qr_image_";
         %tmp.25 = lgetv %i.2;
-        symbol [ i %tmp.25 52 69 70 ];
+        symbol [ i %tmp.25 54 69 70 ];
         %tmp.26 = add %tmp.24 %tmp.25;
         %tmp.27 = invoke %tmp.22 %tmp.23(%tmp.26);
         lputv %cachedImage.3 %tmp.27;
-        symbol [ cachedImage %cachedImage.3 52 24 35 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 53 20 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_20_55_20_if_stmt:
+        symbol [ cachedImage %cachedImage.3 54 24 35 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 55 20 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_55_20_57_20_if_stmt:
         %tmp.28 = lgetv %cachedImage.3;
-        symbol [ cachedImage %tmp.28 53 24 35 ];
+        symbol [ cachedImage %tmp.28 55 24 35 ];
         %tmp.29 = null;
         %tmp.30 = ne %tmp.28 %tmp.29;
-        bf %tmp.30 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_20_55_20_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_20_55_20_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_45_55_20_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 54 24 ]
-        symbol [ images %tmp.32 54 24 30 ];
+        bf %tmp.30 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_55_20_57_20_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_55_20_57_20_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_55_45_57_20_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 56 24 ]
+        symbol [ images %tmp.32 56 24 30 ];
         %tmp.32 = getv ? :images;
-        symbol [ add %tmp.33 54 31 34 ];
+        symbol [ add %tmp.33 56 31 34 ];
         %tmp.33 = getv function %tmp.32 :add;
         %tmp.34 = lgetv %cachedImage.3;
-        symbol [ cachedImage %tmp.34 54 35 46 ];
+        symbol [ cachedImage %tmp.34 56 35 46 ];
         %tmp.35 = as %tmp.34 { (!Null) };
         %tmp.36 = as %tmp.35 WatchUi.BitmapResource;
-        symbol [ WatchUi %tmp.36 54 50 57 ];
-        symbol [ BitmapResource %tmp.36 54 58 72 ];
+        symbol [ WatchUi %tmp.36 56 50 57 ];
+        symbol [ BitmapResource %tmp.36 56 58 72 ];
         invoke %tmp.32 %tmp.33(%tmp.36);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_45_55_20_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_20_55_20_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_20_55_20_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_48_56_16_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_incr:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 51 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_55_45_57_20_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_55_20_57_20_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_55_20_57_20_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_48_58_16_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_incr:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 53 ]
         %tmp.39 = lgetv %i.2;
-        symbol [ i %tmp.39 51 43 44 ];
+        symbol [ i %tmp.39 53 43 44 ];
         %tmp.40 = add %tmp.39 1;
         lputv %i.2 %tmp.40;
-        symbol [ i %i.2 51 43 44 ];
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_test;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_16_56_16_for_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 57 16 ]
-        symbol [ System %tmp.41 57 16 22 ];
+        symbol [ i %i.2 53 43 44 ];
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_test;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_53_16_58_16_for_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 59 16 ]
+        symbol [ System %tmp.41 59 16 22 ];
         %tmp.41 = getm $.Toybox.System;
-        symbol [ println %tmp.42 57 23 30 ];
+        symbol [ println %tmp.42 59 23 30 ];
         %tmp.42 = getv function %tmp.41 :println;
         %tmp.43 = "Loaded ";
-        symbol [ images %tmp.45 57 43 49 ];
+        symbol [ images %tmp.45 59 43 49 ];
         %tmp.45 = getv ? :images;
-        symbol [ size %tmp.46 57 50 54 ];
+        symbol [ size %tmp.46 59 50 54 ];
         %tmp.46 = getv function %tmp.45 :size;
         %tmp.47 = invoke %tmp.45 %tmp.46();
         %tmp.48 = add %tmp.43 %tmp.47;
         %tmp.49 = " cached images";
         %tmp.50 = add %tmp.48 %tmp.49;
         invoke %tmp.41 %tmp.42(%tmp.50);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_31_58_12_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_60_12_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_60_12_if_else_false:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_58_17_60_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 59 16 ]
-        symbol [ System %tmp.51 59 16 22 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_31_60_12_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_12_62_12_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_12_62_12_if_else_false:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_60_17_62_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 61 16 ]
+        symbol [ System %tmp.51 61 16 22 ];
         %tmp.51 = getm $.Toybox.System;
-        symbol [ println %tmp.52 59 23 30 ];
+        symbol [ println %tmp.52 61 23 30 ];
         %tmp.52 = getv function %tmp.51 :println;
         %tmp.53 = "No cached images";
         invoke %tmp.51 %tmp.52(%tmp.53);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_58_17_60_12_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_60_12_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_12_61_8_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_endTry:
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_finally;
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_catch:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_60_17_62_12_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_51_12_62_12_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_12_63_8_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_endTry:
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_finally;
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_catch:
         %tmp.54 = exception;
         push %tmp.54;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 61 10 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_catch" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_61_10_63_8_end" ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 63 10 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_catch" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_63_10_65_8_end" ]
         %e.4 = local;
-        symbol [ e %e.4 61 17 18 ];
+        symbol [ e %e.4 63 17 18 ];
         %tmp.55 = dup %tmp.54;
         lputv %e.4 %tmp.55;
-        symbol [ e %e.4 61 17 18 ];
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_61_20_63_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 62 12 ]
-        symbol [ System %tmp.56 62 12 18 ];
+        symbol [ e %e.4 63 17 18 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_63_20_65_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 64 12 ]
+        symbol [ System %tmp.56 64 12 18 ];
         %tmp.56 = getm $.Toybox.System;
-        symbol [ println %tmp.57 62 19 26 ];
+        symbol [ println %tmp.57 64 19 26 ];
         %tmp.57 = getv function %tmp.56 :println;
         %tmp.58 = "Error loading cached images: ";
         %tmp.59 = lgetv %e.4;
-        symbol [ e %tmp.59 62 61 62 ];
-        symbol [ getErrorMessage %tmp.60 62 63 78 ];
+        symbol [ e %tmp.59 64 61 62 ];
+        symbol [ getErrorMessage %tmp.60 64 63 78 ];
         %tmp.60 = getv function %tmp.59 :getErrorMessage;
         %tmp.61 = invoke %tmp.59 %tmp.60();
         %tmp.62 = add %tmp.58 %tmp.61;
         invoke %tmp.56 %tmp.57(%tmp.62);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_61_20_63_8_stop:
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_finally;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_63_20_65_8_stop:
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_finally;
         pop;
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_61_10_63_8_end:
-        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_61_10_63_8_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_61_10_63_8_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_finally;
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_finally;
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_63_10_65_8_end:
+        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_63_10_65_8_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_63_10_65_8_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_finally;
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_finally;
         throw %tmp.54;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_finally:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_finally:
         jsrret;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_8_63_8_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_45_32_64_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_49_8_65_8_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_47_32_66_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 66; @symbol_functiondef = [downloadImage,66,13,26]; @symbol_param<0> = [text,66,27,31]; @symbol_param<0>_type<0> = [Lang,66,35,39]; @symbol_param<0>_type<1> = [String,66,40,46]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 68; @symbol_functiondef = [downloadImage,68,13,26]; @symbol_param<0> = [text,68,27,31]; @symbol_param<0>_type<0> = [Lang,68,35,39]; @symbol_param<0>_type<1> = [String,68,40,46]; ]
     function downloadImage(text as Lang.String) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_66_48_87_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 67 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_67_8_70_8_if_stmt:
-        symbol [ isDownloading %tmp.2 67 12 25 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_68_48_89_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 69 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_69_8_72_8_if_stmt:
+        symbol [ isDownloading %tmp.2 69 12 25 ];
         %tmp.2 = getv ? :isDownloading;
-        bf %tmp.2 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_67_8_70_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_67_8_70_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_67_27_70_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 68 12 ]
-        symbol [ System %tmp.3 68 12 18 ];
+        bf %tmp.2 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_69_8_72_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_69_8_72_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_69_27_72_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 70 12 ]
+        symbol [ System %tmp.3 70 12 18 ];
         %tmp.3 = getm $.Toybox.System;
-        symbol [ println %tmp.4 68 19 26 ];
+        symbol [ println %tmp.4 70 19 26 ];
         %tmp.4 = getv function %tmp.3 :println;
         %tmp.5 = "Already downloading";
         invoke %tmp.3 %tmp.4(%tmp.5);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 69 12 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 71 12 ]
         ret ?;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_67_27_70_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_67_8_70_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_67_8_70_8_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 72 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_69_27_72_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_69_8_72_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_69_8_72_8_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 74 8 ]
         %tmp.6 = true;
-        symbol [ isDownloading ? 72 8 21 ];
+        symbol [ isDownloading ? 74 8 21 ];
         putv self :isDownloading %tmp.6;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 73 8 ]
-        symbol [ System %tmp.7 73 8 14 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 75 8 ]
+        symbol [ System %tmp.7 75 8 14 ];
         %tmp.7 = getm $.Toybox.System;
-        symbol [ println %tmp.8 73 15 22 ];
+        symbol [ println %tmp.8 75 15 22 ];
         %tmp.8 = getv function %tmp.7 :println;
         %tmp.9 = "Starting download for text: ";
         %tmp.10 = lgetv %text;
-        symbol [ text %tmp.10 73 56 60 ];
+        symbol [ text %tmp.10 75 56 60 ];
         %tmp.11 = add %tmp.9 %tmp.10;
         invoke %tmp.7 %tmp.8(%tmp.11);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 74 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_66_48_87_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_66_48_87_4_stop" ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 76 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_68_48_89_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_68_48_89_4_stop" ]
         %url.1 = local;
-        symbol [ url %url.1 74 12 15 ];
+        symbol [ url %url.1 76 12 15 ];
         %tmp.12 = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=";
         %tmp.13 = lgetv %text;
-        symbol [ text %tmp.13 74 86 90 ];
+        symbol [ text %tmp.13 76 86 90 ];
         %tmp.14 = add %tmp.12 %tmp.13;
         lputv %url.1 %tmp.14;
-        symbol [ url %url.1 74 12 15 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 75 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_66_48_87_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_66_48_87_4_stop" ]
+        symbol [ url %url.1 76 12 15 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 77 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_68_48_89_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_68_48_89_4_stop" ]
         %params.2 = local;
-        symbol [ params %params.2 75 12 18 ];
+        symbol [ params %params.2 77 12 18 ];
         %tmp.15 = null;
         lputv %params.2 %tmp.15;
-        symbol [ params %params.2 75 12 18 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 76 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_66_48_87_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_66_48_87_4_stop" ]
+        symbol [ params %params.2 77 12 18 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 78 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_68_48_89_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_68_48_89_4_stop" ]
         %options.3 = local;
-        symbol [ options %options.3 76 12 19 ];
+        symbol [ options %options.3 78 12 19 ];
         %tmp.16 = newd 2;
         %tmp.18 = const :maxWidth;
-        symbol [ maxWidth %tmp.18 77 13 21 const ];
+        symbol [ maxWidth %tmp.18 79 13 21 const ];
         %tmp.19 = 150;
         %tmp.20 = dup %tmp.16;
         %tmp.21 = aputv %tmp.20 %tmp.18 %tmp.19;
         %tmp.23 = const :maxHeight;
-        symbol [ maxHeight %tmp.23 78 13 22 const ];
+        symbol [ maxHeight %tmp.23 80 13 22 const ];
         %tmp.24 = 150;
         %tmp.25 = dup %tmp.21;
         %tmp.26 = aputv %tmp.25 %tmp.23 %tmp.24;
         lputv %options.3 %tmp.26;
-        symbol [ options %options.3 76 12 19 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 81 8 ]
-        symbol [ Communications %tmp.27 81 8 22 ];
+        symbol [ options %options.3 78 12 19 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 83 8 ]
+        symbol [ Communications %tmp.27 83 8 22 ];
         %tmp.27 = getm $.Toybox.Communications;
-        symbol [ makeImageRequest %tmp.28 81 23 39 ];
+        symbol [ makeImageRequest %tmp.28 83 23 39 ];
         %tmp.28 = getv function %tmp.27 :makeImageRequest;
         %tmp.29 = lgetv %url.1;
-        symbol [ url %tmp.29 82 12 15 ];
+        symbol [ url %tmp.29 84 12 15 ];
         %tmp.30 = lgetv %params.2;
-        symbol [ params %tmp.30 83 12 18 ];
+        symbol [ params %tmp.30 85 12 18 ];
         %tmp.31 = lgetv %options.3;
-        symbol [ options %tmp.31 84 12 19 ];
+        symbol [ options %tmp.31 86 12 19 ];
         %tmp.32 = self;
-        symbol [ method %tmp.33 85 12 18 ];
+        symbol [ method %tmp.33 87 12 18 ];
         %tmp.33 = getv function %tmp.32 :method;
         %tmp.35 = const :responseCallback;
-        symbol [ responseCallback %tmp.35 85 20 36 const ];
+        symbol [ responseCallback %tmp.35 87 20 36 const ];
         %tmp.36 = invoke %tmp.32 %tmp.33(%tmp.35);
         invoke %tmp.27 %tmp.28(%tmp.29, %tmp.30, %tmp.31, %tmp.36);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_66_48_87_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_68_48_89_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 89; @symbol_functiondef = [responseCallback,89,13,29]; @symbol_param<0> = [responseCode,89,30,42]; @symbol_param<0>_type<0> = [Lang,89,46,50]; @symbol_param<0>_type<1> = [Number,89,51,57]; @symbol_param<1> = [data,89,59,63]; @symbol_param<1>_type<0> = [Graphics,89,75,83]; @symbol_param<1>_type<1> = [BitmapResource,89,84,98]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 91; @symbol_functiondef = [responseCallback,91,13,29]; @symbol_param<0> = [responseCode,91,30,42]; @symbol_param<0>_type<0> = [Lang,91,46,50]; @symbol_param<0>_type<1> = [Number,91,51,57]; @symbol_param<1> = [data,91,59,63]; @symbol_param<1>_type<0> = [Graphics,91,75,83]; @symbol_param<1>_type<1> = [BitmapResource,91,84,98]; ]
     function responseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_89_108_123_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 90 8 ]
-        symbol [ System %tmp.1 90 8 14 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_91_108_127_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 92 8 ]
+        symbol [ System %tmp.1 92 8 14 ];
         %tmp.1 = getm $.Toybox.System;
-        symbol [ println %tmp.2 90 15 22 ];
+        symbol [ println %tmp.2 92 15 22 ];
         %tmp.2 = getv function %tmp.1 :println;
         %tmp.3 = "responseCallback. Response code: ";
         %tmp.4 = lgetv %responseCode;
-        symbol [ responseCode %tmp.4 90 61 73 ];
+        symbol [ responseCode %tmp.4 92 61 73 ];
         %tmp.5 = add %tmp.3 %tmp.4;
         invoke %tmp.1 %tmp.2(%tmp.5);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 91 8 ]
-        %tmp.6 = false;
-        symbol [ isDownloading ? 91 8 21 ];
-        putv self :isDownloading %tmp.6;
 [ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 93 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_93_8_122_8_if_stmt:
+        %tmp.6 = false;
+        symbol [ isDownloading ? 93 8 21 ];
+        putv self :isDownloading %tmp.6;
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 95 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_8_126_8_if_stmt:
         %tmp.7 = lgetv %responseCode;
-        symbol [ responseCode %tmp.7 93 12 24 ];
+        symbol [ responseCode %tmp.7 95 12 24 ];
         %tmp.8 = 200;
         %tmp.9 = eq %tmp.7 %tmp.8;
-        bf %tmp.9 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_93_8_122_8_if_else_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_93_8_122_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_93_33_120_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 94 12 ]
-        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_beginTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_endTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_finally;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_beginTry:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_16_117_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 95 16 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_16_98_16_if_stmt:
+        bf %tmp.9 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_8_126_8_if_else_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_8_126_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_33_117_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 96 12 ]
+        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_beginTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_endTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_finally;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_beginTry:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_16_113_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 97 16 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_97_16_101_16_if_stmt:
         %tmp.10 = lgetv %data;
-        symbol [ data %tmp.10 95 20 24 ];
+        symbol [ data %tmp.10 97 20 24 ];
         %tmp.11 = null;
         %tmp.12 = eq %tmp.10 %tmp.11;
-        bf %tmp.12 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_16_98_16_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_16_98_16_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_34_98_16_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 96 20 ]
-        symbol [ System %tmp.13 96 20 26 ];
+        bf %tmp.12 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_97_16_101_16_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_97_16_101_16_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_97_34_101_16_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 98 20 ]
+        symbol [ System %tmp.13 98 20 26 ];
         %tmp.13 = getm $.Toybox.System;
-        symbol [ println %tmp.14 96 27 34 ];
+        symbol [ println %tmp.14 98 27 34 ];
         %tmp.14 = getv function %tmp.13 :println;
         %tmp.15 = "Error: Received null data";
         invoke %tmp.13 %tmp.14(%tmp.15);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 97 20 ]
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_finally;
-        ret ?;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_34_98_16_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_16_98_16_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_16_98_16_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 100 16 ]
-        symbol [ System %tmp.16 100 16 22 ];
-        %tmp.16 = getm $.Toybox.System;
-        symbol [ println %tmp.17 100 23 30 ];
-        %tmp.17 = getv function %tmp.16 :println;
-        %tmp.18 = "Processing downloaded image";
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 99 20 ]
+        %tmp.16 = self;
+        symbol [ showError %tmp.17 99 20 29 ];
+        %tmp.17 = getv function %tmp.16 :showError;
+        %tmp.18 = "Failed to generate QR code";
         invoke %tmp.16 %tmp.17(%tmp.18);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 101 16 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_16_117_12_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_16_117_12_stop" ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 100 20 ]
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_finally;
+        ret ?;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_97_34_101_16_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_97_16_101_16_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_97_16_101_16_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 103 16 ]
+        symbol [ System %tmp.19 103 16 22 ];
+        %tmp.19 = getm $.Toybox.System;
+        symbol [ println %tmp.20 103 23 30 ];
+        %tmp.20 = getv function %tmp.19 :println;
+        %tmp.21 = "Processing downloaded image";
+        invoke %tmp.19 %tmp.20(%tmp.21);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 104 16 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_16_113_12_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_16_113_12_stop" ]
         %bitmapResource.1 = local;
-        symbol [ bitmapResource %bitmapResource.1 101 20 34 ];
-        %tmp.19 = lgetv %data;
-        symbol [ data %tmp.19 101 37 41 ];
-        %tmp.20 = as %tmp.19 WatchUi.BitmapResource;
-        symbol [ WatchUi %tmp.20 101 45 52 ];
-        symbol [ BitmapResource %tmp.20 101 53 67 ];
-        lputv %bitmapResource.1 %tmp.20;
-        symbol [ bitmapResource %bitmapResource.1 101 20 34 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 102 16 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_102_16_114_16_if_stmt:
-        symbol [ isNewCodeMode %tmp.22 102 20 33 ];
-        %tmp.22 = getv ? :isNewCodeMode;
-        bf %tmp.22 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_102_16_114_16_if_else_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_102_16_114_16_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_102_35_109_16_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 104 20 ]
-        symbol [ images %tmp.24 104 20 26 ];
-        %tmp.24 = getv ? :images;
-        symbol [ add %tmp.25 104 27 30 ];
-        %tmp.25 = getv function %tmp.24 :add;
-        %tmp.26 = lgetv %bitmapResource.1;
-        symbol [ bitmapResource %tmp.26 104 31 45 ];
-        invoke %tmp.24 %tmp.25(%tmp.26);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 105 20 ]
-        symbol [ Storage %tmp.27 105 20 27 ];
-        %tmp.27 = getm $.Toybox.Application.Storage;
-        symbol [ setValue %tmp.28 105 28 36 ];
-        %tmp.28 = getv function %tmp.27 :setValue;
-        %tmp.29 = "qr_image_";
-        symbol [ images %tmp.31 105 52 58 ];
-        %tmp.31 = getv ? :images;
-        symbol [ size %tmp.32 105 59 63 ];
-        %tmp.32 = getv function %tmp.31 :size;
-        %tmp.33 = invoke %tmp.31 %tmp.32();
-        %tmp.34 = 1;
-        %tmp.35 = sub %tmp.33 %tmp.34;
-        %tmp.36 = add %tmp.29 %tmp.35;
-        %tmp.37 = lgetv %bitmapResource.1;
-        symbol [ bitmapResource %tmp.37 105 72 86 ];
-        invoke %tmp.27 %tmp.28(%tmp.36, %tmp.37);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 106 20 ]
-        symbol [ Storage %tmp.38 106 20 27 ];
-        %tmp.38 = getm $.Toybox.Application.Storage;
-        symbol [ setValue %tmp.39 106 28 36 ];
-        %tmp.39 = getv function %tmp.38 :setValue;
-        %tmp.40 = "qr_count";
-        symbol [ images %tmp.42 106 49 55 ];
-        %tmp.42 = getv ? :images;
-        symbol [ size %tmp.43 106 56 60 ];
-        %tmp.43 = getv function %tmp.42 :size;
-        %tmp.44 = invoke %tmp.42 %tmp.43();
-        invoke %tmp.38 %tmp.39(%tmp.40, %tmp.44);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 107 20 ]
-        symbol [ System %tmp.45 107 20 26 ];
-        %tmp.45 = getm $.Toybox.System;
-        symbol [ println %tmp.46 107 27 34 ];
-        %tmp.46 = getv function %tmp.45 :println;
-        %tmp.47 = "New code added at index: ";
-        symbol [ images %tmp.49 107 66 72 ];
-        %tmp.49 = getv ? :images;
-        symbol [ size %tmp.50 107 73 77 ];
-        %tmp.50 = getv function %tmp.49 :size;
-        %tmp.51 = invoke %tmp.49 %tmp.50();
-        %tmp.52 = 1;
-        %tmp.53 = sub %tmp.51 %tmp.52;
-        %tmp.54 = add %tmp.47 %tmp.53;
-        invoke %tmp.45 %tmp.46(%tmp.54);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 108 20 ]
-        %tmp.55 = false;
-        symbol [ isNewCodeMode ? 108 20 33 ];
-        putv self :isNewCodeMode %tmp.55;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_102_35_109_16_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_102_16_114_16_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_102_16_114_16_if_else_false:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_109_23_114_16_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 111 20 ]
-        symbol [ images %tmp.56 111 20 26 ];
-        %tmp.56 = getv self :images;
-        %tmp.57 = lgetv %bitmapResource.1;
-        symbol [ bitmapResource %tmp.57 111 43 57 ];
-        symbol [ currentIndex %tmp.59 111 27 39 ];
-        %tmp.59 = getv ? :currentIndex;
-        aputv %tmp.56 %tmp.59 %tmp.57;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 112 20 ]
-        symbol [ Storage %tmp.60 112 20 27 ];
-        %tmp.60 = getm $.Toybox.Application.Storage;
-        symbol [ setValue %tmp.61 112 28 36 ];
-        %tmp.61 = getv function %tmp.60 :setValue;
-        %tmp.62 = "qr_image_";
-        symbol [ currentIndex %tmp.64 112 51 63 ];
-        %tmp.64 = getv ? :currentIndex;
-        %tmp.65 = add %tmp.62 %tmp.64;
-        %tmp.66 = lgetv %bitmapResource.1;
-        symbol [ bitmapResource %tmp.66 112 65 79 ];
-        invoke %tmp.60 %tmp.61(%tmp.65, %tmp.66);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 113 20 ]
-        symbol [ System %tmp.67 113 20 26 ];
-        %tmp.67 = getm $.Toybox.System;
-        symbol [ println %tmp.68 113 27 34 ];
-        %tmp.68 = getv function %tmp.67 :println;
-        %tmp.69 = "Updated code at index: ";
-        symbol [ currentIndex %tmp.71 113 63 75 ];
-        %tmp.71 = getv ? :currentIndex;
-        %tmp.72 = add %tmp.69 %tmp.71;
-        invoke %tmp.67 %tmp.68(%tmp.72);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_109_23_114_16_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_102_16_114_16_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 115 16 ]
-        symbol [ WatchUi %tmp.73 115 16 23 ];
-        %tmp.73 = getm $.Toybox.WatchUi;
-        symbol [ requestUpdate %tmp.74 115 24 37 ];
-        %tmp.74 = getv function %tmp.73 :requestUpdate;
-        invoke %tmp.73 %tmp.74();
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 116 16 ]
-        symbol [ System %tmp.75 116 16 22 ];
-        %tmp.75 = getm $.Toybox.System;
-        symbol [ println %tmp.76 116 23 30 ];
-        %tmp.76 = getv function %tmp.75 :println;
-        %tmp.77 = "Image downloaded and processed successfully";
-        invoke %tmp.75 %tmp.76(%tmp.77);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_16_117_12_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_endTry:
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_finally;
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_catch:
-        %tmp.78 = exception;
-        push %tmp.78;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 117 14 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_catch" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_117_14_119_12_end" ]
+        symbol [ bitmapResource %bitmapResource.1 104 20 34 ];
+        %tmp.22 = lgetv %data;
+        symbol [ data %tmp.22 104 37 41 ];
+        %tmp.23 = as %tmp.22 WatchUi.BitmapResource;
+        symbol [ WatchUi %tmp.23 104 45 52 ];
+        symbol [ BitmapResource %tmp.23 104 53 67 ];
+        lputv %bitmapResource.1 %tmp.23;
+        symbol [ bitmapResource %bitmapResource.1 104 20 34 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 107 16 ]
+        symbol [ images %tmp.24 107 16 22 ];
+        %tmp.24 = getv self :images;
+        %tmp.25 = lgetv %bitmapResource.1;
+        symbol [ bitmapResource %tmp.25 107 39 53 ];
+        symbol [ currentIndex %tmp.27 107 23 35 ];
+        %tmp.27 = getv ? :currentIndex;
+        aputv %tmp.24 %tmp.27 %tmp.25;
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 108 16 ]
+        symbol [ Storage %tmp.28 108 16 23 ];
+        %tmp.28 = getm $.Toybox.Application.Storage;
+        symbol [ setValue %tmp.29 108 24 32 ];
+        %tmp.29 = getv function %tmp.28 :setValue;
+        %tmp.30 = "qr_image_";
+        symbol [ currentIndex %tmp.32 108 47 59 ];
+        %tmp.32 = getv ? :currentIndex;
+        %tmp.33 = add %tmp.30 %tmp.32;
+        %tmp.34 = lgetv %bitmapResource.1;
+        symbol [ bitmapResource %tmp.34 108 61 75 ];
+        invoke %tmp.28 %tmp.29(%tmp.33, %tmp.34);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 109 16 ]
+        symbol [ System %tmp.35 109 16 22 ];
+        %tmp.35 = getm $.Toybox.System;
+        symbol [ println %tmp.36 109 23 30 ];
+        %tmp.36 = getv function %tmp.35 :println;
+        %tmp.37 = "Updated code at index: ";
+        symbol [ currentIndex %tmp.39 109 59 71 ];
+        %tmp.39 = getv ? :currentIndex;
+        %tmp.40 = add %tmp.37 %tmp.39;
+        invoke %tmp.35 %tmp.36(%tmp.40);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 111 16 ]
+        symbol [ WatchUi %tmp.41 111 16 23 ];
+        %tmp.41 = getm $.Toybox.WatchUi;
+        symbol [ requestUpdate %tmp.42 111 24 37 ];
+        %tmp.42 = getv function %tmp.41 :requestUpdate;
+        invoke %tmp.41 %tmp.42();
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 112 16 ]
+        symbol [ System %tmp.43 112 16 22 ];
+        %tmp.43 = getm $.Toybox.System;
+        symbol [ println %tmp.44 112 23 30 ];
+        %tmp.44 = getv function %tmp.43 :println;
+        %tmp.45 = "Image downloaded and processed successfully";
+        invoke %tmp.43 %tmp.44(%tmp.45);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_16_113_12_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_endTry:
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_finally;
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_catch:
+        %tmp.46 = exception;
+        push %tmp.46;
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 113 14 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_catch" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_113_14_116_12_end" ]
         %e.2 = local;
-        symbol [ e %e.2 117 21 22 ];
-        %tmp.79 = dup %tmp.78;
-        lputv %e.2 %tmp.79;
-        symbol [ e %e.2 117 21 22 ];
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_117_24_119_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 118 16 ]
-        symbol [ System %tmp.80 118 16 22 ];
-        %tmp.80 = getm $.Toybox.System;
-        symbol [ println %tmp.81 118 23 30 ];
-        %tmp.81 = getv function %tmp.80 :println;
-        %tmp.82 = "Error saving image: ";
-        %tmp.83 = lgetv %e.2;
-        symbol [ e %tmp.83 118 56 57 ];
-        symbol [ getErrorMessage %tmp.84 118 58 73 ];
-        %tmp.84 = getv function %tmp.83 :getErrorMessage;
-        %tmp.85 = invoke %tmp.83 %tmp.84();
-        %tmp.86 = add %tmp.82 %tmp.85;
-        invoke %tmp.80 %tmp.81(%tmp.86);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_117_24_119_12_stop:
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_finally;
+        symbol [ e %e.2 113 21 22 ];
+        %tmp.47 = dup %tmp.46;
+        lputv %e.2 %tmp.47;
+        symbol [ e %e.2 113 21 22 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_113_24_116_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 114 16 ]
+        symbol [ System %tmp.48 114 16 22 ];
+        %tmp.48 = getm $.Toybox.System;
+        symbol [ println %tmp.49 114 23 30 ];
+        %tmp.49 = getv function %tmp.48 :println;
+        %tmp.50 = "Error saving image: ";
+        %tmp.51 = lgetv %e.2;
+        symbol [ e %tmp.51 114 56 57 ];
+        symbol [ getErrorMessage %tmp.52 114 58 73 ];
+        %tmp.52 = getv function %tmp.51 :getErrorMessage;
+        %tmp.53 = invoke %tmp.51 %tmp.52();
+        %tmp.54 = add %tmp.50 %tmp.53;
+        invoke %tmp.48 %tmp.49(%tmp.54);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 115 16 ]
+        %tmp.55 = self;
+        symbol [ showError %tmp.56 115 16 25 ];
+        %tmp.56 = getv function %tmp.55 :showError;
+        %tmp.57 = "Failed to save QR code";
+        invoke %tmp.55 %tmp.56(%tmp.57);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_113_24_116_12_stop:
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_finally;
         pop;
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_117_14_119_12_end:
-        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_117_14_119_12_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_117_14_119_12_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_finally;
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_finally;
-        throw %tmp.78;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_finally:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_113_14_116_12_end:
+        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_113_14_116_12_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_113_14_116_12_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_finally;
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_finally;
+        throw %tmp.46;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_finally:
         jsrret;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_94_12_119_12_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_93_33_120_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_93_8_122_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_93_8_122_8_if_else_false:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_120_15_122_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 121 12 ]
-        symbol [ System %tmp.87 121 12 18 ];
-        %tmp.87 = getm $.Toybox.System;
-        symbol [ println %tmp.88 121 19 26 ];
-        %tmp.88 = getv function %tmp.87 :println;
-        %tmp.89 = "Download failed with code: ";
-        %tmp.90 = lgetv %responseCode;
-        symbol [ responseCode %tmp.90 121 59 71 ];
-        %tmp.91 = add %tmp.89 %tmp.90;
-        invoke %tmp.87 %tmp.88(%tmp.91);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_120_15_122_8_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_93_8_122_8_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_89_108_123_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_96_12_116_12_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_33_117_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_8_126_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_8_126_8_if_else_false:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_117_15_126_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 118 12 ]
+        symbol [ System %tmp.58 118 12 18 ];
+        %tmp.58 = getm $.Toybox.System;
+        symbol [ println %tmp.59 118 19 26 ];
+        %tmp.59 = getv function %tmp.58 :println;
+        %tmp.60 = "Download failed with code: ";
+        %tmp.61 = lgetv %responseCode;
+        symbol [ responseCode %tmp.61 118 59 71 ];
+        %tmp.62 = add %tmp.60 %tmp.61;
+        invoke %tmp.58 %tmp.59(%tmp.62);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 119 12 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_119_12_125_12_if_stmt:
+        %tmp.63 = lgetv %responseCode;
+        symbol [ responseCode %tmp.63 119 16 28 ];
+        %tmp.64 = -100;
+        %tmp.65 = eq %tmp.63 %tmp.64;
+        bf %tmp.65 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_119_12_125_12_if_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_119_12_125_12_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_119_38_121_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 120 16 ]
+        %tmp.66 = self;
+        symbol [ showError %tmp.67 120 16 25 ];
+        %tmp.67 = getv function %tmp.66 :showError;
+        %tmp.68 = "Network timeout";
+        invoke %tmp.66 %tmp.67(%tmp.68);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_119_38_121_12_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_119_12_125_12_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_119_12_125_12_if_false:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 121 19 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_121_19_125_12_if_stmt:
+        %tmp.69 = lgetv %responseCode;
+        symbol [ responseCode %tmp.69 121 23 35 ];
+        %tmp.70 = -101;
+        %tmp.71 = eq %tmp.69 %tmp.70;
+        bf %tmp.71 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_121_19_125_12_if_else_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_121_19_125_12_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_121_45_123_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 122 16 ]
+        %tmp.72 = self;
+        symbol [ showError %tmp.73 122 16 25 ];
+        %tmp.73 = getv function %tmp.72 :showError;
+        %tmp.74 = "Network error";
+        invoke %tmp.72 %tmp.73(%tmp.74);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_121_45_123_12_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_121_19_125_12_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_121_19_125_12_if_else_false:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_123_19_125_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 124 16 ]
+        %tmp.75 = self;
+        symbol [ showError %tmp.76 124 16 25 ];
+        %tmp.76 = getv function %tmp.75 :showError;
+        %tmp.77 = "Failed to generate QR code";
+        invoke %tmp.75 %tmp.76(%tmp.77);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_123_19_125_12_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_121_19_125_12_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_119_12_125_12_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_117_15_126_8_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_95_8_126_8_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_91_108_127_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 125; @symbol_functiondef = [onLayout,125,13,21]; @symbol_param<0> = [dc,125,22,24]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 129; @symbol_functiondef = [onLayout,129,13,21]; @symbol_param<0> = [dc,129,22,24]; ]
     function onLayout(dc) {
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 128; @symbol_functiondef = [onShow,128,13,19]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 132; @symbol_functiondef = [onShow,132,13,19]; ]
     function onShow() {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_128_22_130_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 129 8 ]
-        symbol [ System %tmp.1 129 8 14 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_132_22_134_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 133 8 ]
+        symbol [ System %tmp.1 133 8 14 ];
         %tmp.1 = getm $.Toybox.System;
-        symbol [ println %tmp.2 129 15 22 ];
+        symbol [ println %tmp.2 133 15 22 ];
         %tmp.2 = getv function %tmp.1 :println;
         %tmp.3 = "onShow";
         invoke %tmp.1 %tmp.2(%tmp.3);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_128_22_130_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_132_22_134_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 132; @symbol_functiondef = [onUpdate,132,13,21]; @symbol_param<0> = [dc,132,22,24]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 136; @symbol_functiondef = [onUpdate,136,13,21]; @symbol_param<0> = [dc,136,22,24]; ]
     function onUpdate(dc) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_132_26_165_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 133 8 ]
-        symbol [ View %tmp.2 133 8 12 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_136_26_181_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 137 8 ]
+        symbol [ View %tmp.2 137 8 12 ];
         %tmp.2 = getv ? :View;
-        symbol [ onUpdate %tmp.3 133 13 21 ];
+        symbol [ onUpdate %tmp.3 137 13 21 ];
         %tmp.3 = getv function %tmp.2 :onUpdate;
         %tmp.4 = lgetv %dc;
-        symbol [ dc %tmp.4 133 22 24 ];
+        symbol [ dc %tmp.4 137 22 24 ];
         invoke %tmp.2 %tmp.3(%tmp.4);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 136 8 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 140 8 ]
         %tmp.5 = lgetv %dc;
-        symbol [ dc %tmp.5 136 8 10 ];
-        symbol [ setColor %tmp.6 136 11 19 ];
+        symbol [ dc %tmp.5 140 8 10 ];
+        symbol [ setColor %tmp.6 140 11 19 ];
         %tmp.6 = getv function %tmp.5 :setColor;
-        symbol [ Graphics %tmp.7 136 20 28 ];
+        symbol [ Graphics %tmp.7 140 20 28 ];
         %tmp.7 = getm $.Toybox.Graphics;
-        symbol [ COLOR_WHITE %tmp.8 136 29 40 ];
+        symbol [ COLOR_WHITE %tmp.8 140 29 40 ];
         %tmp.8 = getv %tmp.7 :COLOR_WHITE;
-        symbol [ Graphics %tmp.9 136 42 50 ];
+        symbol [ Graphics %tmp.9 140 42 50 ];
         %tmp.9 = getm $.Toybox.Graphics;
-        symbol [ COLOR_BLACK %tmp.10 136 51 62 ];
+        symbol [ COLOR_BLACK %tmp.10 140 51 62 ];
         %tmp.10 = getv %tmp.9 :COLOR_BLACK;
         invoke %tmp.5 %tmp.6(%tmp.8, %tmp.10);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 137 8 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 141 8 ]
         %tmp.11 = lgetv %dc;
-        symbol [ dc %tmp.11 137 8 10 ];
-        symbol [ clear %tmp.12 137 11 16 ];
+        symbol [ dc %tmp.11 141 8 10 ];
+        symbol [ clear %tmp.12 141 11 16 ];
         %tmp.12 = getv function %tmp.11 :clear;
         invoke %tmp.11 %tmp.12();
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 139 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_139_8_164_8_if_stmt:
-        symbol [ images %tmp.14 139 12 18 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 143 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_143_8_168_8_if_stmt:
+        symbol [ images %tmp.14 143 12 18 ];
         %tmp.14 = getv ? :images;
-        symbol [ size %tmp.15 139 19 23 ];
+        symbol [ size %tmp.15 143 19 23 ];
         %tmp.15 = getv function %tmp.14 :size;
         %tmp.16 = invoke %tmp.14 %tmp.15();
         %tmp.17 = 0;
         %tmp.18 = eq %tmp.16 %tmp.17;
-        bf %tmp.18 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_139_8_164_8_if_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_139_8_164_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_139_32_150_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 141 12 ]
-        symbol [ System %tmp.19 141 12 18 ];
+        bf %tmp.18 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_143_8_168_8_if_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_143_8_168_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_143_32_154_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 145 12 ]
+        symbol [ System %tmp.19 145 12 18 ];
         %tmp.19 = getm $.Toybox.System;
-        symbol [ println %tmp.20 141 19 26 ];
+        symbol [ println %tmp.20 145 19 26 ];
         %tmp.20 = getv function %tmp.19 :println;
         %tmp.21 = "Drawing empty state";
         invoke %tmp.19 %tmp.20(%tmp.21);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 142 12 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 146 12 ]
         %tmp.22 = lgetv %dc;
-        symbol [ dc %tmp.22 142 12 14 ];
-        symbol [ setColor %tmp.23 142 15 23 ];
+        symbol [ dc %tmp.22 146 12 14 ];
+        symbol [ setColor %tmp.23 146 15 23 ];
         %tmp.23 = getv function %tmp.22 :setColor;
-        symbol [ Graphics %tmp.24 142 24 32 ];
+        symbol [ Graphics %tmp.24 146 24 32 ];
         %tmp.24 = getm $.Toybox.Graphics;
-        symbol [ COLOR_WHITE %tmp.25 142 33 44 ];
+        symbol [ COLOR_WHITE %tmp.25 146 33 44 ];
         %tmp.25 = getv %tmp.24 :COLOR_WHITE;
-        symbol [ Graphics %tmp.26 142 46 54 ];
+        symbol [ Graphics %tmp.26 146 46 54 ];
         %tmp.26 = getm $.Toybox.Graphics;
-        symbol [ COLOR_TRANSPARENT %tmp.27 142 55 72 ];
+        symbol [ COLOR_TRANSPARENT %tmp.27 146 55 72 ];
         %tmp.27 = getv %tmp.26 :COLOR_TRANSPARENT;
         invoke %tmp.22 %tmp.23(%tmp.25, %tmp.27);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 143 12 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 147 12 ]
         %tmp.28 = lgetv %dc;
-        symbol [ dc %tmp.28 143 12 14 ];
-        symbol [ drawText %tmp.29 143 15 23 ];
+        symbol [ dc %tmp.28 147 12 14 ];
+        symbol [ drawText %tmp.29 147 15 23 ];
         %tmp.29 = getv function %tmp.28 :drawText;
         %tmp.30 = lgetv %dc;
-        symbol [ dc %tmp.30 144 16 18 ];
-        symbol [ getWidth %tmp.31 144 19 27 ];
+        symbol [ dc %tmp.30 148 16 18 ];
+        symbol [ getWidth %tmp.31 148 19 27 ];
         %tmp.31 = getv function %tmp.30 :getWidth;
         %tmp.32 = invoke %tmp.30 %tmp.31();
         %tmp.33 = 2;
         %tmp.34 = div %tmp.32 %tmp.33;
         %tmp.35 = lgetv %dc;
-        symbol [ dc %tmp.35 145 16 18 ];
-        symbol [ getHeight %tmp.36 145 19 28 ];
+        symbol [ dc %tmp.35 149 16 18 ];
+        symbol [ getHeight %tmp.36 149 19 28 ];
         %tmp.36 = getv function %tmp.35 :getHeight;
         %tmp.37 = invoke %tmp.35 %tmp.36();
         %tmp.38 = 2;
         %tmp.39 = div %tmp.37 %tmp.38;
-        symbol [ Graphics %tmp.40 146 16 24 ];
+        symbol [ Graphics %tmp.40 150 16 24 ];
         %tmp.40 = getm $.Toybox.Graphics;
-        symbol [ FONT_MEDIUM %tmp.41 146 25 36 ];
+        symbol [ FONT_MEDIUM %tmp.41 150 25 36 ];
         %tmp.41 = getv %tmp.40 :FONT_MEDIUM;
         %tmp.42 = "No QR codes yet\nPress any key to add one";
-        symbol [ Graphics %tmp.43 148 16 24 ];
+        symbol [ Graphics %tmp.43 152 16 24 ];
         %tmp.43 = getm $.Toybox.Graphics;
-        symbol [ TEXT_JUSTIFY_CENTER %tmp.44 148 25 44 ];
+        symbol [ TEXT_JUSTIFY_CENTER %tmp.44 152 25 44 ];
         %tmp.44 = getv %tmp.43 :TEXT_JUSTIFY_CENTER;
-        symbol [ Graphics %tmp.45 148 47 55 ];
+        symbol [ Graphics %tmp.45 152 47 55 ];
         %tmp.45 = getm $.Toybox.Graphics;
-        symbol [ TEXT_JUSTIFY_VCENTER %tmp.46 148 56 76 ];
+        symbol [ TEXT_JUSTIFY_VCENTER %tmp.46 152 56 76 ];
         %tmp.46 = getv %tmp.45 :TEXT_JUSTIFY_VCENTER;
         %tmp.47 = bitor %tmp.44 %tmp.46;
         invoke %tmp.28 %tmp.29(%tmp.34, %tmp.39, %tmp.41, %tmp.42, %tmp.47);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_139_32_150_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_139_8_164_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_139_8_164_8_if_false:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 150 15 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_150_15_164_8_if_stmt:
-        symbol [ currentIndex %tmp.49 150 19 31 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_143_32_154_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_143_8_168_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_143_8_168_8_if_false:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 154 15 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_154_15_168_8_if_stmt:
+        symbol [ currentIndex %tmp.49 154 19 31 ];
         %tmp.49 = getv ? :currentIndex;
-        symbol [ images %tmp.51 150 34 40 ];
+        symbol [ images %tmp.51 154 34 40 ];
         %tmp.51 = getv ? :images;
-        symbol [ size %tmp.52 150 41 45 ];
+        symbol [ size %tmp.52 154 41 45 ];
         %tmp.52 = getv function %tmp.51 :size;
         %tmp.53 = invoke %tmp.51 %tmp.52();
         %tmp.54 = lt %tmp.49 %tmp.53;
-        bf %tmp.54 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_150_15_164_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_150_15_164_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_150_49_164_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 152 12 ]
-        symbol [ System %tmp.55 152 12 18 ];
+        bf %tmp.54 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_154_15_168_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_154_15_168_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_154_49_168_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 156 12 ]
+        symbol [ System %tmp.55 156 12 18 ];
         %tmp.55 = getm $.Toybox.System;
-        symbol [ println %tmp.56 152 19 26 ];
+        symbol [ println %tmp.56 156 19 26 ];
         %tmp.56 = getv function %tmp.55 :println;
         %tmp.57 = "Drawing image ";
-        symbol [ currentIndex %tmp.59 152 46 58 ];
+        symbol [ currentIndex %tmp.59 156 46 58 ];
         %tmp.59 = getv ? :currentIndex;
         %tmp.60 = add %tmp.57 %tmp.59;
         invoke %tmp.55 %tmp.56(%tmp.60);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 153 12 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 157 12 ]
         %tmp.61 = self;
-        symbol [ drawImage %tmp.62 153 12 21 ];
+        symbol [ drawImage %tmp.62 157 12 21 ];
         %tmp.62 = getv function %tmp.61 :drawImage;
         %tmp.63 = lgetv %dc;
-        symbol [ dc %tmp.63 153 22 24 ];
-        symbol [ images %tmp.65 153 26 32 ];
+        symbol [ dc %tmp.63 157 22 24 ];
+        symbol [ images %tmp.65 157 26 32 ];
         %tmp.65 = getv ? :images;
-        symbol [ currentIndex %tmp.67 153 33 45 ];
+        symbol [ currentIndex %tmp.67 157 33 45 ];
         %tmp.67 = getv ? :currentIndex;
         %tmp.68 = agetv %tmp.65 %tmp.67;
         invoke %tmp.61 %tmp.62(%tmp.63, %tmp.68);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 156 12 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 160 12 ]
         %tmp.69 = lgetv %dc;
-        symbol [ dc %tmp.69 156 12 14 ];
-        symbol [ setColor %tmp.70 156 15 23 ];
+        symbol [ dc %tmp.69 160 12 14 ];
+        symbol [ setColor %tmp.70 160 15 23 ];
         %tmp.70 = getv function %tmp.69 :setColor;
-        symbol [ Graphics %tmp.71 156 24 32 ];
+        symbol [ Graphics %tmp.71 160 24 32 ];
         %tmp.71 = getm $.Toybox.Graphics;
-        symbol [ COLOR_WHITE %tmp.72 156 33 44 ];
+        symbol [ COLOR_WHITE %tmp.72 160 33 44 ];
         %tmp.72 = getv %tmp.71 :COLOR_WHITE;
-        symbol [ Graphics %tmp.73 156 46 54 ];
+        symbol [ Graphics %tmp.73 160 46 54 ];
         %tmp.73 = getm $.Toybox.Graphics;
-        symbol [ COLOR_TRANSPARENT %tmp.74 156 55 72 ];
+        symbol [ COLOR_TRANSPARENT %tmp.74 160 55 72 ];
         %tmp.74 = getv %tmp.73 :COLOR_TRANSPARENT;
         invoke %tmp.69 %tmp.70(%tmp.72, %tmp.74);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 157 12 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 161 12 ]
         %tmp.75 = lgetv %dc;
-        symbol [ dc %tmp.75 157 12 14 ];
-        symbol [ drawText %tmp.76 157 15 23 ];
+        symbol [ dc %tmp.75 161 12 14 ];
+        symbol [ drawText %tmp.76 161 15 23 ];
         %tmp.76 = getv function %tmp.75 :drawText;
         %tmp.77 = lgetv %dc;
-        symbol [ dc %tmp.77 158 16 18 ];
-        symbol [ getWidth %tmp.78 158 19 27 ];
+        symbol [ dc %tmp.77 162 16 18 ];
+        symbol [ getWidth %tmp.78 162 19 27 ];
         %tmp.78 = getv function %tmp.77 :getWidth;
         %tmp.79 = invoke %tmp.77 %tmp.78();
         %tmp.80 = 2;
         %tmp.81 = div %tmp.79 %tmp.80;
         %tmp.82 = lgetv %dc;
-        symbol [ dc %tmp.82 159 16 18 ];
-        symbol [ getHeight %tmp.83 159 19 28 ];
+        symbol [ dc %tmp.82 163 16 18 ];
+        symbol [ getHeight %tmp.83 163 19 28 ];
         %tmp.83 = getv function %tmp.82 :getHeight;
         %tmp.84 = invoke %tmp.82 %tmp.83();
         %tmp.85 = 40;
         %tmp.86 = sub %tmp.84 %tmp.85;
-        symbol [ Graphics %tmp.87 160 16 24 ];
+        symbol [ Graphics %tmp.87 164 16 24 ];
         %tmp.87 = getm $.Toybox.Graphics;
-        symbol [ FONT_XTINY %tmp.88 160 25 35 ];
+        symbol [ FONT_XTINY %tmp.88 164 25 35 ];
         %tmp.88 = getv %tmp.87 :FONT_XTINY;
         %tmp.89 = "Code ";
-        symbol [ currentIndex %tmp.91 161 27 39 ];
+        symbol [ currentIndex %tmp.91 165 27 39 ];
         %tmp.91 = getv ? :currentIndex;
         %tmp.92 = 1;
         %tmp.93 = add %tmp.91 %tmp.92;
         %tmp.94 = add %tmp.89 %tmp.93;
         %tmp.95 = " of ";
         %tmp.96 = add %tmp.94 %tmp.95;
-        symbol [ images %tmp.98 161 56 62 ];
+        symbol [ images %tmp.98 165 56 62 ];
         %tmp.98 = getv ? :images;
-        symbol [ size %tmp.99 161 63 67 ];
+        symbol [ size %tmp.99 165 63 67 ];
         %tmp.99 = getv function %tmp.98 :size;
         %tmp.100 = invoke %tmp.98 %tmp.99();
         %tmp.101 = add %tmp.96 %tmp.100;
-        symbol [ Graphics %tmp.102 162 16 24 ];
+        symbol [ Graphics %tmp.102 166 16 24 ];
         %tmp.102 = getm $.Toybox.Graphics;
-        symbol [ TEXT_JUSTIFY_CENTER %tmp.103 162 25 44 ];
+        symbol [ TEXT_JUSTIFY_CENTER %tmp.103 166 25 44 ];
         %tmp.103 = getv %tmp.102 :TEXT_JUSTIFY_CENTER;
         invoke %tmp.75 %tmp.76(%tmp.81, %tmp.86, %tmp.88, %tmp.101, %tmp.103);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_150_49_164_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_150_15_164_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_150_15_164_8_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_139_8_164_8_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_132_26_165_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_154_49_168_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_154_15_168_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_154_15_168_8_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_143_8_168_8_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 171 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_171_8_180_8_if_stmt:
+        symbol [ errorMessage %tmp.105 171 12 24 ];
+        %tmp.105 = getv ? :errorMessage;
+        %tmp.106 = null;
+        %tmp.107 = ne %tmp.105 %tmp.106;
+        bf %tmp.107 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_171_8_180_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_171_8_180_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_171_34_180_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 172 12 ]
+        %tmp.108 = lgetv %dc;
+        symbol [ dc %tmp.108 172 12 14 ];
+        symbol [ setColor %tmp.109 172 15 23 ];
+        %tmp.109 = getv function %tmp.108 :setColor;
+        symbol [ Graphics %tmp.110 172 24 32 ];
+        %tmp.110 = getm $.Toybox.Graphics;
+        symbol [ COLOR_RED %tmp.111 172 33 42 ];
+        %tmp.111 = getv %tmp.110 :COLOR_RED;
+        symbol [ Graphics %tmp.112 172 44 52 ];
+        %tmp.112 = getm $.Toybox.Graphics;
+        symbol [ COLOR_TRANSPARENT %tmp.113 172 53 70 ];
+        %tmp.113 = getv %tmp.112 :COLOR_TRANSPARENT;
+        invoke %tmp.108 %tmp.109(%tmp.111, %tmp.113);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 173 12 ]
+        %tmp.114 = lgetv %dc;
+        symbol [ dc %tmp.114 173 12 14 ];
+        symbol [ drawText %tmp.115 173 15 23 ];
+        %tmp.115 = getv function %tmp.114 :drawText;
+        %tmp.116 = lgetv %dc;
+        symbol [ dc %tmp.116 174 16 18 ];
+        symbol [ getWidth %tmp.117 174 19 27 ];
+        %tmp.117 = getv function %tmp.116 :getWidth;
+        %tmp.118 = invoke %tmp.116 %tmp.117();
+        %tmp.119 = 2;
+        %tmp.120 = div %tmp.118 %tmp.119;
+        %tmp.121 = lgetv %dc;
+        symbol [ dc %tmp.121 175 16 18 ];
+        symbol [ getHeight %tmp.122 175 19 28 ];
+        %tmp.122 = getv function %tmp.121 :getHeight;
+        %tmp.123 = invoke %tmp.121 %tmp.122();
+        %tmp.124 = 20;
+        %tmp.125 = sub %tmp.123 %tmp.124;
+        symbol [ Graphics %tmp.126 176 16 24 ];
+        %tmp.126 = getm $.Toybox.Graphics;
+        symbol [ FONT_XTINY %tmp.127 176 25 35 ];
+        %tmp.127 = getv %tmp.126 :FONT_XTINY;
+        symbol [ errorMessage %tmp.129 177 16 28 ];
+        %tmp.129 = getv ? :errorMessage;
+        symbol [ Graphics %tmp.130 178 16 24 ];
+        %tmp.130 = getm $.Toybox.Graphics;
+        symbol [ TEXT_JUSTIFY_CENTER %tmp.131 178 25 44 ];
+        %tmp.131 = getv %tmp.130 :TEXT_JUSTIFY_CENTER;
+        invoke %tmp.114 %tmp.115(%tmp.120, %tmp.125, %tmp.127, %tmp.129, %tmp.131);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_171_34_180_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_171_8_180_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_171_8_180_8_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_136_26_181_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 167; @symbol_functiondef = [drawImage,167,13,22]; @symbol_param<0> = [dc,167,23,25]; @symbol_param<1> = [image,167,27,32]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 183; @symbol_functiondef = [drawImage,183,13,22]; @symbol_param<0> = [dc,183,23,25]; @symbol_param<1> = [image,183,27,32]; ]
     function drawImage(dc, image) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 168 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_stop" ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 184 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_stop" ]
         %screenWidth.1 = local;
-        symbol [ screenWidth %screenWidth.1 168 12 23 ];
+        symbol [ screenWidth %screenWidth.1 184 12 23 ];
         %tmp.1 = lgetv %dc;
-        symbol [ dc %tmp.1 168 26 28 ];
-        symbol [ getWidth %tmp.2 168 29 37 ];
+        symbol [ dc %tmp.1 184 26 28 ];
+        symbol [ getWidth %tmp.2 184 29 37 ];
         %tmp.2 = getv function %tmp.1 :getWidth;
         %tmp.3 = invoke %tmp.1 %tmp.2();
         lputv %screenWidth.1 %tmp.3;
-        symbol [ screenWidth %screenWidth.1 168 12 23 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 169 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_stop" ]
+        symbol [ screenWidth %screenWidth.1 184 12 23 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 185 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_stop" ]
         %screenHeight.2 = local;
-        symbol [ screenHeight %screenHeight.2 169 12 24 ];
+        symbol [ screenHeight %screenHeight.2 185 12 24 ];
         %tmp.4 = lgetv %dc;
-        symbol [ dc %tmp.4 169 27 29 ];
-        symbol [ getHeight %tmp.5 169 30 39 ];
+        symbol [ dc %tmp.4 185 27 29 ];
+        symbol [ getHeight %tmp.5 185 30 39 ];
         %tmp.5 = getv function %tmp.4 :getHeight;
         %tmp.6 = invoke %tmp.4 %tmp.5();
         lputv %screenHeight.2 %tmp.6;
-        symbol [ screenHeight %screenHeight.2 169 12 24 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 170 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_stop" ]
+        symbol [ screenHeight %screenHeight.2 185 12 24 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 186 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_stop" ]
         %x.3 = local;
-        symbol [ x %x.3 170 12 13 ];
+        symbol [ x %x.3 186 12 13 ];
         %tmp.7 = lgetv %screenWidth.1;
-        symbol [ screenWidth %tmp.7 170 17 28 ];
+        symbol [ screenWidth %tmp.7 186 17 28 ];
         %tmp.8 = 150;
         %tmp.9 = sub %tmp.7 %tmp.8;
         %tmp.10 = 2;
         %tmp.11 = div %tmp.9 %tmp.10;
         lputv %x.3 %tmp.11;
-        symbol [ x %x.3 170 12 13 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 171 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_stop" ]
+        symbol [ x %x.3 186 12 13 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 187 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_stop" ]
         %y.4 = local;
-        symbol [ y %y.4 171 12 13 ];
+        symbol [ y %y.4 187 12 13 ];
         %tmp.12 = lgetv %screenHeight.2;
-        symbol [ screenHeight %tmp.12 171 17 29 ];
+        symbol [ screenHeight %tmp.12 187 17 29 ];
         %tmp.13 = 150;
         %tmp.14 = sub %tmp.12 %tmp.13;
         %tmp.15 = 2;
         %tmp.16 = div %tmp.14 %tmp.15;
         lputv %y.4 %tmp.16;
-        symbol [ y %y.4 171 12 13 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 172 8 ]
+        symbol [ y %y.4 187 12 13 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 188 8 ]
         %tmp.17 = lgetv %dc;
-        symbol [ dc %tmp.17 172 8 10 ];
-        symbol [ drawBitmap %tmp.18 172 11 21 ];
+        symbol [ dc %tmp.17 188 8 10 ];
+        symbol [ drawBitmap %tmp.18 188 11 21 ];
         %tmp.18 = getv function %tmp.17 :drawBitmap;
         %tmp.19 = lgetv %x.3;
-        symbol [ x %tmp.19 172 22 23 ];
+        symbol [ x %tmp.19 188 22 23 ];
         %tmp.20 = lgetv %y.4;
-        symbol [ y %tmp.20 172 25 26 ];
+        symbol [ y %tmp.20 188 25 26 ];
         %tmp.21 = lgetv %image;
-        symbol [ image %tmp.21 172 28 33 ];
+        symbol [ image %tmp.21 188 28 33 ];
         %tmp.22 = as %tmp.21 WatchUi.BitmapResource;
-        symbol [ WatchUi %tmp.22 172 37 44 ];
-        symbol [ BitmapResource %tmp.22 172 45 59 ];
+        symbol [ WatchUi %tmp.22 188 37 44 ];
+        symbol [ BitmapResource %tmp.22 188 45 59 ];
         invoke %tmp.17 %tmp.18(%tmp.19, %tmp.20, %tmp.22);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_167_34_173_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_183_34_189_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 175; @symbol_functiondef = [onHide,175,13,19]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 191; @symbol_functiondef = [onHide,191,13,19]; ]
     function onHide() {
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 178; @symbol_functiondef = [onKey,178,13,18]; @symbol_param<0> = [keyEvent,178,19,27]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 194; @symbol_functiondef = [onKey,194,13,18]; @symbol_param<0> = [keyEvent,194,19,27]; ]
     function onKey(keyEvent) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_178_29_215_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 179 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_178_29_215_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_178_29_215_4_stop" ]
-        %key.1 = local;
-        symbol [ key %key.1 179 12 15 ];
-        %tmp.1 = lgetv %keyEvent;
-        symbol [ keyEvent %tmp.1 179 18 26 ];
-        symbol [ getKey %tmp.2 179 27 33 ];
-        %tmp.2 = getv function %tmp.1 :getKey;
-        %tmp.3 = invoke %tmp.1 %tmp.2();
-        lputv %key.1 %tmp.3;
-        symbol [ key %key.1 179 12 15 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 180 8 ]
-        symbol [ System %tmp.4 180 8 14 ];
-        %tmp.4 = getm $.Toybox.System;
-        symbol [ println %tmp.5 180 15 22 ];
-        %tmp.5 = getv function %tmp.4 :println;
-        %tmp.6 = "onKey: ";
-        %tmp.7 = lgetv %key.1;
-        symbol [ key %tmp.7 180 35 38 ];
-        %tmp.8 = add %tmp.6 %tmp.7;
-        %tmp.9 = " (images.size: ";
-        %tmp.10 = add %tmp.8 %tmp.9;
-        symbol [ images %tmp.12 180 61 67 ];
-        %tmp.12 = getv ? :images;
-        symbol [ size %tmp.13 180 68 72 ];
-        %tmp.13 = getv function %tmp.12 :size;
-        %tmp.14 = invoke %tmp.12 %tmp.13();
-        %tmp.15 = add %tmp.10 %tmp.14;
-        %tmp.16 = ", currentIndex: ";
-        %tmp.17 = add %tmp.15 %tmp.16;
-        symbol [ currentIndex %tmp.19 180 98 110 ];
-        %tmp.19 = getv ? :currentIndex;
-        %tmp.20 = add %tmp.17 %tmp.19;
-        %tmp.21 = ")";
-        %tmp.22 = add %tmp.20 %tmp.21;
-        invoke %tmp.4 %tmp.5(%tmp.22);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 182 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_182_8_186_8_if_stmt:
-        symbol [ images %tmp.24 182 12 18 ];
-        %tmp.24 = getv ? :images;
-        symbol [ size %tmp.25 182 19 23 ];
-        %tmp.25 = getv function %tmp.24 :size;
-        %tmp.26 = invoke %tmp.24 %tmp.25();
-        %tmp.27 = 0;
-        %tmp.28 = eq %tmp.26 %tmp.27;
-        bf %tmp.28 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_182_8_186_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_182_8_186_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_182_32_186_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 184 12 ]
-        %tmp.29 = self;
-        symbol [ showAddMenu %tmp.30 184 12 23 ];
-        %tmp.30 = getv function %tmp.29 :showAddMenu;
-        invoke %tmp.29 %tmp.30();
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 185 12 ]
-        %tmp.31 = true;
-        ret %tmp.31;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_182_32_186_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_182_8_186_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_182_8_186_8_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 188 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_188_8_212_8_if_stmt:
-        %tmp.32 = lgetv %key.1;
-        symbol [ key %tmp.32 188 12 15 ];
-        symbol [ WatchUi %tmp.33 188 19 26 ];
-        %tmp.33 = getm $.Toybox.WatchUi;
-        symbol [ KEY_UP %tmp.34 188 27 33 ];
-        %tmp.34 = getv %tmp.33 :KEY_UP;
-        %tmp.35 = eq %tmp.32 %tmp.34;
-        bf %tmp.35 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_188_8_212_8_if_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_188_8_212_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_188_35_198_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 189 12 ]
-        symbol [ System %tmp.36 189 12 18 ];
-        %tmp.36 = getm $.Toybox.System;
-        symbol [ println %tmp.37 189 19 26 ];
-        %tmp.37 = getv function %tmp.36 :println;
-        %tmp.38 = "UP pressed";
-        invoke %tmp.36 %tmp.37(%tmp.38);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 190 12 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_190_12_194_12_if_stmt:
-        symbol [ currentIndex %tmp.40 190 16 28 ];
-        %tmp.40 = getv ? :currentIndex;
-        %tmp.41 = 0;
-        %tmp.42 = gt %tmp.40 %tmp.41;
-        bf %tmp.42 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_190_12_194_12_if_else_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_190_12_194_12_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_190_34_192_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 191 16 ]
-        symbol [ currentIndex %tmp.45 191 16 28 ];
-        %tmp.45 = getv ? :currentIndex;
-        %tmp.46 = sub %tmp.45 1;
-        symbol [ currentIndex ? 191 16 28 ];
-        putv self :currentIndex dup %tmp.46;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_190_34_192_12_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_190_12_194_12_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_190_12_194_12_if_else_false:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_192_19_194_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 193 16 ]
-        symbol [ images %tmp.48 193 31 37 ];
-        %tmp.48 = getv ? :images;
-        symbol [ size %tmp.49 193 38 42 ];
-        %tmp.49 = getv function %tmp.48 :size;
-        %tmp.50 = invoke %tmp.48 %tmp.49();
-        %tmp.51 = 1;
-        %tmp.52 = sub %tmp.50 %tmp.51;
-        symbol [ currentIndex ? 193 16 28 ];
-        putv self :currentIndex %tmp.52;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_192_19_194_12_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_190_12_194_12_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 195 12 ]
-        symbol [ System %tmp.53 195 12 18 ];
-        %tmp.53 = getm $.Toybox.System;
-        symbol [ println %tmp.54 195 19 26 ];
-        %tmp.54 = getv function %tmp.53 :println;
-        %tmp.55 = "Moved to code: ";
-        symbol [ currentIndex %tmp.57 195 47 59 ];
-        %tmp.57 = getv ? :currentIndex;
-        %tmp.58 = add %tmp.55 %tmp.57;
-        invoke %tmp.53 %tmp.54(%tmp.58);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 196 12 ]
-        symbol [ WatchUi %tmp.59 196 12 19 ];
-        %tmp.59 = getm $.Toybox.WatchUi;
-        symbol [ requestUpdate %tmp.60 196 20 33 ];
-        %tmp.60 = getv function %tmp.59 :requestUpdate;
-        invoke %tmp.59 %tmp.60();
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_194_29_237_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 196 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_196_8_199_8_if_stmt:
+        symbol [ errorMessage %tmp.2 196 12 24 ];
+        %tmp.2 = getv ? :errorMessage;
+        %tmp.3 = null;
+        %tmp.4 = ne %tmp.2 %tmp.3;
+        bf %tmp.4 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_196_8_199_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_196_8_199_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_196_34_199_8_start:
 [ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 197 12 ]
-        %tmp.61 = true;
-        ret %tmp.61;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_188_35_198_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_188_8_212_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_188_8_212_8_if_false:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 198 15 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_198_15_212_8_if_stmt:
-        %tmp.62 = lgetv %key.1;
-        symbol [ key %tmp.62 198 19 22 ];
-        symbol [ WatchUi %tmp.63 198 26 33 ];
-        %tmp.63 = getm $.Toybox.WatchUi;
-        symbol [ KEY_DOWN %tmp.64 198 34 42 ];
-        %tmp.64 = getv %tmp.63 :KEY_DOWN;
-        %tmp.65 = eq %tmp.62 %tmp.64;
-        bf %tmp.65 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_198_15_212_8_if_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_198_15_212_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_198_44_208_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 199 12 ]
-        symbol [ System %tmp.66 199 12 18 ];
-        %tmp.66 = getm $.Toybox.System;
-        symbol [ println %tmp.67 199 19 26 ];
-        %tmp.67 = getv function %tmp.66 :println;
-        %tmp.68 = "DOWN pressed";
-        invoke %tmp.66 %tmp.67(%tmp.68);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 200 12 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_200_12_204_12_if_stmt:
-        symbol [ currentIndex %tmp.70 200 16 28 ];
-        %tmp.70 = getv ? :currentIndex;
-        symbol [ images %tmp.72 200 31 37 ];
-        %tmp.72 = getv ? :images;
-        symbol [ size %tmp.73 200 38 42 ];
-        %tmp.73 = getv function %tmp.72 :size;
-        %tmp.74 = invoke %tmp.72 %tmp.73();
-        %tmp.75 = 1;
-        %tmp.76 = sub %tmp.74 %tmp.75;
-        %tmp.77 = lt %tmp.70 %tmp.76;
-        bf %tmp.77 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_200_12_204_12_if_else_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_200_12_204_12_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_200_50_202_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 201 16 ]
-        symbol [ currentIndex %tmp.80 201 16 28 ];
-        %tmp.80 = getv ? :currentIndex;
-        %tmp.81 = add %tmp.80 1;
-        symbol [ currentIndex ? 201 16 28 ];
-        putv self :currentIndex dup %tmp.81;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_200_50_202_12_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_200_12_204_12_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_200_12_204_12_if_else_false:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_202_19_204_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 203 16 ]
-        %tmp.82 = 0;
-        symbol [ currentIndex ? 203 16 28 ];
-        putv self :currentIndex %tmp.82;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_202_19_204_12_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_200_12_204_12_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 205 12 ]
-        symbol [ System %tmp.83 205 12 18 ];
-        %tmp.83 = getm $.Toybox.System;
-        symbol [ println %tmp.84 205 19 26 ];
-        %tmp.84 = getv function %tmp.83 :println;
-        %tmp.85 = "Moved to code: ";
-        symbol [ currentIndex %tmp.87 205 47 59 ];
-        %tmp.87 = getv ? :currentIndex;
-        %tmp.88 = add %tmp.85 %tmp.87;
-        invoke %tmp.83 %tmp.84(%tmp.88);
+        %tmp.5 = null;
+        symbol [ errorMessage ? 197 12 24 ];
+        putv self :errorMessage %tmp.5;
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 198 12 ]
+        symbol [ WatchUi %tmp.6 198 12 19 ];
+        %tmp.6 = getm $.Toybox.WatchUi;
+        symbol [ requestUpdate %tmp.7 198 20 33 ];
+        %tmp.7 = getv function %tmp.6 :requestUpdate;
+        invoke %tmp.6 %tmp.7();
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_196_34_199_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_196_8_199_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_196_8_199_8_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 201 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_194_29_237_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_194_29_237_4_stop" ]
+        %key.1 = local;
+        symbol [ key %key.1 201 12 15 ];
+        %tmp.8 = lgetv %keyEvent;
+        symbol [ keyEvent %tmp.8 201 18 26 ];
+        symbol [ getKey %tmp.9 201 27 33 ];
+        %tmp.9 = getv function %tmp.8 :getKey;
+        %tmp.10 = invoke %tmp.8 %tmp.9();
+        lputv %key.1 %tmp.10;
+        symbol [ key %key.1 201 12 15 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 202 8 ]
+        symbol [ System %tmp.11 202 8 14 ];
+        %tmp.11 = getm $.Toybox.System;
+        symbol [ println %tmp.12 202 15 22 ];
+        %tmp.12 = getv function %tmp.11 :println;
+        %tmp.13 = "onKey: ";
+        %tmp.14 = lgetv %key.1;
+        symbol [ key %tmp.14 202 35 38 ];
+        %tmp.15 = add %tmp.13 %tmp.14;
+        %tmp.16 = " (images.size: ";
+        %tmp.17 = add %tmp.15 %tmp.16;
+        symbol [ images %tmp.19 202 61 67 ];
+        %tmp.19 = getv ? :images;
+        symbol [ size %tmp.20 202 68 72 ];
+        %tmp.20 = getv function %tmp.19 :size;
+        %tmp.21 = invoke %tmp.19 %tmp.20();
+        %tmp.22 = add %tmp.17 %tmp.21;
+        %tmp.23 = ", currentIndex: ";
+        %tmp.24 = add %tmp.22 %tmp.23;
+        symbol [ currentIndex %tmp.26 202 98 110 ];
+        %tmp.26 = getv ? :currentIndex;
+        %tmp.27 = add %tmp.24 %tmp.26;
+        %tmp.28 = ")";
+        %tmp.29 = add %tmp.27 %tmp.28;
+        invoke %tmp.11 %tmp.12(%tmp.29);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 204 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_204_8_208_8_if_stmt:
+        symbol [ images %tmp.31 204 12 18 ];
+        %tmp.31 = getv ? :images;
+        symbol [ size %tmp.32 204 19 23 ];
+        %tmp.32 = getv function %tmp.31 :size;
+        %tmp.33 = invoke %tmp.31 %tmp.32();
+        %tmp.34 = 0;
+        %tmp.35 = eq %tmp.33 %tmp.34;
+        bf %tmp.35 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_204_8_208_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_204_8_208_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_204_32_208_8_start:
 [ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 206 12 ]
-        symbol [ WatchUi %tmp.89 206 12 19 ];
-        %tmp.89 = getm $.Toybox.WatchUi;
-        symbol [ requestUpdate %tmp.90 206 20 33 ];
-        %tmp.90 = getv function %tmp.89 :requestUpdate;
-        invoke %tmp.89 %tmp.90();
+        %tmp.36 = self;
+        symbol [ showAddMenu %tmp.37 206 12 23 ];
+        %tmp.37 = getv function %tmp.36 :showAddMenu;
+        invoke %tmp.36 %tmp.37();
 [ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 207 12 ]
-        %tmp.91 = true;
-        ret %tmp.91;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_198_44_208_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_198_15_212_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_198_15_212_8_if_false:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 208 15 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_208_15_212_8_if_stmt:
-        %tmp.92 = lgetv %key.1;
-        symbol [ key %tmp.92 208 19 22 ];
-        symbol [ WatchUi %tmp.93 208 26 33 ];
-        %tmp.93 = getm $.Toybox.WatchUi;
-        symbol [ KEY_ENTER %tmp.94 208 34 43 ];
-        %tmp.94 = getv %tmp.93 :KEY_ENTER;
-        %tmp.95 = eq %tmp.92 %tmp.94;
-        bf %tmp.95 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_208_15_212_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_208_15_212_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_208_45_212_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 209 12 ]
-        symbol [ System %tmp.96 209 12 18 ];
-        %tmp.96 = getm $.Toybox.System;
-        symbol [ println %tmp.97 209 19 26 ];
-        %tmp.97 = getv function %tmp.96 :println;
-        %tmp.98 = "ENTER pressed - showing menu";
-        invoke %tmp.96 %tmp.97(%tmp.98);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 210 12 ]
-        %tmp.99 = self;
-        symbol [ showItemMenu %tmp.100 210 12 24 ];
-        %tmp.100 = getv function %tmp.99 :showItemMenu;
-        invoke %tmp.99 %tmp.100();
+        %tmp.38 = true;
+        ret %tmp.38;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_204_32_208_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_204_8_208_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_204_8_208_8_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 210 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_210_8_234_8_if_stmt:
+        %tmp.39 = lgetv %key.1;
+        symbol [ key %tmp.39 210 12 15 ];
+        symbol [ WatchUi %tmp.40 210 19 26 ];
+        %tmp.40 = getm $.Toybox.WatchUi;
+        symbol [ KEY_UP %tmp.41 210 27 33 ];
+        %tmp.41 = getv %tmp.40 :KEY_UP;
+        %tmp.42 = eq %tmp.39 %tmp.41;
+        bf %tmp.42 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_210_8_234_8_if_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_210_8_234_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_210_35_220_8_start:
 [ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 211 12 ]
-        %tmp.101 = true;
-        ret %tmp.101;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_208_45_212_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_208_15_212_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_208_15_212_8_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_198_15_212_8_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_188_8_212_8_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 214 8 ]
-        %tmp.102 = false;
-        ret %tmp.102;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_178_29_215_4_stop:
+        symbol [ System %tmp.43 211 12 18 ];
+        %tmp.43 = getm $.Toybox.System;
+        symbol [ println %tmp.44 211 19 26 ];
+        %tmp.44 = getv function %tmp.43 :println;
+        %tmp.45 = "UP pressed";
+        invoke %tmp.43 %tmp.44(%tmp.45);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 212 12 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_212_12_216_12_if_stmt:
+        symbol [ currentIndex %tmp.47 212 16 28 ];
+        %tmp.47 = getv ? :currentIndex;
+        %tmp.48 = 0;
+        %tmp.49 = gt %tmp.47 %tmp.48;
+        bf %tmp.49 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_212_12_216_12_if_else_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_212_12_216_12_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_212_34_214_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 213 16 ]
+        symbol [ currentIndex %tmp.52 213 16 28 ];
+        %tmp.52 = getv ? :currentIndex;
+        %tmp.53 = sub %tmp.52 1;
+        symbol [ currentIndex ? 213 16 28 ];
+        putv self :currentIndex dup %tmp.53;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_212_34_214_12_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_212_12_216_12_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_212_12_216_12_if_else_false:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_214_19_216_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 215 16 ]
+        symbol [ images %tmp.55 215 31 37 ];
+        %tmp.55 = getv ? :images;
+        symbol [ size %tmp.56 215 38 42 ];
+        %tmp.56 = getv function %tmp.55 :size;
+        %tmp.57 = invoke %tmp.55 %tmp.56();
+        %tmp.58 = 1;
+        %tmp.59 = sub %tmp.57 %tmp.58;
+        symbol [ currentIndex ? 215 16 28 ];
+        putv self :currentIndex %tmp.59;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_214_19_216_12_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_212_12_216_12_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 217 12 ]
+        symbol [ System %tmp.60 217 12 18 ];
+        %tmp.60 = getm $.Toybox.System;
+        symbol [ println %tmp.61 217 19 26 ];
+        %tmp.61 = getv function %tmp.60 :println;
+        %tmp.62 = "Moved to code: ";
+        symbol [ currentIndex %tmp.64 217 47 59 ];
+        %tmp.64 = getv ? :currentIndex;
+        %tmp.65 = add %tmp.62 %tmp.64;
+        invoke %tmp.60 %tmp.61(%tmp.65);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 218 12 ]
+        symbol [ WatchUi %tmp.66 218 12 19 ];
+        %tmp.66 = getm $.Toybox.WatchUi;
+        symbol [ requestUpdate %tmp.67 218 20 33 ];
+        %tmp.67 = getv function %tmp.66 :requestUpdate;
+        invoke %tmp.66 %tmp.67();
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 219 12 ]
+        %tmp.68 = true;
+        ret %tmp.68;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_210_35_220_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_210_8_234_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_210_8_234_8_if_false:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 220 15 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_220_15_234_8_if_stmt:
+        %tmp.69 = lgetv %key.1;
+        symbol [ key %tmp.69 220 19 22 ];
+        symbol [ WatchUi %tmp.70 220 26 33 ];
+        %tmp.70 = getm $.Toybox.WatchUi;
+        symbol [ KEY_DOWN %tmp.71 220 34 42 ];
+        %tmp.71 = getv %tmp.70 :KEY_DOWN;
+        %tmp.72 = eq %tmp.69 %tmp.71;
+        bf %tmp.72 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_220_15_234_8_if_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_220_15_234_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_220_44_230_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 221 12 ]
+        symbol [ System %tmp.73 221 12 18 ];
+        %tmp.73 = getm $.Toybox.System;
+        symbol [ println %tmp.74 221 19 26 ];
+        %tmp.74 = getv function %tmp.73 :println;
+        %tmp.75 = "DOWN pressed";
+        invoke %tmp.73 %tmp.74(%tmp.75);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 222 12 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_222_12_226_12_if_stmt:
+        symbol [ currentIndex %tmp.77 222 16 28 ];
+        %tmp.77 = getv ? :currentIndex;
+        symbol [ images %tmp.79 222 31 37 ];
+        %tmp.79 = getv ? :images;
+        symbol [ size %tmp.80 222 38 42 ];
+        %tmp.80 = getv function %tmp.79 :size;
+        %tmp.81 = invoke %tmp.79 %tmp.80();
+        %tmp.82 = 1;
+        %tmp.83 = sub %tmp.81 %tmp.82;
+        %tmp.84 = lt %tmp.77 %tmp.83;
+        bf %tmp.84 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_222_12_226_12_if_else_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_222_12_226_12_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_222_50_224_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 223 16 ]
+        symbol [ currentIndex %tmp.87 223 16 28 ];
+        %tmp.87 = getv ? :currentIndex;
+        %tmp.88 = add %tmp.87 1;
+        symbol [ currentIndex ? 223 16 28 ];
+        putv self :currentIndex dup %tmp.88;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_222_50_224_12_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_222_12_226_12_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_222_12_226_12_if_else_false:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_224_19_226_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 225 16 ]
+        %tmp.89 = 0;
+        symbol [ currentIndex ? 225 16 28 ];
+        putv self :currentIndex %tmp.89;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_224_19_226_12_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_222_12_226_12_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 227 12 ]
+        symbol [ System %tmp.90 227 12 18 ];
+        %tmp.90 = getm $.Toybox.System;
+        symbol [ println %tmp.91 227 19 26 ];
+        %tmp.91 = getv function %tmp.90 :println;
+        %tmp.92 = "Moved to code: ";
+        symbol [ currentIndex %tmp.94 227 47 59 ];
+        %tmp.94 = getv ? :currentIndex;
+        %tmp.95 = add %tmp.92 %tmp.94;
+        invoke %tmp.90 %tmp.91(%tmp.95);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 228 12 ]
+        symbol [ WatchUi %tmp.96 228 12 19 ];
+        %tmp.96 = getm $.Toybox.WatchUi;
+        symbol [ requestUpdate %tmp.97 228 20 33 ];
+        %tmp.97 = getv function %tmp.96 :requestUpdate;
+        invoke %tmp.96 %tmp.97();
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 229 12 ]
+        %tmp.98 = true;
+        ret %tmp.98;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_220_44_230_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_220_15_234_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_220_15_234_8_if_false:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 230 15 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_230_15_234_8_if_stmt:
+        %tmp.99 = lgetv %key.1;
+        symbol [ key %tmp.99 230 19 22 ];
+        symbol [ WatchUi %tmp.100 230 26 33 ];
+        %tmp.100 = getm $.Toybox.WatchUi;
+        symbol [ KEY_ENTER %tmp.101 230 34 43 ];
+        %tmp.101 = getv %tmp.100 :KEY_ENTER;
+        %tmp.102 = eq %tmp.99 %tmp.101;
+        bf %tmp.102 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_230_15_234_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_230_15_234_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_230_45_234_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 231 12 ]
+        symbol [ System %tmp.103 231 12 18 ];
+        %tmp.103 = getm $.Toybox.System;
+        symbol [ println %tmp.104 231 19 26 ];
+        %tmp.104 = getv function %tmp.103 :println;
+        %tmp.105 = "ENTER pressed - showing menu";
+        invoke %tmp.103 %tmp.104(%tmp.105);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 232 12 ]
+        %tmp.106 = self;
+        symbol [ showItemMenu %tmp.107 232 12 24 ];
+        %tmp.107 = getv function %tmp.106 :showItemMenu;
+        invoke %tmp.106 %tmp.107();
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 233 12 ]
+        %tmp.108 = true;
+        ret %tmp.108;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_230_45_234_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_230_15_234_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_230_15_234_8_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_220_15_234_8_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_210_8_234_8_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 236 8 ]
+        %tmp.109 = false;
+        ret %tmp.109;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_194_29_237_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 217; @symbol_functiondef = [showAddMenu,217,13,24]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 239; @symbol_functiondef = [showAddMenu,239,13,24]; ]
     function showAddMenu() {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_217_27_222_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 218 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_217_27_222_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_217_27_222_4_stop" ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_27_244_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 240 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_27_244_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_27_244_4_stop" ]
         %menu.1 = local;
-        symbol [ menu %menu.1 218 12 16 ];
-        symbol [ WatchUi %tmp.3 218 23 30 ];
+        symbol [ menu %menu.1 240 12 16 ];
+        symbol [ WatchUi %tmp.3 240 23 30 ];
         %tmp.3 = getm $.Toybox.WatchUi;
-        symbol [ Menu %tmp.4 218 31 35 ];
+        symbol [ Menu %tmp.4 240 31 35 ];
         %tmp.4 = getv function ? %tmp.3 :Menu;
         %tmp.1 = newc %tmp.4 ();
         lputv %menu.1 %tmp.1;
-        symbol [ menu %menu.1 218 12 16 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 219 8 ]
+        symbol [ menu %menu.1 240 12 16 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 241 8 ]
         %tmp.5 = lgetv %menu.1;
-        symbol [ menu %tmp.5 219 8 12 ];
-        symbol [ setTitle %tmp.6 219 13 21 ];
+        symbol [ menu %tmp.5 241 8 12 ];
+        symbol [ setTitle %tmp.6 241 13 21 ];
         %tmp.6 = getv function %tmp.5 :setTitle;
         %tmp.7 = "Add QR Code";
         invoke %tmp.5 %tmp.6(%tmp.7);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 220 8 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 242 8 ]
         %tmp.8 = lgetv %menu.1;
-        symbol [ menu %tmp.8 220 8 12 ];
-        symbol [ addItem %tmp.9 220 13 20 ];
+        symbol [ menu %tmp.8 242 8 12 ];
+        symbol [ addItem %tmp.9 242 13 20 ];
         %tmp.9 = getv function %tmp.8 :addItem;
         %tmp.10 = "Add New";
         %tmp.12 = const :add;
-        symbol [ add %tmp.12 220 33 36 const ];
+        symbol [ add %tmp.12 242 33 36 const ];
         invoke %tmp.8 %tmp.9(%tmp.10, %tmp.12);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 221 8 ]
-        symbol [ WatchUi %tmp.13 221 8 15 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 243 8 ]
+        symbol [ WatchUi %tmp.13 243 8 15 ];
         %tmp.13 = getm $.Toybox.WatchUi;
-        symbol [ pushView %tmp.14 221 16 24 ];
+        symbol [ pushView %tmp.14 243 16 24 ];
         %tmp.14 = getv function %tmp.13 :pushView;
         %tmp.15 = lgetv %menu.1;
-        symbol [ menu %tmp.15 221 25 29 ];
-        symbol [ CodeMenuDelegate %tmp.19 221 35 51 ];
+        symbol [ menu %tmp.15 243 25 29 ];
+        symbol [ CodeMenuDelegate %tmp.19 243 35 51 ];
         %tmp.19 = getv ? :CodeMenuDelegate;
         %tmp.20 = self;
-        symbol [ self %tmp.20 221 52 56 ];
+        symbol [ self %tmp.20 243 52 56 ];
         %tmp.16 = newc %tmp.19 (%tmp.20);
-        symbol [ WatchUi %tmp.21 221 59 66 ];
+        symbol [ WatchUi %tmp.21 243 59 66 ];
         %tmp.21 = getm $.Toybox.WatchUi;
-        symbol [ SLIDE_UP %tmp.22 221 67 75 ];
+        symbol [ SLIDE_UP %tmp.22 243 67 75 ];
         %tmp.22 = getv %tmp.21 :SLIDE_UP;
         invoke %tmp.13 %tmp.14(%tmp.15, %tmp.16, %tmp.22);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_217_27_222_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_27_244_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 224; @symbol_functiondef = [showItemMenu,224,13,25]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 246; @symbol_functiondef = [showItemMenu,246,13,25]; ]
     function showItemMenu() {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_224_28_230_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 225 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_224_28_230_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_224_28_230_4_stop" ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_28_252_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 247 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_28_252_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_28_252_4_stop" ]
         %menu.1 = local;
-        symbol [ menu %menu.1 225 12 16 ];
-        symbol [ WatchUi %tmp.3 225 23 30 ];
+        symbol [ menu %menu.1 247 12 16 ];
+        symbol [ WatchUi %tmp.3 247 23 30 ];
         %tmp.3 = getm $.Toybox.WatchUi;
-        symbol [ Menu %tmp.4 225 31 35 ];
+        symbol [ Menu %tmp.4 247 31 35 ];
         %tmp.4 = getv function ? %tmp.3 :Menu;
         %tmp.1 = newc %tmp.4 ();
         lputv %menu.1 %tmp.1;
-        symbol [ menu %menu.1 225 12 16 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 226 8 ]
+        symbol [ menu %menu.1 247 12 16 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 248 8 ]
         %tmp.5 = lgetv %menu.1;
-        symbol [ menu %tmp.5 226 8 12 ];
-        symbol [ setTitle %tmp.6 226 13 21 ];
+        symbol [ menu %tmp.5 248 8 12 ];
+        symbol [ setTitle %tmp.6 248 13 21 ];
         %tmp.6 = getv function %tmp.5 :setTitle;
         %tmp.7 = "Code Options";
         invoke %tmp.5 %tmp.6(%tmp.7);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 227 8 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 249 8 ]
         %tmp.8 = lgetv %menu.1;
-        symbol [ menu %tmp.8 227 8 12 ];
-        symbol [ addItem %tmp.9 227 13 20 ];
+        symbol [ menu %tmp.8 249 8 12 ];
+        symbol [ addItem %tmp.9 249 13 20 ];
         %tmp.9 = getv function %tmp.8 :addItem;
         %tmp.10 = "Remove";
         %tmp.12 = const :remove;
-        symbol [ remove %tmp.12 227 32 38 const ];
+        symbol [ remove %tmp.12 249 32 38 const ];
         invoke %tmp.8 %tmp.9(%tmp.10, %tmp.12);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 228 8 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 250 8 ]
         %tmp.13 = lgetv %menu.1;
-        symbol [ menu %tmp.13 228 8 12 ];
-        symbol [ addItem %tmp.14 228 13 20 ];
+        symbol [ menu %tmp.13 250 8 12 ];
+        symbol [ addItem %tmp.14 250 13 20 ];
         %tmp.14 = getv function %tmp.13 :addItem;
         %tmp.15 = "Add New";
         %tmp.17 = const :add;
-        symbol [ add %tmp.17 228 33 36 const ];
+        symbol [ add %tmp.17 250 33 36 const ];
         invoke %tmp.13 %tmp.14(%tmp.15, %tmp.17);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 229 8 ]
-        symbol [ WatchUi %tmp.18 229 8 15 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 251 8 ]
+        symbol [ WatchUi %tmp.18 251 8 15 ];
         %tmp.18 = getm $.Toybox.WatchUi;
-        symbol [ pushView %tmp.19 229 16 24 ];
+        symbol [ pushView %tmp.19 251 16 24 ];
         %tmp.19 = getv function %tmp.18 :pushView;
         %tmp.20 = lgetv %menu.1;
-        symbol [ menu %tmp.20 229 25 29 ];
-        symbol [ CodeMenuDelegate %tmp.24 229 35 51 ];
+        symbol [ menu %tmp.20 251 25 29 ];
+        symbol [ CodeMenuDelegate %tmp.24 251 35 51 ];
         %tmp.24 = getv ? :CodeMenuDelegate;
         %tmp.25 = self;
-        symbol [ self %tmp.25 229 52 56 ];
+        symbol [ self %tmp.25 251 52 56 ];
         %tmp.21 = newc %tmp.24 (%tmp.25);
-        symbol [ WatchUi %tmp.26 229 59 66 ];
+        symbol [ WatchUi %tmp.26 251 59 66 ];
         %tmp.26 = getm $.Toybox.WatchUi;
-        symbol [ SLIDE_UP %tmp.27 229 67 75 ];
+        symbol [ SLIDE_UP %tmp.27 251 67 75 ];
         %tmp.27 = getv %tmp.26 :SLIDE_UP;
         invoke %tmp.18 %tmp.19(%tmp.20, %tmp.21, %tmp.27);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_224_28_230_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_28_252_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 232; @symbol_functiondef = [removeCurrentCode,232,13,30]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 254; @symbol_functiondef = [removeCurrentCode,254,13,30]; ]
     function removeCurrentCode() {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_232_33_251_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 233 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_233_8_250_8_if_stmt:
-        symbol [ images %tmp.2 233 12 18 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_254_33_273_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 255 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_255_8_272_8_if_stmt:
+        symbol [ images %tmp.2 255 12 18 ];
         %tmp.2 = getv ? :images;
-        symbol [ size %tmp.3 233 19 23 ];
+        symbol [ size %tmp.3 255 19 23 ];
         %tmp.3 = getv function %tmp.2 :size;
         %tmp.4 = invoke %tmp.2 %tmp.3();
         %tmp.5 = 0;
         %tmp.6 = gt %tmp.4 %tmp.5;
-        bf %tmp.6 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_233_8_250_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_233_8_250_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_233_31_250_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 235 12 ]
-        symbol [ images %tmp.8 235 12 18 ];
+        bf %tmp.6 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_255_8_272_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_255_8_272_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_255_31_272_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 257 12 ]
+        symbol [ images %tmp.8 257 12 18 ];
         %tmp.8 = getv ? :images;
-        symbol [ remove %tmp.9 235 19 25 ];
+        symbol [ remove %tmp.9 257 19 25 ];
         %tmp.9 = getv function %tmp.8 :remove;
-        symbol [ images %tmp.11 235 26 32 ];
+        symbol [ images %tmp.11 257 26 32 ];
         %tmp.11 = getv ? :images;
-        symbol [ currentIndex %tmp.13 235 33 45 ];
+        symbol [ currentIndex %tmp.13 257 33 45 ];
         %tmp.13 = getv ? :currentIndex;
         %tmp.14 = agetv %tmp.11 %tmp.13;
         invoke %tmp.8 %tmp.9(%tmp.14);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 238 12 ]
-        symbol [ Storage %tmp.15 238 12 19 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 260 12 ]
+        symbol [ Storage %tmp.15 260 12 19 ];
         %tmp.15 = getm $.Toybox.Application.Storage;
-        symbol [ deleteValue %tmp.16 238 20 31 ];
+        symbol [ deleteValue %tmp.16 260 20 31 ];
         %tmp.16 = getv function %tmp.15 :deleteValue;
         %tmp.17 = "qr_image_";
-        symbol [ currentIndex %tmp.19 238 46 58 ];
+        symbol [ currentIndex %tmp.19 260 46 58 ];
         %tmp.19 = getv ? :currentIndex;
         %tmp.20 = add %tmp.17 %tmp.19;
         invoke %tmp.15 %tmp.16(%tmp.20);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 239 12 ]
-        for @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_test @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_incr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_init:
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_begin" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_end" ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 261 12 ]
+        for @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_test @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_incr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_init:
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_begin" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_end" ]
         %i.1 = local;
-        symbol [ i %i.1 239 21 22 ];
-        symbol [ currentIndex %tmp.22 239 25 37 ];
+        symbol [ i %i.1 261 21 22 ];
+        symbol [ currentIndex %tmp.22 261 25 37 ];
         %tmp.22 = getv ? :currentIndex;
         lputv %i.1 %tmp.22;
-        symbol [ i %i.1 239 21 22 ];
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_test:
+        symbol [ i %i.1 261 21 22 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_test:
         %tmp.23 = lgetv %i.1;
-        symbol [ i %tmp.23 239 39 40 ];
-        symbol [ images %tmp.25 239 43 49 ];
+        symbol [ i %tmp.23 261 39 40 ];
+        symbol [ images %tmp.25 261 43 49 ];
         %tmp.25 = getv ? :images;
-        symbol [ size %tmp.26 239 50 54 ];
+        symbol [ size %tmp.26 261 50 54 ];
         %tmp.26 = getv function %tmp.25 :size;
         %tmp.27 = invoke %tmp.25 %tmp.26();
         %tmp.28 = lt %tmp.23 %tmp.27;
-        bf %tmp.28 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_begin:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_63_241_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 240 16 ]
-        symbol [ Storage %tmp.29 240 16 23 ];
+        bf %tmp.28 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_begin:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_63_263_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 262 16 ]
+        symbol [ Storage %tmp.29 262 16 23 ];
         %tmp.29 = getm $.Toybox.Application.Storage;
-        symbol [ setValue %tmp.30 240 24 32 ];
+        symbol [ setValue %tmp.30 262 24 32 ];
         %tmp.30 = getv function %tmp.29 :setValue;
         %tmp.31 = "qr_image_";
         %tmp.32 = lgetv %i.1;
-        symbol [ i %tmp.32 240 47 48 ];
+        symbol [ i %tmp.32 262 47 48 ];
         %tmp.33 = add %tmp.31 %tmp.32;
-        symbol [ images %tmp.35 240 50 56 ];
+        symbol [ images %tmp.35 262 50 56 ];
         %tmp.35 = getv ? :images;
         %tmp.36 = lgetv %i.1;
-        symbol [ i %tmp.36 240 57 58 ];
+        symbol [ i %tmp.36 262 57 58 ];
         %tmp.37 = agetv %tmp.35 %tmp.36;
         invoke %tmp.29 %tmp.30(%tmp.33, %tmp.37);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_63_241_12_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_incr:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 239 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_63_263_12_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_incr:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 261 ]
         %tmp.40 = lgetv %i.1;
-        symbol [ i %tmp.40 239 58 59 ];
+        symbol [ i %tmp.40 261 58 59 ];
         %tmp.41 = add %tmp.40 1;
         lputv %i.1 %tmp.41;
-        symbol [ i %i.1 239 58 59 ];
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_test;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_239_12_241_12_for_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 242 12 ]
-        symbol [ Storage %tmp.42 242 12 19 ];
+        symbol [ i %i.1 261 58 59 ];
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_test;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_261_12_263_12_for_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 264 12 ]
+        symbol [ Storage %tmp.42 264 12 19 ];
         %tmp.42 = getm $.Toybox.Application.Storage;
-        symbol [ setValue %tmp.43 242 20 28 ];
+        symbol [ setValue %tmp.43 264 20 28 ];
         %tmp.43 = getv function %tmp.42 :setValue;
         %tmp.44 = "qr_count";
-        symbol [ images %tmp.46 242 41 47 ];
+        symbol [ images %tmp.46 264 41 47 ];
         %tmp.46 = getv ? :images;
-        symbol [ size %tmp.47 242 48 52 ];
+        symbol [ size %tmp.47 264 48 52 ];
         %tmp.47 = getv function %tmp.46 :size;
         %tmp.48 = invoke %tmp.46 %tmp.47();
         invoke %tmp.42 %tmp.43(%tmp.44, %tmp.48);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 245 12 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_245_12_247_12_if_stmt:
-        symbol [ currentIndex %tmp.50 245 16 28 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 267 12 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_267_12_269_12_if_stmt:
+        symbol [ currentIndex %tmp.50 267 16 28 ];
         %tmp.50 = getv ? :currentIndex;
-        symbol [ images %tmp.52 245 32 38 ];
+        symbol [ images %tmp.52 267 32 38 ];
         %tmp.52 = getv ? :images;
-        symbol [ size %tmp.53 245 39 43 ];
+        symbol [ size %tmp.53 267 39 43 ];
         %tmp.53 = getv function %tmp.52 :size;
         %tmp.54 = invoke %tmp.52 %tmp.53();
         %tmp.55 = gte %tmp.50 %tmp.54;
-        bf %tmp.55 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_245_12_247_12_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_245_12_247_12_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_245_47_247_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 246 16 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_begin:
-        symbol [ images %tmp.57 246 31 37 ];
+        bf %tmp.55 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_267_12_269_12_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_267_12_269_12_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_267_47_269_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 268 16 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_begin:
+        symbol [ images %tmp.57 268 31 37 ];
         %tmp.57 = getv ? :images;
-        symbol [ size %tmp.58 246 38 42 ];
+        symbol [ size %tmp.58 268 38 42 ];
         %tmp.58 = getv function %tmp.57 :size;
         %tmp.59 = invoke %tmp.57 %tmp.58();
         %tmp.60 = 0;
         %tmp.61 = gt %tmp.59 %tmp.60;
-        bf %tmp.61 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_true:
-        symbol [ images %tmp.63 246 51 57 ];
+        bf %tmp.61 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_true:
+        symbol [ images %tmp.63 268 51 57 ];
         %tmp.63 = getv ? :images;
-        symbol [ size %tmp.64 246 58 62 ];
+        symbol [ size %tmp.64 268 58 62 ];
         %tmp.64 = getv function %tmp.63 :size;
         %tmp.65 = invoke %tmp.63 %tmp.64();
         %tmp.66 = 1;
         %tmp.67 = sub %tmp.65 %tmp.66;
         push %tmp.67;
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_false:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_false:
         %tmp.68 = 0;
         push %tmp.68;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_end:
-        %tmp.69 = phi [%tmp.61 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_begin] [%tmp.67 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_true] [%tmp.68 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_false] [%tmp.69 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_246_31_246_71_end];
-        symbol [ currentIndex ? 246 16 28 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_end:
+        %tmp.69 = phi [%tmp.61 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_begin] [%tmp.67 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_true] [%tmp.68 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_false] [%tmp.69 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_268_31_268_71_end];
+        symbol [ currentIndex ? 268 16 28 ];
         putv self :currentIndex %tmp.69;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_245_47_247_12_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_245_12_247_12_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_245_12_247_12_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 249 12 ]
-        symbol [ WatchUi %tmp.70 249 12 19 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_267_47_269_12_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_267_12_269_12_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_267_12_269_12_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 271 12 ]
+        symbol [ WatchUi %tmp.70 271 12 19 ];
         %tmp.70 = getm $.Toybox.WatchUi;
-        symbol [ requestUpdate %tmp.71 249 20 33 ];
+        symbol [ requestUpdate %tmp.71 271 20 33 ];
         %tmp.71 = getv function %tmp.70 :requestUpdate;
         invoke %tmp.70 %tmp.71();
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_233_31_250_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_233_8_250_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_233_8_250_8_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_232_33_251_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_255_31_272_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_255_8_272_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_255_8_272_8_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_254_33_273_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 253; @symbol_functiondef = [startNewCodeMode,253,13,29]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 275; @symbol_functiondef = [startNewCodeMode,275,13,29]; ]
     function startNewCodeMode() {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_253_32_257_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 254 8 ]
-        symbol [ System %tmp.1 254 8 14 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_275_32_279_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 276 8 ]
+        symbol [ System %tmp.1 276 8 14 ];
         %tmp.1 = getm $.Toybox.System;
-        symbol [ println %tmp.2 254 15 22 ];
+        symbol [ println %tmp.2 276 15 22 ];
         %tmp.2 = getv function %tmp.1 :println;
         %tmp.3 = "Starting text input";
         invoke %tmp.1 %tmp.2(%tmp.3);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 255 8 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_253_32_257_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_253_32_257_4_stop" ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 277 8 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_275_32_279_4_start" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_275_32_279_4_stop" ]
         %textPicker.1 = local;
-        symbol [ textPicker %textPicker.1 255 12 22 ];
-        symbol [ WatchUi %tmp.6 255 29 36 ];
+        symbol [ textPicker %textPicker.1 277 12 22 ];
+        symbol [ WatchUi %tmp.6 277 29 36 ];
         %tmp.6 = getm $.Toybox.WatchUi;
-        symbol [ TextPicker %tmp.7 255 37 47 ];
+        symbol [ TextPicker %tmp.7 277 37 47 ];
         %tmp.7 = getv function ? %tmp.6 :TextPicker;
         %tmp.8 = "Enter QR Text";
         %tmp.4 = newc %tmp.7 (%tmp.8);
         lputv %textPicker.1 %tmp.4;
-        symbol [ textPicker %textPicker.1 255 12 22 ];
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 256 8 ]
-        symbol [ WatchUi %tmp.9 256 8 15 ];
+        symbol [ textPicker %textPicker.1 277 12 22 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 278 8 ]
+        symbol [ WatchUi %tmp.9 278 8 15 ];
         %tmp.9 = getm $.Toybox.WatchUi;
-        symbol [ pushView %tmp.10 256 16 24 ];
+        symbol [ pushView %tmp.10 278 16 24 ];
         %tmp.10 = getv function %tmp.9 :pushView;
         %tmp.11 = lgetv %textPicker.1;
-        symbol [ textPicker %tmp.11 256 25 35 ];
-        symbol [ TextPickerDelegate %tmp.15 256 41 59 ];
+        symbol [ textPicker %tmp.11 278 25 35 ];
+        symbol [ TextPickerDelegate %tmp.15 278 41 59 ];
         %tmp.15 = getv ? :TextPickerDelegate;
         %tmp.16 = self;
-        symbol [ self %tmp.16 256 60 64 ];
+        symbol [ self %tmp.16 278 60 64 ];
         %tmp.12 = newc %tmp.15 (%tmp.16);
-        symbol [ WatchUi %tmp.17 256 67 74 ];
+        symbol [ WatchUi %tmp.17 278 67 74 ];
         %tmp.17 = getm $.Toybox.WatchUi;
-        symbol [ SLIDE_UP %tmp.18 256 75 83 ];
+        symbol [ SLIDE_UP %tmp.18 278 75 83 ];
         %tmp.18 = getv %tmp.17 :SLIDE_UP;
         invoke %tmp.9 %tmp.10(%tmp.11, %tmp.12, %tmp.18);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_253_32_257_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_275_32_279_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 259; @symbol_functiondef = [onTap,259,13,18]; @symbol_param<0> = [clickEvent,259,19,29]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 281; @symbol_functiondef = [onTap,281,13,18]; @symbol_param<0> = [clickEvent,281,19,29]; ]
     function onTap(clickEvent) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_259_31_267_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 260 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_260_8_265_8_if_stmt:
-        symbol [ isNewCodeMode %tmp.2 260 12 25 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_281_31_289_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 282 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_282_8_287_8_if_stmt:
+        symbol [ isNewCodeMode %tmp.2 282 12 25 ];
         %tmp.2 = getv ? :isNewCodeMode;
-        bf %tmp.2 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_260_8_265_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_260_8_265_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_260_27_265_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 261 12 ]
-        symbol [ System %tmp.3 261 12 18 ];
+        bf %tmp.2 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_282_8_287_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_282_8_287_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_282_27_287_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 283 12 ]
+        symbol [ System %tmp.3 283 12 18 ];
         %tmp.3 = getm $.Toybox.System;
-        symbol [ println %tmp.4 261 19 26 ];
+        symbol [ println %tmp.4 283 19 26 ];
         %tmp.4 = getv function %tmp.3 :println;
         %tmp.5 = "Tap in new code mode";
         invoke %tmp.3 %tmp.4(%tmp.5);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 263 12 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 285 12 ]
         %tmp.6 = self;
-        symbol [ downloadImage %tmp.7 263 12 25 ];
+        symbol [ downloadImage %tmp.7 285 12 25 ];
         %tmp.7 = getv function %tmp.6 :downloadImage;
         %tmp.8 = "new_code_";
-        symbol [ System %tmp.9 263 40 46 ];
+        symbol [ System %tmp.9 285 40 46 ];
         %tmp.9 = getm $.Toybox.System;
-        symbol [ getTimer %tmp.10 263 47 55 ];
+        symbol [ getTimer %tmp.10 285 47 55 ];
         %tmp.10 = getv function %tmp.9 :getTimer;
         %tmp.11 = invoke %tmp.9 %tmp.10();
         %tmp.12 = add %tmp.8 %tmp.11;
         invoke %tmp.6 %tmp.7(%tmp.12);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 264 12 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 286 12 ]
         %tmp.13 = true;
         ret %tmp.13;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_260_27_265_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_260_8_265_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_260_8_265_8_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 266 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_282_27_287_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_282_8_287_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_282_8_287_8_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 288 8 ]
         %tmp.14 = false;
         ret %tmp.14;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_259_31_267_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_281_31_289_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 269; @symbol_functiondef = [onSwipe,269,13,20]; @symbol_param<0> = [swipeEvent,269,21,31]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 291; @symbol_functiondef = [onSwipe,291,13,20]; @symbol_param<0> = [swipeEvent,291,21,31]; ]
     function onSwipe(swipeEvent) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_269_33_277_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 270 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_270_8_275_8_if_stmt:
-        symbol [ isNewCodeMode %tmp.2 270 12 25 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_291_33_299_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 292 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_292_8_297_8_if_stmt:
+        symbol [ isNewCodeMode %tmp.2 292 12 25 ];
         %tmp.2 = getv ? :isNewCodeMode;
-        bf %tmp.2 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_270_8_275_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_270_8_275_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_270_27_275_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 272 12 ]
+        bf %tmp.2 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_292_8_297_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_292_8_297_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_292_27_297_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 294 12 ]
         %tmp.3 = false;
-        symbol [ isNewCodeMode ? 272 12 25 ];
+        symbol [ isNewCodeMode ? 294 12 25 ];
         putv self :isNewCodeMode %tmp.3;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 273 12 ]
-        symbol [ WatchUi %tmp.4 273 12 19 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 295 12 ]
+        symbol [ WatchUi %tmp.4 295 12 19 ];
         %tmp.4 = getm $.Toybox.WatchUi;
-        symbol [ requestUpdate %tmp.5 273 20 33 ];
+        symbol [ requestUpdate %tmp.5 295 20 33 ];
         %tmp.5 = getv function %tmp.4 :requestUpdate;
         invoke %tmp.4 %tmp.5();
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 274 12 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 296 12 ]
         %tmp.6 = true;
         ret %tmp.6;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_270_27_275_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_270_8_275_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_270_8_275_8_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 276 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_292_27_297_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_292_8_297_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_292_8_297_8_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 298 8 ]
         %tmp.7 = false;
         ret %tmp.7;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_269_33_277_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_291_33_299_4_stop:
+    }
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 301; @symbol_functiondef = [showError,301,13,22]; @symbol_param<0> = [message,301,23,30]; @symbol_param<0>_type<0> = [Lang,301,34,38]; @symbol_param<0>_type<1> = [String,301,39,45]; ]
+    function showError(message as Lang.String) {
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_301_47_304_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 302 8 ]
+        %tmp.1 = lgetv %message;
+        symbol [ message %tmp.1 302 23 30 ];
+        symbol [ errorMessage ? 302 8 20 ];
+        putv self :errorMessage %tmp.1;
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 303 8 ]
+        symbol [ WatchUi %tmp.2 303 8 15 ];
+        %tmp.2 = getm $.Toybox.WatchUi;
+        symbol [ requestUpdate %tmp.3 303 16 29 ];
+        %tmp.3 = getv function %tmp.2 :requestUpdate;
+        invoke %tmp.2 %tmp.3();
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_301_47_304_4_stop:
     }
 }
-[ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 280; @symbol_classdef = [CodeMenuDelegate,280,6,22]; @symbol_extends<0> = [WatchUi,280,31,38]; @symbol_extends<1> = [MenuInputDelegate,280,39,56]; ]
+[ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 307; @symbol_classdef = [CodeMenuDelegate,307,6,22]; @symbol_extends<0> = [WatchUi,307,31,38]; @symbol_extends<1> = [MenuInputDelegate,307,39,56]; ]
 class CodeMenuDelegate extends WatchUi.MenuInputDelegate {
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 280; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 307; ]
     <init> {
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 280; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 307; ]
     static
     <init> {
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 281; @position = 8; @symbol_vardef = [view,281,8,12]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 308; @position = 8; @symbol_vardef = [view,308,8,12]; ]
     var view;
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 283; @symbol_functiondef = [initialize,283,13,23]; @symbol_param<0> = [view,283,24,28]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 310; @symbol_functiondef = [initialize,310,13,23]; @symbol_param<0> = [view,310,24,28]; ]
     function initialize(view) as Void {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_283_30_286_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 284 8 ]
-        symbol [ MenuInputDelegate %tmp.2 284 8 25 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_310_30_313_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 311 8 ]
+        symbol [ MenuInputDelegate %tmp.2 311 8 25 ];
         %tmp.2 = getv ? :MenuInputDelegate;
-        symbol [ initialize %tmp.3 284 26 36 ];
+        symbol [ initialize %tmp.3 311 26 36 ];
         %tmp.3 = getv function %tmp.2 :initialize;
         invoke %tmp.2 %tmp.3();
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 285 8 ]
-        symbol [ self %self 285 8 12 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 312 8 ]
+        symbol [ self %self 312 8 12 ];
         %tmp.4 = lgetv %view;
-        symbol [ view %tmp.4 285 20 24 ];
-        symbol [ view ? 285 13 17 ];
+        symbol [ view %tmp.4 312 20 24 ];
+        symbol [ view ? 312 13 17 ];
         putv self :view %tmp.4;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_283_30_286_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_310_30_313_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 288; @symbol_functiondef = [onMenuItem,288,13,23]; @symbol_param<0> = [item,288,24,28]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 315; @symbol_functiondef = [onMenuItem,315,13,23]; @symbol_param<0> = [item,315,24,28]; ]
     function onMenuItem(item) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_288_30_294_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 289 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_289_8_293_8_if_stmt:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_315_30_321_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 316 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_316_8_320_8_if_stmt:
         %tmp.1 = lgetv %item;
-        symbol [ item %tmp.1 289 12 16 ];
+        symbol [ item %tmp.1 316 12 16 ];
         %tmp.3 = const :remove;
-        symbol [ remove %tmp.3 289 21 27 const ];
+        symbol [ remove %tmp.3 316 21 27 const ];
         %tmp.4 = eq %tmp.1 %tmp.3;
-        bf %tmp.4 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_289_8_293_8_if_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_289_8_293_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_289_29_291_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 290 12 ]
-        symbol [ view %tmp.6 290 12 16 ];
+        bf %tmp.4 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_316_8_320_8_if_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_316_8_320_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_316_29_318_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 317 12 ]
+        symbol [ view %tmp.6 317 12 16 ];
         %tmp.6 = getv ? :view;
-        symbol [ removeCurrentCode %tmp.7 290 17 34 ];
+        symbol [ removeCurrentCode %tmp.7 317 17 34 ];
         %tmp.7 = getv function %tmp.6 :removeCurrentCode;
         invoke %tmp.6 %tmp.7();
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_289_29_291_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_289_8_293_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_289_8_293_8_if_false:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 291 15 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_291_15_293_8_if_stmt:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_316_29_318_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_316_8_320_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_316_8_320_8_if_false:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 318 15 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_318_15_320_8_if_stmt:
         %tmp.8 = lgetv %item;
-        symbol [ item %tmp.8 291 19 23 ];
+        symbol [ item %tmp.8 318 19 23 ];
         %tmp.10 = const :add;
-        symbol [ add %tmp.10 291 28 31 const ];
+        symbol [ add %tmp.10 318 28 31 const ];
         %tmp.11 = eq %tmp.8 %tmp.10;
-        bf %tmp.11 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_291_15_293_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_291_15_293_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_291_33_293_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 292 12 ]
-        symbol [ view %tmp.13 292 12 16 ];
+        bf %tmp.11 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_318_15_320_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_318_15_320_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_318_33_320_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 319 12 ]
+        symbol [ view %tmp.13 319 12 16 ];
         %tmp.13 = getv ? :view;
-        symbol [ startNewCodeMode %tmp.14 292 17 33 ];
+        symbol [ startNewCodeMode %tmp.14 319 17 33 ];
         %tmp.14 = getv function %tmp.13 :startNewCodeMode;
         invoke %tmp.13 %tmp.14();
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_291_33_293_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_291_15_293_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_291_15_293_8_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_289_8_293_8_if_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_288_30_294_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_318_33_320_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_318_15_320_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_318_15_320_8_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_316_8_320_8_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_315_30_321_4_stop:
     }
 }
-[ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 297; @symbol_classdef = [AppDelegate,297,6,17]; @symbol_extends<0> = [WatchUi,297,26,33]; @symbol_extends<1> = [BehaviorDelegate,297,34,50]; ]
+[ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 324; @symbol_classdef = [AppDelegate,324,6,17]; @symbol_extends<0> = [WatchUi,324,26,33]; @symbol_extends<1> = [BehaviorDelegate,324,34,50]; ]
 class AppDelegate extends WatchUi.BehaviorDelegate {
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 297; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 324; ]
     <init> {
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 297; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 324; ]
     static
     <init> {
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 298; @position = 8; @symbol_vardef = [view,298,8,12]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 325; @position = 8; @symbol_vardef = [view,325,8,12]; ]
     var view;
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 300; @symbol_functiondef = [initialize,300,13,23]; @symbol_param<0> = [view,300,24,28]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 327; @symbol_functiondef = [initialize,327,13,23]; @symbol_param<0> = [view,327,24,28]; ]
     function initialize(view) as Void {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_300_30_303_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 301 8 ]
-        symbol [ BehaviorDelegate %tmp.2 301 8 24 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_327_30_330_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 328 8 ]
+        symbol [ BehaviorDelegate %tmp.2 328 8 24 ];
         %tmp.2 = getv ? :BehaviorDelegate;
-        symbol [ initialize %tmp.3 301 25 35 ];
+        symbol [ initialize %tmp.3 328 25 35 ];
         %tmp.3 = getv function %tmp.2 :initialize;
         invoke %tmp.2 %tmp.3();
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 302 8 ]
-        symbol [ self %self 302 8 12 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 329 8 ]
+        symbol [ self %self 329 8 12 ];
         %tmp.4 = lgetv %view;
-        symbol [ view %tmp.4 302 20 24 ];
-        symbol [ view ? 302 13 17 ];
+        symbol [ view %tmp.4 329 20 24 ];
+        symbol [ view ? 329 13 17 ];
         putv self :view %tmp.4;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_300_30_303_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_327_30_330_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 305; @symbol_functiondef = [onKey,305,13,18]; @symbol_param<0> = [keyEvent,305,19,27]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 332; @symbol_functiondef = [onKey,332,13,18]; @symbol_param<0> = [keyEvent,332,19,27]; ]
     function onKey(keyEvent) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_305_29_307_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 306 8 ]
-        symbol [ view %tmp.2 306 15 19 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_332_29_334_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 333 8 ]
+        symbol [ view %tmp.2 333 15 19 ];
         %tmp.2 = getv ? :view;
-        symbol [ onKey %tmp.3 306 20 25 ];
+        symbol [ onKey %tmp.3 333 20 25 ];
         %tmp.3 = getv function %tmp.2 :onKey;
         %tmp.4 = lgetv %keyEvent;
-        symbol [ keyEvent %tmp.4 306 26 34 ];
+        symbol [ keyEvent %tmp.4 333 26 34 ];
         %tmp.5 = invoke %tmp.2 %tmp.3(%tmp.4);
         ret %tmp.5;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_305_29_307_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_332_29_334_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 309; @symbol_functiondef = [onTap,309,13,18]; @symbol_param<0> = [clickEvent,309,19,29]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 336; @symbol_functiondef = [onTap,336,13,18]; @symbol_param<0> = [clickEvent,336,19,29]; ]
     function onTap(clickEvent) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_309_31_312_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 310 8 ]
-        symbol [ System %tmp.1 310 8 14 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_336_31_339_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 337 8 ]
+        symbol [ System %tmp.1 337 8 14 ];
         %tmp.1 = getm $.Toybox.System;
-        symbol [ println %tmp.2 310 15 22 ];
+        symbol [ println %tmp.2 337 15 22 ];
         %tmp.2 = getv function %tmp.1 :println;
         %tmp.3 = lgetv %clickEvent;
-        symbol [ clickEvent %tmp.3 310 23 33 ];
-        symbol [ getType %tmp.4 310 34 41 ];
+        symbol [ clickEvent %tmp.3 337 23 33 ];
+        symbol [ getType %tmp.4 337 34 41 ];
         %tmp.4 = getv function %tmp.3 :getType;
         %tmp.5 = invoke %tmp.3 %tmp.4();
         invoke %tmp.1 %tmp.2(%tmp.5);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 311 8 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 338 8 ]
         %tmp.6 = true;
         ret %tmp.6;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_309_31_312_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_336_31_339_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 314; @symbol_functiondef = [onSwipe,314,13,20]; @symbol_param<0> = [swipeEvent,314,21,31]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 341; @symbol_functiondef = [onSwipe,341,13,20]; @symbol_param<0> = [swipeEvent,341,21,31]; ]
     function onSwipe(swipeEvent) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_314_33_317_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 315 8 ]
-        symbol [ System %tmp.1 315 8 14 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_341_33_344_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 342 8 ]
+        symbol [ System %tmp.1 342 8 14 ];
         %tmp.1 = getm $.Toybox.System;
-        symbol [ println %tmp.2 315 15 22 ];
+        symbol [ println %tmp.2 342 15 22 ];
         %tmp.2 = getv function %tmp.1 :println;
         %tmp.3 = lgetv %swipeEvent;
-        symbol [ swipeEvent %tmp.3 315 23 33 ];
-        symbol [ getDirection %tmp.4 315 34 46 ];
+        symbol [ swipeEvent %tmp.3 342 23 33 ];
+        symbol [ getDirection %tmp.4 342 34 46 ];
         %tmp.4 = getv function %tmp.3 :getDirection;
         %tmp.5 = invoke %tmp.3 %tmp.4();
         invoke %tmp.1 %tmp.2(%tmp.5);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 316 8 ]
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 343 8 ]
         %tmp.6 = true;
         ret %tmp.6;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_314_33_317_4_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_341_33_344_4_stop:
     }
 }
-[ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 320; @symbol_classdef = [TextPickerDelegate,320,6,24]; @symbol_extends<0> = [WatchUi,320,33,40]; @symbol_extends<1> = [TextPickerDelegate,320,41,59]; ]
+[ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 347; @symbol_classdef = [TextPickerDelegate,347,6,24]; @symbol_extends<0> = [WatchUi,347,33,40]; @symbol_extends<1> = [TextPickerDelegate,347,41,59]; ]
 class TextPickerDelegate extends WatchUi.TextPickerDelegate {
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 320; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 347; ]
     <init> {
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 320; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 347; ]
     static
     <init> {
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 321; @position = 8; @symbol_vardef = [view,321,8,12]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 348; @position = 8; @symbol_vardef = [view,348,8,12]; ]
     var view;
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 323; @symbol_functiondef = [initialize,323,13,23]; @symbol_param<0> = [view,323,24,28]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 349; @position = 8; @symbol_vardef = [currentText,349,8,19]; ]
+    var currentText;
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 351; @symbol_functiondef = [initialize,351,13,23]; @symbol_param<0> = [view,351,24,28]; ]
     function initialize(view) as Void {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_323_30_326_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 324 8 ]
-        symbol [ TextPickerDelegate %tmp.2 324 8 26 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_351_30_355_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 352 8 ]
+        symbol [ TextPickerDelegate %tmp.2 352 8 26 ];
         %tmp.2 = getv ? :TextPickerDelegate;
-        symbol [ initialize %tmp.3 324 27 37 ];
+        symbol [ initialize %tmp.3 352 27 37 ];
         %tmp.3 = getv function %tmp.2 :initialize;
         invoke %tmp.2 %tmp.3();
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 325 8 ]
-        symbol [ self %self 325 8 12 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 353 8 ]
+        symbol [ self %self 353 8 12 ];
         %tmp.4 = lgetv %view;
-        symbol [ view %tmp.4 325 20 24 ];
-        symbol [ view ? 325 13 17 ];
+        symbol [ view %tmp.4 353 20 24 ];
+        symbol [ view ? 353 13 17 ];
         putv self :view %tmp.4;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_323_30_326_4_stop:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 354 8 ]
+        symbol [ self %self 354 8 12 ];
+        %tmp.5 = "";
+        symbol [ currentText ? 354 13 24 ];
+        putv self :currentText %tmp.5;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_351_30_355_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 328; @symbol_functiondef = [onTextEntered,328,13,26]; @symbol_param<0> = [text,328,27,31]; @symbol_param<1> = [changed,328,33,40]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 357; @symbol_functiondef = [onTextEntered,357,13,26]; @symbol_param<0> = [text,357,27,31]; @symbol_param<1> = [changed,357,33,40]; ]
     function onTextEntered(text, changed) {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_328_42_342_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 329 8 ]
-        symbol [ System %tmp.1 329 8 14 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_357_42_375_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 358 8 ]
+        symbol [ System %tmp.1 358 8 14 ];
         %tmp.1 = getm $.Toybox.System;
-        symbol [ println %tmp.2 329 15 22 ];
+        symbol [ println %tmp.2 358 15 22 ];
         %tmp.2 = getv function %tmp.1 :println;
         %tmp.3 = "Text entered: ";
         %tmp.4 = lgetv %text;
-        symbol [ text %tmp.4 329 42 46 ];
+        symbol [ text %tmp.4 358 42 46 ];
         %tmp.5 = add %tmp.3 %tmp.4;
         invoke %tmp.1 %tmp.2(%tmp.5);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 330 8 ]
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_8_338_8_if_stmt:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_12_330_44_begin:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 359 8 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_8_372_8_if_stmt:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_12_359_44_begin:
         %tmp.6 = lgetv %text;
-        symbol [ text %tmp.6 330 12 16 ];
+        symbol [ text %tmp.6 359 12 16 ];
         %tmp.7 = null;
         %tmp.8 = ne %tmp.6 %tmp.7;
-        bf %tmp.8 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_8_338_8_if_else_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_28_330_44_true:
+        bf %tmp.8 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_8_372_8_if_else_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_28_359_44_true:
         %tmp.9 = lgetv %text;
-        symbol [ text %tmp.9 330 28 32 ];
+        symbol [ text %tmp.9 359 28 32 ];
         %tmp.10 = as %tmp.9 { (!Null) };
-        symbol [ length %tmp.11 330 33 39 ];
+        symbol [ length %tmp.11 359 33 39 ];
         %tmp.11 = getv function %tmp.10 :length;
         %tmp.12 = invoke %tmp.10 %tmp.11();
         %tmp.13 = 0;
         %tmp.14 = gt %tmp.12 %tmp.13;
         push %tmp.14;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_28_330_44_end:
-        %tmp.15 = phi [%tmp.8 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_12_330_44_begin] [%tmp.14 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_28_330_44_true] [%tmp.15 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_28_330_44_end];
-        bf %tmp.15 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_8_338_8_if_else_false;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_8_338_8_if_true:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_47_336_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 331 12 ]
-        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_beginTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_endTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_finally;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_beginTry:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_16_333_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 332 16 ]
-        symbol [ view %tmp.17 332 16 20 ];
-        %tmp.17 = getv ? :view;
-        symbol [ downloadImage %tmp.18 332 21 34 ];
-        %tmp.18 = getv function %tmp.17 :downloadImage;
-        %tmp.19 = lgetv %text;
-        symbol [ text %tmp.19 332 35 39 ];
-        %tmp.20 = as %tmp.19 { (!Null) };
-        invoke %tmp.17 %tmp.18(%tmp.20);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_16_333_12_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_endTry:
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_finally;
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_catch:
-        %tmp.21 = exception;
-        push %tmp.21;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 333 14 ]
-        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_catch" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_333_14_335_12_end" ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_28_359_44_end:
+        %tmp.15 = phi [%tmp.8 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_12_359_44_begin] [%tmp.14 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_28_359_44_true] [%tmp.15 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_28_359_44_end];
+        bf %tmp.15 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_8_372_8_if_else_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_8_372_8_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_47_370_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 360 12 ]
+        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_beginTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_endTry @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_finally;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_beginTry:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_16_367_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 361 16 ]
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_361_16_366_16_if_stmt:
+        %tmp.16 = lgetv %changed;
+        symbol [ changed %tmp.16 361 20 27 ];
+        bf %tmp.16 @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_361_16_366_16_if_else_false;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_361_16_366_16_if_true:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_361_29_364_16_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 362 20 ]
+        symbol [ System %tmp.17 362 20 26 ];
+        %tmp.17 = getm $.Toybox.System;
+        symbol [ println %tmp.18 362 27 34 ];
+        %tmp.18 = getv function %tmp.17 :println;
+        %tmp.19 = "Text changed, regenerating QR code";
+        invoke %tmp.17 %tmp.18(%tmp.19);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 363 20 ]
+        symbol [ view %tmp.21 363 20 24 ];
+        %tmp.21 = getv ? :view;
+        symbol [ downloadImage %tmp.22 363 25 38 ];
+        %tmp.22 = getv function %tmp.21 :downloadImage;
+        %tmp.23 = lgetv %text;
+        symbol [ text %tmp.23 363 39 43 ];
+        %tmp.24 = as %tmp.23 { (!Null) };
+        invoke %tmp.21 %tmp.22(%tmp.24);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_361_29_364_16_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_361_16_366_16_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_361_16_366_16_if_else_false:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_364_23_366_16_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 365 20 ]
+        symbol [ System %tmp.25 365 20 26 ];
+        %tmp.25 = getm $.Toybox.System;
+        symbol [ println %tmp.26 365 27 34 ];
+        %tmp.26 = getv function %tmp.25 :println;
+        %tmp.27 = "Text unchanged, keeping current QR code";
+        invoke %tmp.25 %tmp.26(%tmp.27);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_364_23_366_16_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_361_16_366_16_if_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_16_367_12_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_endTry:
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_finally;
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_catch:
+        %tmp.28 = exception;
+        push %tmp.28;
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 367 14 ]
+        [ "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_catch" "_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_367_14_369_12_end" ]
         %e.1 = local;
-        symbol [ e %e.1 333 21 22 ];
-        %tmp.22 = dup %tmp.21;
-        lputv %e.1 %tmp.22;
-        symbol [ e %e.1 333 21 22 ];
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_333_24_335_12_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 334 16 ]
-        symbol [ System %tmp.23 334 16 22 ];
-        %tmp.23 = getm $.Toybox.System;
-        symbol [ println %tmp.24 334 23 30 ];
-        %tmp.24 = getv function %tmp.23 :println;
-        %tmp.25 = "Error in onTextEntered: ";
-        %tmp.26 = lgetv %e.1;
-        symbol [ e %tmp.26 334 60 61 ];
-        symbol [ getErrorMessage %tmp.27 334 62 77 ];
-        %tmp.27 = getv function %tmp.26 :getErrorMessage;
-        %tmp.28 = invoke %tmp.26 %tmp.27();
-        %tmp.29 = add %tmp.25 %tmp.28;
-        invoke %tmp.23 %tmp.24(%tmp.29);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_333_24_335_12_stop:
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_finally;
-        pop;
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_333_14_335_12_end:
-        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_333_14_335_12_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_333_14_335_12_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_finally;
-        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_finally;
-        throw %tmp.21;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_finally:
-        jsrret;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_331_12_335_12_end:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_47_336_8_stop:
-        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_8_338_8_if_end;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_8_338_8_if_else_false:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_336_15_338_8_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 337 12 ]
-        symbol [ System %tmp.30 337 12 18 ];
+        symbol [ e %e.1 367 21 22 ];
+        %tmp.29 = dup %tmp.28;
+        lputv %e.1 %tmp.29;
+        symbol [ e %e.1 367 21 22 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_367_24_369_12_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 368 16 ]
+        symbol [ System %tmp.30 368 16 22 ];
         %tmp.30 = getm $.Toybox.System;
-        symbol [ println %tmp.31 337 19 26 ];
+        symbol [ println %tmp.31 368 23 30 ];
         %tmp.31 = getv function %tmp.30 :println;
-        %tmp.32 = "Empty text entered";
-        invoke %tmp.30 %tmp.31(%tmp.32);
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_336_15_338_8_stop:
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_330_8_338_8_if_end:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 339 8 ]
-        symbol [ view %tmp.33 339 8 12 ];
-        %tmp.33 = getv self :view;
-        %tmp.34 = false;
-        symbol [ isNewCodeMode ? 339 13 26 ];
-        putv %tmp.33 :isNewCodeMode %tmp.34;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 340 8 ]
-        symbol [ WatchUi %tmp.35 340 8 15 ];
-        %tmp.35 = getm $.Toybox.WatchUi;
-        symbol [ popView %tmp.36 340 16 23 ];
-        %tmp.36 = getv function %tmp.35 :popView;
-        symbol [ WatchUi %tmp.37 340 24 31 ];
-        %tmp.37 = getm $.Toybox.WatchUi;
-        symbol [ SLIDE_DOWN %tmp.38 340 32 42 ];
-        %tmp.38 = getv %tmp.37 :SLIDE_DOWN;
-        invoke %tmp.35 %tmp.36(%tmp.38);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 341 8 ]
-        %tmp.39 = true;
-        ret %tmp.39;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_328_42_342_4_stop:
+        %tmp.32 = "Error in onTextEntered: ";
+        %tmp.33 = lgetv %e.1;
+        symbol [ e %tmp.33 368 60 61 ];
+        symbol [ getErrorMessage %tmp.34 368 62 77 ];
+        %tmp.34 = getv function %tmp.33 :getErrorMessage;
+        %tmp.35 = invoke %tmp.33 %tmp.34();
+        %tmp.36 = add %tmp.32 %tmp.35;
+        invoke %tmp.30 %tmp.31(%tmp.36);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_367_24_369_12_stop:
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_finally;
+        pop;
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_367_14_369_12_end:
+        try @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_catch @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_367_14_369_12_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_367_14_369_12_end @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_finally;
+        jsr @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_finally;
+        throw %tmp.28;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_finally:
+        jsrret;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_360_12_369_12_end:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_47_370_8_stop:
+        goto @_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_8_372_8_if_end;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_8_372_8_if_else_false:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_370_15_372_8_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 371 12 ]
+        symbol [ System %tmp.37 371 12 18 ];
+        %tmp.37 = getm $.Toybox.System;
+        symbol [ println %tmp.38 371 19 26 ];
+        %tmp.38 = getv function %tmp.37 :println;
+        %tmp.39 = "Empty text entered";
+        invoke %tmp.37 %tmp.38(%tmp.39);
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_370_15_372_8_stop:
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_359_8_372_8_if_end:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 373 8 ]
+        symbol [ WatchUi %tmp.40 373 8 15 ];
+        %tmp.40 = getm $.Toybox.WatchUi;
+        symbol [ popView %tmp.41 373 16 23 ];
+        %tmp.41 = getv function %tmp.40 :popView;
+        symbol [ WatchUi %tmp.42 373 24 31 ];
+        %tmp.42 = getm $.Toybox.WatchUi;
+        symbol [ SLIDE_DOWN %tmp.43 373 32 42 ];
+        %tmp.43 = getv %tmp.42 :SLIDE_DOWN;
+        invoke %tmp.40 %tmp.41(%tmp.43);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 374 8 ]
+        %tmp.44 = true;
+        ret %tmp.44;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_357_42_375_4_stop:
     }
-    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 344; @symbol_functiondef = [onCancel,344,13,21]; ]
+    [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 377; @symbol_functiondef = [onCancel,377,13,21]; ]
     function onCancel() {
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_344_24_349_4_start:
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 345 8 ]
-        symbol [ System %tmp.1 345 8 14 ];
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_377_24_381_4_start:
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 378 8 ]
+        symbol [ System %tmp.1 378 8 14 ];
         %tmp.1 = getm $.Toybox.System;
-        symbol [ println %tmp.2 345 15 22 ];
+        symbol [ println %tmp.2 378 15 22 ];
         %tmp.2 = getv function %tmp.1 :println;
         %tmp.3 = "Text input cancelled";
         invoke %tmp.1 %tmp.2(%tmp.3);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 346 8 ]
-        symbol [ view %tmp.4 346 8 12 ];
-        %tmp.4 = getv self :view;
-        %tmp.5 = false;
-        symbol [ isNewCodeMode ? 346 13 26 ];
-        putv %tmp.4 :isNewCodeMode %tmp.5;
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 347 8 ]
-        symbol [ WatchUi %tmp.6 347 8 15 ];
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 379 8 ]
+        symbol [ WatchUi %tmp.4 379 8 15 ];
+        %tmp.4 = getm $.Toybox.WatchUi;
+        symbol [ popView %tmp.5 379 16 23 ];
+        %tmp.5 = getv function %tmp.4 :popView;
+        symbol [ WatchUi %tmp.6 379 24 31 ];
         %tmp.6 = getm $.Toybox.WatchUi;
-        symbol [ popView %tmp.7 347 16 23 ];
-        %tmp.7 = getv function %tmp.6 :popView;
-        symbol [ WatchUi %tmp.8 347 24 31 ];
-        %tmp.8 = getm $.Toybox.WatchUi;
-        symbol [ SLIDE_DOWN %tmp.9 347 32 42 ];
-        %tmp.9 = getv %tmp.8 :SLIDE_DOWN;
-        invoke %tmp.6 %tmp.7(%tmp.9);
-[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 348 8 ]
-        %tmp.10 = true;
-        ret %tmp.10;
-_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_344_24_349_4_stop:
+        symbol [ SLIDE_DOWN %tmp.7 379 32 42 ];
+        %tmp.7 = getv %tmp.6 :SLIDE_DOWN;
+        invoke %tmp.4 %tmp.5(%tmp.7);
+[ "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" 380 8 ]
+        %tmp.8 = true;
+        ret %tmp.8;
+_Users_adrianmorenopena_Projects_garmin_qr_source_App_mc_377_24_381_4_stop:
     }
 }
 [ @file = "/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc"; @line = 1; ]

@@ -29,6 +29,8 @@ class AppView extends WatchUi.View {
     var currentIndex as Lang.Number;
     var isDownloading;
     var isNewCodeMode;
+    var errorMessage as Null or Lang.String;
+    var errorTimer as Null or Timer.Timer;
 
     function initialize() {
         View.initialize();
@@ -94,6 +96,7 @@ class AppView extends WatchUi.View {
             try {
                 if (data == null) {
                     System.println("Error: Received null data");
+                    showError("Failed to generate QR code");
                     return;
                 }
                 
@@ -109,9 +112,17 @@ class AppView extends WatchUi.View {
                 System.println("Image downloaded and processed successfully");
             } catch (e) {
                 System.println("Error saving image: " + e.getErrorMessage());
+                showError("Failed to save QR code");
             }
         } else {
             System.println("Download failed with code: " + responseCode);
+            if (responseCode == -100) {  // Network timeout
+                showError("Network timeout");
+            } else if (responseCode == -101) {  // Network request failed
+                showError("Network error");
+            } else {
+                showError("Failed to generate QR code");
+            }
         }
     }
 
@@ -155,6 +166,18 @@ class AppView extends WatchUi.View {
                 Graphics.TEXT_JUSTIFY_CENTER
             );
         }
+        
+        // Show error message if there is one
+        if (errorMessage != null) {
+            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(
+                dc.getWidth() / 2,
+                dc.getHeight() - 20,  // 20 pixels from bottom
+                Graphics.FONT_XTINY,
+                errorMessage,
+                Graphics.TEXT_JUSTIFY_CENTER
+            );
+        }
     }
 
     function drawImage(dc, image) {
@@ -169,6 +192,12 @@ class AppView extends WatchUi.View {
     }
 
     function onKey(keyEvent) {
+        // Clear any error message when a key is pressed
+        if (errorMessage != null) {
+            errorMessage = null;
+            WatchUi.requestUpdate();
+        }
+
         var key = keyEvent.getKey();
         System.println("onKey: " + key + " (images.size: " + images.size() + ", currentIndex: " + currentIndex + ")");
         
@@ -267,6 +296,11 @@ class AppView extends WatchUi.View {
             return true;
         }
         return false;
+    }
+
+    function showError(message as Lang.String) {
+        errorMessage = message;
+        WatchUi.requestUpdate();
     }
 }
 
