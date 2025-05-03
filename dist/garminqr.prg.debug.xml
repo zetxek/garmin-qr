@@ -4,177 +4,194 @@
 <pcToLineNum>
 <entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="1" lineNum="10" parent="globals/App" pc="268435457" symbol="&lt;init&gt;"/>
 <entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="2" lineNum="27" parent="globals/AppView" pc="268435469" symbol="&lt;init&gt;"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="3" lineNum="301" parent="globals/CodeMenuDelegate" pc="268435481" symbol="&lt;init&gt;"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="4" lineNum="318" parent="globals/AppDelegate" pc="268435493" symbol="&lt;init&gt;"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="3" lineNum="280" parent="globals/CodeMenuDelegate" pc="268435481" symbol="&lt;init&gt;"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="4" lineNum="297" parent="globals/AppDelegate" pc="268435493" symbol="&lt;init&gt;"/>
 <entry filename="/Users/adrianmorenopena/Projects/garmin-qr/dist/gen/006-B4534-00/source/Rez.mcgen" id="5" lineNum="7" parent="globals/Rez" pc="268435505" symbol="&lt;init&gt;"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="7" lineNum="21" parent="globals/App" pc="268435525" symbol="getInitialView"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="7" lineNum="22" parent="globals/App" pc="268435528" symbol="getInitialView"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="7" lineNum="23" parent="globals/App" pc="268435552" symbol="getInitialView"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="8" lineNum="11" parent="globals/App" pc="268435589" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="8" lineNum="12" parent="globals/App" pc="268435591" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="45" parent="globals/AppView" pc="268435604" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="46" parent="globals/AppView" pc="268435607" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="48" parent="globals/AppView" pc="268435625" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="49" parent="globals/AppView" pc="268435644" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="50" parent="globals/AppView" pc="268435650" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="51" parent="globals/AppView" pc="268435671" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="52" parent="globals/AppView" pc="268435682" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="53" parent="globals/AppView" pc="268435704" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="54" parent="globals/AppView" pc="268435710" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="57" parent="globals/AppView" pc="268435736" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="59" parent="globals/AppView" pc="268435775" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="61" parent="globals/AppView" pc="268435794" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="10" lineNum="62" parent="globals/AppView" pc="268435798" symbol="loadCachedImages"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="119" parent="globals/AppView" pc="268435828" symbol="onShow"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="120" parent="globals/AppView" pc="268435830" symbol="onShow"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="13" lineNum="275" parent="globals/AppView" pc="268435849" symbol="startNewCodeMode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="13" lineNum="276" parent="globals/AppView" pc="268435851" symbol="startNewCodeMode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="13" lineNum="277" parent="globals/AppView" pc="268435859" symbol="startNewCodeMode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="290" parent="globals/AppView" pc="268435871" symbol="onSwipe"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="291" parent="globals/AppView" pc="268435873" symbol="onSwipe"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="293" parent="globals/AppView" pc="268435881" symbol="onSwipe"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="294" parent="globals/AppView" pc="268435889" symbol="onSwipe"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="295" parent="globals/AppView" pc="268435900" symbol="onSwipe"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="297" parent="globals/AppView" pc="268435902" symbol="onSwipe"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="280" parent="globals/AppView" pc="268435904" symbol="onTap"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="281" parent="globals/AppView" pc="268435906" symbol="onTap"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="282" parent="globals/AppView" pc="268435914" symbol="onTap"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="284" parent="globals/AppView" pc="268435932" symbol="onTap"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="285" parent="globals/AppView" pc="268435957" symbol="onTap"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="287" parent="globals/AppView" pc="268435959" symbol="onTap"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="199" parent="globals/AppView" pc="268435961" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="200" parent="globals/AppView" pc="268435964" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="201" parent="globals/AppView" pc="268435973" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="203" parent="globals/AppView" pc="268436042" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="204" parent="globals/AppView" pc="268436050" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="205" parent="globals/AppView" pc="268436058" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="207" parent="globals/AppView" pc="268436076" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="208" parent="globals/AppView" pc="268436101" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="211" parent="globals/AppView" pc="268436103" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="212" parent="globals/AppView" pc="268436111" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="213" parent="globals/AppView" pc="268436129" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="214" parent="globals/AppView" pc="268436139" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="215" parent="globals/AppView" pc="268436154" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="216" parent="globals/AppView" pc="268436178" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="217" parent="globals/AppView" pc="268436192" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="218" parent="globals/AppView" pc="268436208" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="220" parent="globals/AppView" pc="268436226" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="221" parent="globals/AppView" pc="268436234" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="223" parent="globals/AppView" pc="268436245" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="224" parent="globals/AppView" pc="268436247" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="225" parent="globals/AppView" pc="268436255" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="226" parent="globals/AppView" pc="268436273" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="227" parent="globals/AppView" pc="268436296" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="228" parent="globals/AppView" pc="268436311" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="229" parent="globals/AppView" pc="268436335" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="230" parent="globals/AppView" pc="268436349" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="232" parent="globals/AppView" pc="268436365" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="233" parent="globals/AppView" pc="268436383" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="234" parent="globals/AppView" pc="268436407" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="235" parent="globals/AppView" pc="268436422" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="236" parent="globals/AppView" pc="268436442" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="237" parent="globals/AppView" pc="268436462" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="239" parent="globals/AppView" pc="268436502" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="240" parent="globals/AppView" pc="268436504" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="241" parent="globals/AppView" pc="268436528" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="243" parent="globals/AppView" pc="268436546" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="244" parent="globals/AppView" pc="268436570" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="245" parent="globals/AppView" pc="268436585" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="246" parent="globals/AppView" pc="268436605" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="247" parent="globals/AppView" pc="268436645" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="251" parent="globals/AppView" pc="268436647" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="188" parent="globals/AppView" pc="268436649" symbol="drawImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="189" parent="globals/AppView" pc="268436652" symbol="drawImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="190" parent="globals/AppView" pc="268436661" symbol="drawImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="191" parent="globals/AppView" pc="268436670" symbol="drawImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="192" parent="globals/AppView" pc="268436681" symbol="drawImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="193" parent="globals/AppView" pc="268436692" symbol="drawImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="254" parent="globals/AppView" pc="268436709" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="255" parent="globals/AppView" pc="268436712" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="257" parent="globals/AppView" pc="268436728" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="260" parent="globals/AppView" pc="268436753" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="261" parent="globals/AppView" pc="268436777" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="262" parent="globals/AppView" pc="268436801" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="264" parent="globals/AppView" pc="268436840" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="267" parent="globals/AppView" pc="268436869" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="268" parent="globals/AppView" pc="268436889" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="271" parent="globals/AppView" pc="268436930" symbol="removeCurrentCode"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="33" parent="globals/AppView" pc="268436942" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="34" parent="globals/AppView" pc="268436944" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="35" parent="globals/AppView" pc="268436956" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="36" parent="globals/AppView" pc="268436974" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="37" parent="globals/AppView" pc="268436983" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="38" parent="globals/AppView" pc="268436991" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="39" parent="globals/AppView" pc="268436999" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="42" parent="globals/AppView" pc="268437007" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="123" parent="globals/AppView" pc="268437015" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="124" parent="globals/AppView" pc="268437017" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="127" parent="globals/AppView" pc="268437033" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="128" parent="globals/AppView" pc="268437049" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="130" parent="globals/AppView" pc="268437057" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="132" parent="globals/AppView" pc="268437065" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="133" parent="globals/AppView" pc="268437082" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="142" parent="globals/AppView" pc="268437124" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="149" parent="globals/AppView" pc="268437166" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="151" parent="globals/AppView" pc="268437202" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="152" parent="globals/AppView" pc="268437226" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="155" parent="globals/AppView" pc="268437248" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="156" parent="globals/AppView" pc="268437265" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="163" parent="globals/AppView" pc="268437331" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="165" parent="globals/AppView" pc="268437339" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="166" parent="globals/AppView" pc="268437357" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="167" parent="globals/AppView" pc="268437374" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="176" parent="globals/AppView" pc="268437414" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="177" parent="globals/AppView" pc="268437432" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="178" parent="globals/AppView" pc="268437449" symbol="onUpdate"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="66" parent="globals/AppView" pc="268437489" symbol="downloadImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="67" parent="globals/AppView" pc="268437492" symbol="downloadImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="68" parent="globals/AppView" pc="268437500" symbol="downloadImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="69" parent="globals/AppView" pc="268437518" symbol="downloadImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="72" parent="globals/AppView" pc="268437519" symbol="downloadImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="73" parent="globals/AppView" pc="268437527" symbol="downloadImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="74" parent="globals/AppView" pc="268437537" symbol="downloadImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="75" parent="globals/AppView" pc="268437540" symbol="downloadImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="80" parent="globals/AppView" pc="268437565" symbol="downloadImage"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="88" parent="globals/AppView" pc="268437598" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="89" parent="globals/AppView" pc="268437601" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="90" parent="globals/AppView" pc="268437622" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="92" parent="globals/AppView" pc="268437630" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="94" parent="globals/AppView" pc="268437639" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="96" parent="globals/AppView" pc="268437647" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="97" parent="globals/AppView" pc="268437663" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="98" parent="globals/AppView" pc="268437698" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="99" parent="globals/AppView" pc="268437727" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="100" parent="globals/AppView" pc="268437745" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="103" parent="globals/AppView" pc="268437756" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="104" parent="globals/AppView" pc="268437769" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="106" parent="globals/AppView" pc="268437795" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="107" parent="globals/AppView" pc="268437806" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="108" parent="globals/AppView" pc="268437825" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="109" parent="globals/AppView" pc="268437829" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="23" lineNum="112" parent="globals/AppView" pc="268437858" symbol="responseCallback"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="309" parent="globals/CodeMenuDelegate" pc="268437880" symbol="onMenuItem"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="310" parent="globals/CodeMenuDelegate" pc="268437882" symbol="onMenuItem"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="311" parent="globals/CodeMenuDelegate" pc="268437893" symbol="onMenuItem"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="312" parent="globals/CodeMenuDelegate" pc="268437906" symbol="onMenuItem"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="313" parent="globals/CodeMenuDelegate" pc="268437917" symbol="onMenuItem"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="304" parent="globals/CodeMenuDelegate" pc="268437930" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="305" parent="globals/CodeMenuDelegate" pc="268437932" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="306" parent="globals/CodeMenuDelegate" pc="268437944" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="335" parent="globals/AppDelegate" pc="268437954" symbol="onSwipe"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="336" parent="globals/AppDelegate" pc="268437956" symbol="onSwipe"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="337" parent="globals/AppDelegate" pc="268437976" symbol="onSwipe"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="27" lineNum="321" parent="globals/AppDelegate" pc="268437978" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="27" lineNum="322" parent="globals/AppDelegate" pc="268437980" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="27" lineNum="323" parent="globals/AppDelegate" pc="268437992" symbol="initialize"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="28" lineNum="330" parent="globals/AppDelegate" pc="268438002" symbol="onTap"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="28" lineNum="331" parent="globals/AppDelegate" pc="268438004" symbol="onTap"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="28" lineNum="332" parent="globals/AppDelegate" pc="268438024" symbol="onTap"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="29" lineNum="326" parent="globals/AppDelegate" pc="268438026" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="29" lineNum="327" parent="globals/AppDelegate" pc="268438028" symbol="onKey"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/dist/gen/006-B4534-00/source/Rez.mcgen" id="30" lineNum="15" parent="globals/Rez/Layouts" pc="268438044" symbol="MainLayout"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/dist/gen/006-B4534-00/source/Rez.mcgen" id="30" lineNum="16" parent="globals/Rez/Layouts" pc="268438055" symbol="MainLayout"/>
-<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/dist/gen/006-B4534-00/source/Rez.mcgen" id="30" lineNum="18" parent="globals/Rez/Layouts" pc="268438154" symbol="MainLayout"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="6" lineNum="320" parent="globals/TextPickerDelegate" pc="268435525" symbol="&lt;init&gt;"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="8" lineNum="21" parent="globals/App" pc="268435537" symbol="getInitialView"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="8" lineNum="22" parent="globals/App" pc="268435540" symbol="getInitialView"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="8" lineNum="23" parent="globals/App" pc="268435564" symbol="getInitialView"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="9" lineNum="11" parent="globals/App" pc="268435601" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="9" lineNum="12" parent="globals/App" pc="268435603" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="45" parent="globals/AppView" pc="268435616" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="46" parent="globals/AppView" pc="268435619" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="48" parent="globals/AppView" pc="268435637" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="49" parent="globals/AppView" pc="268435656" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="50" parent="globals/AppView" pc="268435662" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="51" parent="globals/AppView" pc="268435683" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="52" parent="globals/AppView" pc="268435694" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="53" parent="globals/AppView" pc="268435716" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="54" parent="globals/AppView" pc="268435722" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="57" parent="globals/AppView" pc="268435748" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="59" parent="globals/AppView" pc="268435787" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="61" parent="globals/AppView" pc="268435806" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="11" lineNum="62" parent="globals/AppView" pc="268435810" symbol="loadCachedImages"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="12" lineNum="128" parent="globals/AppView" pc="268435840" symbol="onShow"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="12" lineNum="129" parent="globals/AppView" pc="268435842" symbol="onShow"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="253" parent="globals/AppView" pc="268435861" symbol="startNewCodeMode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="254" parent="globals/AppView" pc="268435864" symbol="startNewCodeMode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="255" parent="globals/AppView" pc="268435882" symbol="startNewCodeMode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="14" lineNum="256" parent="globals/AppView" pc="268435911" symbol="startNewCodeMode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="269" parent="globals/AppView" pc="268435952" symbol="onSwipe"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="270" parent="globals/AppView" pc="268435954" symbol="onSwipe"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="272" parent="globals/AppView" pc="268435962" symbol="onSwipe"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="273" parent="globals/AppView" pc="268435970" symbol="onSwipe"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="274" parent="globals/AppView" pc="268435981" symbol="onSwipe"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="15" lineNum="276" parent="globals/AppView" pc="268435983" symbol="onSwipe"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="217" parent="globals/AppView" pc="268435985" symbol="showAddMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="218" parent="globals/AppView" pc="268435988" symbol="showAddMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="219" parent="globals/AppView" pc="268436012" symbol="showAddMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="220" parent="globals/AppView" pc="268436027" symbol="showAddMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="16" lineNum="221" parent="globals/AppView" pc="268436047" symbol="showAddMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="224" parent="globals/AppView" pc="268436088" symbol="showItemMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="225" parent="globals/AppView" pc="268436091" symbol="showItemMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="226" parent="globals/AppView" pc="268436115" symbol="showItemMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="227" parent="globals/AppView" pc="268436130" symbol="showItemMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="228" parent="globals/AppView" pc="268436150" symbol="showItemMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="17" lineNum="229" parent="globals/AppView" pc="268436170" symbol="showItemMenu"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="259" parent="globals/AppView" pc="268436211" symbol="onTap"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="260" parent="globals/AppView" pc="268436213" symbol="onTap"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="261" parent="globals/AppView" pc="268436221" symbol="onTap"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="263" parent="globals/AppView" pc="268436239" symbol="onTap"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="264" parent="globals/AppView" pc="268436264" symbol="onTap"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="18" lineNum="266" parent="globals/AppView" pc="268436266" symbol="onTap"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="178" parent="globals/AppView" pc="268436268" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="179" parent="globals/AppView" pc="268436271" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="180" parent="globals/AppView" pc="268436280" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="182" parent="globals/AppView" pc="268436337" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="184" parent="globals/AppView" pc="268436353" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="185" parent="globals/AppView" pc="268436360" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="188" parent="globals/AppView" pc="268436362" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="189" parent="globals/AppView" pc="268436370" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="190" parent="globals/AppView" pc="268436388" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="191" parent="globals/AppView" pc="268436398" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="193" parent="globals/AppView" pc="268436416" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="195" parent="globals/AppView" pc="268436437" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="196" parent="globals/AppView" pc="268436461" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="197" parent="globals/AppView" pc="268436472" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="198" parent="globals/AppView" pc="268436474" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="199" parent="globals/AppView" pc="268436482" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="200" parent="globals/AppView" pc="268436500" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="201" parent="globals/AppView" pc="268436523" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="203" parent="globals/AppView" pc="268436541" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="205" parent="globals/AppView" pc="268436549" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="206" parent="globals/AppView" pc="268436573" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="207" parent="globals/AppView" pc="268436584" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="208" parent="globals/AppView" pc="268436586" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="209" parent="globals/AppView" pc="268436594" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="210" parent="globals/AppView" pc="268436612" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="211" parent="globals/AppView" pc="268436619" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="19" lineNum="214" parent="globals/AppView" pc="268436621" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="20" lineNum="167" parent="globals/AppView" pc="268436623" symbol="drawImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="20" lineNum="168" parent="globals/AppView" pc="268436626" symbol="drawImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="20" lineNum="169" parent="globals/AppView" pc="268436635" symbol="drawImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="20" lineNum="170" parent="globals/AppView" pc="268436644" symbol="drawImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="20" lineNum="171" parent="globals/AppView" pc="268436655" symbol="drawImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="20" lineNum="172" parent="globals/AppView" pc="268436666" symbol="drawImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="232" parent="globals/AppView" pc="268436683" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="233" parent="globals/AppView" pc="268436686" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="235" parent="globals/AppView" pc="268436702" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="238" parent="globals/AppView" pc="268436727" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="239" parent="globals/AppView" pc="268436751" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="240" parent="globals/AppView" pc="268436775" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="242" parent="globals/AppView" pc="268436814" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="245" parent="globals/AppView" pc="268436843" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="246" parent="globals/AppView" pc="268436863" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="21" lineNum="249" parent="globals/AppView" pc="268436904" symbol="removeCurrentCode"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="33" parent="globals/AppView" pc="268436916" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="34" parent="globals/AppView" pc="268436918" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="35" parent="globals/AppView" pc="268436930" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="36" parent="globals/AppView" pc="268436948" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="37" parent="globals/AppView" pc="268436957" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="38" parent="globals/AppView" pc="268436965" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="39" parent="globals/AppView" pc="268436973" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="22" lineNum="42" parent="globals/AppView" pc="268436981" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="132" parent="globals/AppView" pc="268436989" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="133" parent="globals/AppView" pc="268436991" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="136" parent="globals/AppView" pc="268437007" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="137" parent="globals/AppView" pc="268437023" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="139" parent="globals/AppView" pc="268437031" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="141" parent="globals/AppView" pc="268437047" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="142" parent="globals/AppView" pc="268437065" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="143" parent="globals/AppView" pc="268437082" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="150" parent="globals/AppView" pc="268437122" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="152" parent="globals/AppView" pc="268437142" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="153" parent="globals/AppView" pc="268437166" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="156" parent="globals/AppView" pc="268437188" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="24" lineNum="157" parent="globals/AppView" pc="268437205" symbol="onUpdate"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="66" parent="globals/AppView" pc="268437271" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="67" parent="globals/AppView" pc="268437274" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="68" parent="globals/AppView" pc="268437282" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="69" parent="globals/AppView" pc="268437300" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="72" parent="globals/AppView" pc="268437301" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="73" parent="globals/AppView" pc="268437309" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="74" parent="globals/AppView" pc="268437330" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="75" parent="globals/AppView" pc="268437340" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="76" parent="globals/AppView" pc="268437343" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="25" lineNum="81" parent="globals/AppView" pc="268437368" symbol="downloadImage"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="89" parent="globals/AppView" pc="268437401" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="90" parent="globals/AppView" pc="268437404" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="91" parent="globals/AppView" pc="268437425" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="93" parent="globals/AppView" pc="268437433" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="95" parent="globals/AppView" pc="268437442" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="96" parent="globals/AppView" pc="268437448" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="97" parent="globals/AppView" pc="268437466" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="100" parent="globals/AppView" pc="268437467" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="101" parent="globals/AppView" pc="268437485" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="102" parent="globals/AppView" pc="268437489" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="104" parent="globals/AppView" pc="268437497" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="105" parent="globals/AppView" pc="268437513" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="106" parent="globals/AppView" pc="268437548" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="107" parent="globals/AppView" pc="268437577" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="108" parent="globals/AppView" pc="268437610" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="111" parent="globals/AppView" pc="268437621" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="112" parent="globals/AppView" pc="268437634" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="113" parent="globals/AppView" pc="268437660" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="115" parent="globals/AppView" pc="268437684" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="116" parent="globals/AppView" pc="268437695" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="117" parent="globals/AppView" pc="268437714" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="118" parent="globals/AppView" pc="268437718" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="26" lineNum="121" parent="globals/AppView" pc="268437747" symbol="responseCallback"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="27" lineNum="288" parent="globals/CodeMenuDelegate" pc="268437769" symbol="onMenuItem"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="27" lineNum="289" parent="globals/CodeMenuDelegate" pc="268437771" symbol="onMenuItem"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="27" lineNum="290" parent="globals/CodeMenuDelegate" pc="268437782" symbol="onMenuItem"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="27" lineNum="291" parent="globals/CodeMenuDelegate" pc="268437795" symbol="onMenuItem"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="27" lineNum="292" parent="globals/CodeMenuDelegate" pc="268437806" symbol="onMenuItem"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="28" lineNum="283" parent="globals/CodeMenuDelegate" pc="268437819" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="28" lineNum="284" parent="globals/CodeMenuDelegate" pc="268437821" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="28" lineNum="285" parent="globals/CodeMenuDelegate" pc="268437833" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="29" lineNum="314" parent="globals/AppDelegate" pc="268437843" symbol="onSwipe"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="29" lineNum="315" parent="globals/AppDelegate" pc="268437845" symbol="onSwipe"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="29" lineNum="316" parent="globals/AppDelegate" pc="268437865" symbol="onSwipe"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="30" lineNum="300" parent="globals/AppDelegate" pc="268437867" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="30" lineNum="301" parent="globals/AppDelegate" pc="268437869" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="30" lineNum="302" parent="globals/AppDelegate" pc="268437881" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="31" lineNum="309" parent="globals/AppDelegate" pc="268437891" symbol="onTap"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="31" lineNum="310" parent="globals/AppDelegate" pc="268437893" symbol="onTap"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="31" lineNum="311" parent="globals/AppDelegate" pc="268437913" symbol="onTap"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="32" lineNum="305" parent="globals/AppDelegate" pc="268437915" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="32" lineNum="306" parent="globals/AppDelegate" pc="268437917" symbol="onKey"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="328" parent="globals/TextPickerDelegate" pc="268437933" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="329" parent="globals/TextPickerDelegate" pc="268437936" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="330" parent="globals/TextPickerDelegate" pc="268437957" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="332" parent="globals/TextPickerDelegate" pc="268437976" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="333" parent="globals/TextPickerDelegate" pc="268437995" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="334" parent="globals/TextPickerDelegate" pc="268437999" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="337" parent="globals/TextPickerDelegate" pc="268438030" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="339" parent="globals/TextPickerDelegate" pc="268438048" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="340" parent="globals/TextPickerDelegate" pc="268438060" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="33" lineNum="341" parent="globals/TextPickerDelegate" pc="268438075" symbol="onTextEntered"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="34" lineNum="344" parent="globals/TextPickerDelegate" pc="268438077" symbol="onCancel"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="34" lineNum="345" parent="globals/TextPickerDelegate" pc="268438079" symbol="onCancel"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="34" lineNum="346" parent="globals/TextPickerDelegate" pc="268438097" symbol="onCancel"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="34" lineNum="347" parent="globals/TextPickerDelegate" pc="268438109" symbol="onCancel"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="34" lineNum="348" parent="globals/TextPickerDelegate" pc="268438124" symbol="onCancel"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="35" lineNum="323" parent="globals/TextPickerDelegate" pc="268438126" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="35" lineNum="324" parent="globals/TextPickerDelegate" pc="268438128" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/source/App.mc" id="35" lineNum="325" parent="globals/TextPickerDelegate" pc="268438140" symbol="initialize"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/dist/gen/006-B4534-00/source/Rez.mcgen" id="36" lineNum="15" parent="globals/Rez/Layouts" pc="268438150" symbol="MainLayout"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/dist/gen/006-B4534-00/source/Rez.mcgen" id="36" lineNum="16" parent="globals/Rez/Layouts" pc="268438161" symbol="MainLayout"/>
+<entry filename="/Users/adrianmorenopena/Projects/garmin-qr/dist/gen/006-B4534-00/source/Rez.mcgen" id="36" lineNum="18" parent="globals/Rez/Layouts" pc="268438260" symbol="MainLayout"/>
 </pcToLineNum>
 <symbolTable>
 <entry id="8388639" module="true" symbol="Graphics"/>
@@ -183,7 +200,7 @@
 <entry id="8388632" method="true" symbol="&lt;init&gt;"/>
 <entry id="16" method="true" symbol="loadCachedImages"/>
 <entry field="true" id="13" symbol="images"/>
-<entry id="25" method="true" symbol="MainLayout"/>
+<entry id="27" method="true" symbol="MainLayout"/>
 <entry id="8389661" symbol="maxWidth"/>
 <entry id="11" method="true" symbol="downloadImage"/>
 <entry id="8390424" module="true" symbol="Storage"/>
@@ -192,8 +209,9 @@
 <entry field="true" id="8388611" module="true" symbol="Toybox"/>
 <entry id="6" object="true" symbol="App"/>
 <entry id="8" object="true" symbol="AppView"/>
-<entry field="true" id="26" symbol="AppName"/>
-<entry id="19" method="true" symbol="startNewCodeMode"/>
+<entry id="19" method="true" symbol="showAddMenu"/>
+<entry field="true" id="28" symbol="AppName"/>
+<entry id="21" method="true" symbol="startNewCodeMode"/>
 <entry id="5" module="true" symbol="globals/Rez/Strings"/>
 <entry id="8388942" method="true" symbol="add"/>
 <entry id="8388648" module="true" symbol="WatchUi"/>
@@ -204,11 +222,10 @@
 <entry field="true" id="14" symbol="isDownloading"/>
 <entry id="12" method="true" symbol="drawImage"/>
 <entry id="8388771" module="true" object="true" symbol="Drawables"/>
-<entry id="27" symbol="cancel"/>
 <entry id="8389348" symbol="font"/>
 <entry id="7" object="true" symbol="AppDelegate"/>
-<entry field="true" id="23" symbol="DisplayImage2"/>
-<entry field="true" id="22" symbol="DisplayImage1"/>
+<entry field="true" id="25" symbol="DisplayImage2"/>
+<entry field="true" id="24" symbol="DisplayImage1"/>
 <entry id="4" module="true" symbol="globals/Rez/Layouts"/>
 <entry id="8389122" method="true" symbol="onLayout"/>
 <entry id="8389657" symbol="maxHeight"/>
@@ -220,58 +237,69 @@
 <entry id="3" module="true" symbol="globals/Rez/Drawables"/>
 <entry id="8388644" module="true" symbol="System"/>
 <entry id="8388769" module="true" object="true" symbol="Rez"/>
+<entry id="8389540" method="true" symbol="onTextEntered"/>
 <entry field="true" id="10" symbol="currentIndex"/>
 <entry id="8388640" module="true" symbol="Lang"/>
-<entry field="true" id="24" symbol="LauncherIcon"/>
+<entry field="true" id="26" symbol="LauncherIcon"/>
 <entry id="8388610" symbol="statics"/>
 <entry id="8389123" method="true" symbol="onShow"/>
 <entry id="8389350" module="true" symbol="globals"/>
 <entry id="8388770" module="true" object="true" symbol="Strings"/>
 <entry id="8388702" method="true" symbol="initialize"/>
 <entry id="8389279" method="true" symbol="onStart"/>
-<entry field="true" id="20" symbol="view"/>
+<entry field="true" id="22" symbol="view"/>
+<entry id="8389541" method="true" symbol="onCancel"/>
+<entry id="20" method="true" symbol="showItemMenu"/>
 <entry id="8389280" method="true" symbol="getInitialView"/>
 <entry id="8389281" method="true" symbol="onStop"/>
 <entry id="8389109" method="true" symbol="onMenuItem"/>
 <entry field="true" id="8389347" symbol="color"/>
 <entry id="8389097" method="true" symbol="onKey"/>
+<entry id="8389538" object="true" symbol="TextPickerDelegate"/>
 <entry id="8388646" module="true" object="true" symbol="Timer"/>
-<entry id="21" module="true" symbol="Layouts"/>
+<entry id="23" module="true" symbol="Layouts"/>
 <entry id="8389125" method="true" symbol="onHide"/>
 <entry id="8388635" module="true" symbol="Application"/>
 <entry id="8389101" method="true" symbol="onSwipe"/>
 </symbolTable>
 <localVars>
-<entry endPc="268435792" name="count" stackId="1" startPc="268435625"/>
-<entry endPc="268435735" name="i" stackId="2" startPc="268435682"/>
-<entry endPc="268435725" name="cachedImage" stackId="3" startPc="268435682"/>
-<entry endPc="268435825" name="e" stackId="4" startPc="268435794"/>
-<entry arg="true" endPc="268435903" name="swipeEvent" stackId="1" startPc="268435871"/>
-<entry arg="true" endPc="268435960" name="clickEvent" stackId="1" startPc="268435904"/>
-<entry arg="true" endPc="268436648" name="keyEvent" stackId="1" startPc="268435961"/>
-<entry endPc="268436501" name="menu" stackId="3" startPc="268436365"/>
-<entry arg="true" endPc="268436708" name="dc" stackId="1" startPc="268436649"/>
-<entry arg="true" endPc="268436708" name="image" stackId="2" startPc="268436649"/>
-<entry endPc="268436707" name="screenWidth" stackId="3" startPc="268436652"/>
-<entry endPc="268436707" name="screenHeight" stackId="4" startPc="268436652"/>
-<entry endPc="268436707" name="x" stackId="5" startPc="268436652"/>
-<entry endPc="268436707" name="y" stackId="6" startPc="268436652"/>
-<entry endPc="268436839" name="i" stackId="1" startPc="268436801"/>
-<entry arg="true" endPc="268437488" name="dc" stackId="1" startPc="268437015"/>
-<entry arg="true" endPc="268437597" name="text" stackId="1" startPc="268437489"/>
-<entry endPc="268437596" name="url" stackId="2" startPc="268437492"/>
-<entry endPc="268437596" name="params" stackId="3" startPc="268437492"/>
-<entry endPc="268437596" name="options" stackId="4" startPc="268437492"/>
-<entry arg="true" endPc="268437879" name="responseCode" stackId="1" startPc="268437598"/>
-<entry arg="true" endPc="268437879" name="data" stackId="2" startPc="268437598"/>
-<entry endPc="268437856" name="e" stackId="3" startPc="268437825"/>
-<entry arg="true" endPc="268437929" name="item" stackId="1" startPc="268437880"/>
-<entry arg="true" endPc="268437953" name="view" stackId="1" startPc="268437930"/>
-<entry arg="true" endPc="268437977" name="swipeEvent" stackId="1" startPc="268437954"/>
-<entry arg="true" endPc="268438001" name="view" stackId="1" startPc="268437978"/>
-<entry arg="true" endPc="268438025" name="clickEvent" stackId="1" startPc="268438002"/>
-<entry arg="true" endPc="268438043" name="keyEvent" stackId="1" startPc="268438026"/>
-<entry arg="true" endPc="268438163" name="dc" stackId="1" startPc="268438044"/>
+<entry endPc="268435804" name="count" stackId="1" startPc="268435637"/>
+<entry endPc="268435747" name="i" stackId="2" startPc="268435694"/>
+<entry endPc="268435737" name="cachedImage" stackId="3" startPc="268435694"/>
+<entry endPc="268435837" name="e" stackId="4" startPc="268435806"/>
+<entry endPc="268435950" name="textPicker" stackId="1" startPc="268435864"/>
+<entry arg="true" endPc="268435984" name="swipeEvent" stackId="1" startPc="268435952"/>
+<entry endPc="268436086" name="menu" stackId="1" startPc="268435988"/>
+<entry endPc="268436209" name="menu" stackId="1" startPc="268436091"/>
+<entry arg="true" endPc="268436267" name="clickEvent" stackId="1" startPc="268436211"/>
+<entry arg="true" endPc="268436622" name="keyEvent" stackId="1" startPc="268436268"/>
+<entry arg="true" endPc="268436682" name="dc" stackId="1" startPc="268436623"/>
+<entry arg="true" endPc="268436682" name="image" stackId="2" startPc="268436623"/>
+<entry endPc="268436681" name="screenWidth" stackId="3" startPc="268436626"/>
+<entry endPc="268436681" name="screenHeight" stackId="4" startPc="268436626"/>
+<entry endPc="268436681" name="x" stackId="5" startPc="268436626"/>
+<entry endPc="268436681" name="y" stackId="6" startPc="268436626"/>
+<entry endPc="268436813" name="i" stackId="1" startPc="268436775"/>
+<entry arg="true" endPc="268437270" name="dc" stackId="1" startPc="268436989"/>
+<entry arg="true" endPc="268437400" name="text" stackId="1" startPc="268437271"/>
+<entry endPc="268437399" name="url" stackId="2" startPc="268437274"/>
+<entry endPc="268437399" name="params" stackId="3" startPc="268437274"/>
+<entry endPc="268437399" name="options" stackId="4" startPc="268437274"/>
+<entry arg="true" endPc="268437768" name="responseCode" stackId="1" startPc="268437401"/>
+<entry arg="true" endPc="268437768" name="data" stackId="2" startPc="268437401"/>
+<entry endPc="268437712" name="bitmapResource" stackId="3" startPc="268437442"/>
+<entry endPc="268437745" name="e" stackId="4" startPc="268437714"/>
+<entry arg="true" endPc="268437818" name="item" stackId="1" startPc="268437769"/>
+<entry arg="true" endPc="268437842" name="view" stackId="1" startPc="268437819"/>
+<entry arg="true" endPc="268437866" name="swipeEvent" stackId="1" startPc="268437843"/>
+<entry arg="true" endPc="268437890" name="view" stackId="1" startPc="268437867"/>
+<entry arg="true" endPc="268437914" name="clickEvent" stackId="1" startPc="268437891"/>
+<entry arg="true" endPc="268437932" name="keyEvent" stackId="1" startPc="268437915"/>
+<entry arg="true" endPc="268438076" name="text" stackId="1" startPc="268437933"/>
+<entry arg="true" endPc="268438076" name="changed" stackId="2" startPc="268437933"/>
+<entry endPc="268438028" name="e" stackId="3" startPc="268437995"/>
+<entry arg="true" endPc="268438149" name="view" stackId="1" startPc="268438126"/>
+<entry arg="true" endPc="268438269" name="dc" stackId="1" startPc="268438150"/>
 </localVars>
 <deviceInfo deviceVersion="decc989a3aea752762ecdbe6b3262a92939e1b36" partNumber="006-B4534-00"/>
 <annotations>
@@ -282,14 +310,15 @@
 </annotations>
 <dataEntryOffsetMappings>
 <dataEntry label="globals" offset="58" parentId="" symbolId="globals" type="module"/>
-<dataEntry label="globals/App" offset="134" parentId="globals" symbolId="App" type="class"/>
-<dataEntry label="globals/AppView" offset="205" parentId="globals" symbolId="AppView" type="class"/>
-<dataEntry label="globals/CodeMenuDelegate" offset="402" parentId="globals" symbolId="CodeMenuDelegate" type="class"/>
-<dataEntry label="globals/AppDelegate" offset="464" parentId="globals" symbolId="AppDelegate" type="class"/>
-<dataEntry label="globals/Rez" offset="544" parentId="globals" symbolId="Rez" type="module"/>
-<dataEntry label="globals/Rez/Drawables" offset="597" parentId="Rez" symbolId="Drawables" type="module"/>
-<dataEntry label="globals/Rez/Layouts" offset="650" parentId="Rez" symbolId="Layouts" type="module"/>
-<dataEntry label="globals/Rez/Strings" offset="685" parentId="Rez" symbolId="Strings" type="module"/>
+<dataEntry label="globals/App" offset="143" parentId="globals" symbolId="App" type="class"/>
+<dataEntry label="globals/AppView" offset="214" parentId="globals" symbolId="AppView" type="class"/>
+<dataEntry label="globals/CodeMenuDelegate" offset="429" parentId="globals" symbolId="CodeMenuDelegate" type="class"/>
+<dataEntry label="globals/AppDelegate" offset="491" parentId="globals" symbolId="AppDelegate" type="class"/>
+<dataEntry label="globals/Rez" offset="571" parentId="globals" symbolId="Rez" type="module"/>
+<dataEntry label="globals/TextPickerDelegate" offset="624" parentId="globals" symbolId="TextPickerDelegate" type="class"/>
+<dataEntry label="globals/Rez/Drawables" offset="695" parentId="Rez" symbolId="Drawables" type="module"/>
+<dataEntry label="globals/Rez/Layouts" offset="748" parentId="Rez" symbolId="Layouts" type="module"/>
+<dataEntry label="globals/Rez/Strings" offset="783" parentId="Rez" symbolId="Strings" type="module"/>
 </dataEntryOffsetMappings>
 <functions>
 <functionEntry accessMode="public" endPc="268435468" name="&lt;init&gt;" parent="App" startPc="268435457">
@@ -307,93 +336,102 @@
 <functionEntry accessMode="public" endPc="268435524" name="&lt;init&gt;" parent="Rez" startPc="268435505">
 <documentation/>
 </functionEntry>
+<functionEntry accessMode="public" endPc="268435536" name="&lt;init&gt;" parent="TextPickerDelegate" startPc="268435525">
+<documentation/>
+</functionEntry>
 <functionEntry accessMode="public" name="onStart" parent="App">
 <param id="state"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268435588" name="getInitialView" parent="App" startPc="268435525">
+<functionEntry accessMode="public" endPc="268435600" name="getInitialView" parent="App" startPc="268435537">
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268435603" name="initialize" parent="App" startPc="268435589">
+<functionEntry accessMode="public" endPc="268435615" name="initialize" parent="App" startPc="268435601">
 <documentation/>
 </functionEntry>
 <functionEntry accessMode="public" name="onStop" parent="App">
 <param id="state"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268435827" name="loadCachedImages" parent="AppView" startPc="268435604">
+<functionEntry accessMode="public" endPc="268435839" name="loadCachedImages" parent="AppView" startPc="268435616">
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268435848" name="onShow" parent="AppView" startPc="268435828">
+<functionEntry accessMode="public" endPc="268435860" name="onShow" parent="AppView" startPc="268435840">
 <documentation/>
 </functionEntry>
 <functionEntry accessMode="public" name="onLayout" parent="AppView">
 <param id="dc"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268435870" name="startNewCodeMode" parent="AppView" startPc="268435849">
+<functionEntry accessMode="public" endPc="268435951" name="startNewCodeMode" parent="AppView" startPc="268435861">
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268435903" name="onSwipe" parent="AppView" startPc="268435871">
+<functionEntry accessMode="public" endPc="268435984" name="onSwipe" parent="AppView" startPc="268435952">
 <param id="swipeEvent"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268435960" name="onTap" parent="AppView" startPc="268435904">
+<functionEntry accessMode="public" endPc="268436087" name="showAddMenu" parent="AppView" startPc="268435985">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436210" name="showItemMenu" parent="AppView" startPc="268436088">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268436267" name="onTap" parent="AppView" startPc="268436211">
 <param id="clickEvent"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268436648" name="onKey" parent="AppView" startPc="268435961">
+<functionEntry accessMode="public" endPc="268436622" name="onKey" parent="AppView" startPc="268436268">
 <param id="keyEvent"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268436708" name="drawImage" parent="AppView" startPc="268436649">
+<functionEntry accessMode="public" endPc="268436682" name="drawImage" parent="AppView" startPc="268436623">
 <param id="dc"/>
 <param id="image"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268436941" name="removeCurrentCode" parent="AppView" startPc="268436709">
+<functionEntry accessMode="public" endPc="268436915" name="removeCurrentCode" parent="AppView" startPc="268436683">
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268437014" name="initialize" parent="AppView" startPc="268436942">
+<functionEntry accessMode="public" endPc="268436988" name="initialize" parent="AppView" startPc="268436916">
 <documentation/>
 </functionEntry>
 <functionEntry accessMode="public" name="onHide" parent="AppView">
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268437488" name="onUpdate" parent="AppView" startPc="268437015">
+<functionEntry accessMode="public" endPc="268437270" name="onUpdate" parent="AppView" startPc="268436989">
 <param id="dc"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268437597" name="downloadImage" parent="AppView" startPc="268437489">
+<functionEntry accessMode="public" endPc="268437400" name="downloadImage" parent="AppView" startPc="268437271">
 <param id="text"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268437879" name="responseCallback" parent="AppView" startPc="268437598">
+<functionEntry accessMode="public" endPc="268437768" name="responseCallback" parent="AppView" startPc="268437401">
 <param id="responseCode"/>
 <param id="data"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268437929" name="onMenuItem" parent="CodeMenuDelegate" startPc="268437880">
+<functionEntry accessMode="public" endPc="268437818" name="onMenuItem" parent="CodeMenuDelegate" startPc="268437769">
 <param id="item"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268437953" name="initialize" parent="CodeMenuDelegate" startPc="268437930">
+<functionEntry accessMode="public" endPc="268437842" name="initialize" parent="CodeMenuDelegate" startPc="268437819">
 <param id="view"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268437977" name="onSwipe" parent="AppDelegate" startPc="268437954">
+<functionEntry accessMode="public" endPc="268437866" name="onSwipe" parent="AppDelegate" startPc="268437843">
 <param id="swipeEvent"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268438001" name="initialize" parent="AppDelegate" startPc="268437978">
+<functionEntry accessMode="public" endPc="268437890" name="initialize" parent="AppDelegate" startPc="268437867">
 <param id="view"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268438025" name="onTap" parent="AppDelegate" startPc="268438002">
+<functionEntry accessMode="public" endPc="268437914" name="onTap" parent="AppDelegate" startPc="268437891">
 <param id="clickEvent"/>
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268438043" name="onKey" parent="AppDelegate" startPc="268438026">
+<functionEntry accessMode="public" endPc="268437932" name="onKey" parent="AppDelegate" startPc="268437915">
 <param id="keyEvent"/>
 <documentation/>
 </functionEntry>
@@ -406,7 +444,19 @@
 <functionEntry accessMode="public" name="&lt;init&gt;" parent="Strings">
 <documentation/>
 </functionEntry>
-<functionEntry accessMode="public" endPc="268438163" name="MainLayout" parent="Layouts" startPc="268438044">
+<functionEntry accessMode="public" endPc="268438076" name="onTextEntered" parent="TextPickerDelegate" startPc="268437933">
+<param id="text"/>
+<param id="changed"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268438125" name="onCancel" parent="TextPickerDelegate" startPc="268438077">
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268438149" name="initialize" parent="TextPickerDelegate" startPc="268438126">
+<param id="view"/>
+<documentation/>
+</functionEntry>
+<functionEntry accessMode="public" endPc="268438269" name="MainLayout" parent="Layouts" startPc="268438150">
 <param id="dc"/>
 <documentation/>
 </functionEntry>
