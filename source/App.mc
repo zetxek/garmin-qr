@@ -70,6 +70,7 @@ class AppView extends WatchUi.View {
         }
         
         isDownloading = true;
+        System.println("Starting download for text: " + text);
         var url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
         var params = null;
         var options = {
@@ -91,25 +92,33 @@ class AppView extends WatchUi.View {
         
         if (responseCode == 200) {
             try {
+                if (data == null) {
+                    System.println("Error: Received null data");
+                    return;
+                }
+                
+                System.println("Processing downloaded image");
+                var bitmapResource = data as WatchUi.BitmapResource;
                 if (isNewCodeMode) {
                     // Add new code
-                    images.add(data as WatchUi.BitmapResource);
-                    Storage.setValue("qr_image_" + (images.size() - 1), data);
+                    images.add(bitmapResource);
+                    Storage.setValue("qr_image_" + (images.size() - 1), bitmapResource);
                     Storage.setValue("qr_count", images.size());
-                    System.println("New code added");
+                    System.println("New code added at index: " + (images.size() - 1));
                     isNewCodeMode = false;
                 } else {
                     // Update current code
-                    images[currentIndex] = data as WatchUi.BitmapResource;
-                    Storage.setValue("qr_image_" + currentIndex, data);
+                    images[currentIndex] = bitmapResource;
+                    Storage.setValue("qr_image_" + currentIndex, bitmapResource);
+                    System.println("Updated code at index: " + currentIndex);
                 }
                 WatchUi.requestUpdate();
-                System.println("Image downloaded");
+                System.println("Image downloaded and processed successfully");
             } catch (e) {
                 System.println("Error saving image: " + e.getErrorMessage());
             }
         } else {
-            System.println("Download failed: " + responseCode);
+            System.println("Download failed with code: " + responseCode);
         }
     }
 
@@ -127,17 +136,18 @@ class AppView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
         
-        if (isNewCodeMode) {
-            // Show new code input screen
+        if (images.size() == 0) {
+            // Show empty state
+            System.println("Drawing empty state");
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
                 dc.getWidth() / 2,
                 dc.getHeight() / 2,
                 Graphics.FONT_MEDIUM,
-                "Enter text for QR",
+                "No QR codes yet\nPress any key to add one",
                 Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
             );
-        } else if (images.size() > 0 && currentIndex < images.size()) {
+        } else if (currentIndex < images.size()) {
             // Show current QR code
             System.println("Drawing image " + currentIndex);
             drawImage(dc, images[currentIndex]);
@@ -150,28 +160,6 @@ class AppView extends WatchUi.View {
                 Graphics.FONT_XTINY,
                 "Code " + (currentIndex + 1) + " of " + images.size(),
                 Graphics.TEXT_JUSTIFY_CENTER
-            );
-        } else if (isDownloading) {
-            // Show loading message
-            System.println("Drawing loading");
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(
-                dc.getWidth() / 2,
-                dc.getHeight() / 2,
-                Graphics.FONT_MEDIUM,
-                "Loading...",
-                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
-            );
-        } else {
-            // Show empty state
-            System.println("Drawing empty state");
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(
-                dc.getWidth() / 2,
-                dc.getHeight() / 2,
-                Graphics.FONT_MEDIUM,
-                "Press UP to add code",
-                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
             );
         }
     }
@@ -189,57 +177,56 @@ class AppView extends WatchUi.View {
 
     function onKey(keyEvent) {
         var key = keyEvent.getKey();
-        System.println("onKey: " + key + " (isNewCodeMode: " + isNewCodeMode + ", images.size: " + images.size() + ", currentIndex: " + currentIndex + ")");
+        System.println("onKey: " + key + " (images.size: " + images.size() + ", currentIndex: " + currentIndex + ")");
         
-        if (isNewCodeMode) {
-            if (key == WatchUi.KEY_ENTER) {
-                System.println("Creating new code");
-                // Start download for new code
-                downloadImage("new_code_" + System.getTimer());
-                return true;
+        if (images.size() == 0) {
+            // If no items, any key press shows the add menu
+            showAddMenu();
+            return true;
+        }
+        
+        if (key == WatchUi.KEY_UP) {
+            System.println("UP pressed");
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                currentIndex = images.size() - 1;  // Wrap to end
             }
-        } else {
-            if (key == WatchUi.KEY_UP) {
-                System.println("UP pressed");
-                if (currentIndex > 0) {
-                    currentIndex--;
-                    System.println("Moved to previous code: " + currentIndex);
-                    WatchUi.requestUpdate();
-                } else if (images.size() == 0) {
-                    System.println("Starting new code mode");
-                    // Start new code mode
-                    isNewCodeMode = true;
-                    WatchUi.requestUpdate();
-                }
-                return true;
-            } else if (key == WatchUi.KEY_DOWN) {
-                System.println("DOWN pressed");
-                if (currentIndex < images.size() - 1) {
-                    currentIndex++;
-                    System.println("Moved to next code: " + currentIndex);
-                    WatchUi.requestUpdate();
-                } else if (images.size() > 0) {
-                    // Show menu to add new code
-                    System.println("Showing add code menu");
-                    var menu = new WatchUi.Menu();
-                    menu.setTitle("Add New Code?");
-                    menu.addItem("Yes", :add);
-                    menu.addItem("No", :cancel);
-                    WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
-                }
-                return true;
-            } else if (key == WatchUi.KEY_ENTER && images.size() > 0) {
-                System.println("ENTER pressed - showing menu");
-                // Show menu for current code
-                var menu = new WatchUi.Menu();
-                menu.setTitle("Code Options");
-                menu.addItem("Remove", :remove);
-                WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
-                return true;
+            System.println("Moved to code: " + currentIndex);
+            WatchUi.requestUpdate();
+            return true;
+        } else if (key == WatchUi.KEY_DOWN) {
+            System.println("DOWN pressed");
+            if (currentIndex < images.size() - 1) {
+                currentIndex++;
+            } else {
+                currentIndex = 0;  // Wrap to beginning
             }
+            System.println("Moved to code: " + currentIndex);
+            WatchUi.requestUpdate();
+            return true;
+        } else if (key == WatchUi.KEY_ENTER) {
+            System.println("ENTER pressed - showing menu");
+            showItemMenu();
+            return true;
         }
         
         return false;
+    }
+
+    function showAddMenu() {
+        var menu = new WatchUi.Menu();
+        menu.setTitle("Add QR Code");
+        menu.addItem("Add New", :add);
+        WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
+    }
+
+    function showItemMenu() {
+        var menu = new WatchUi.Menu();
+        menu.setTitle("Code Options");
+        menu.addItem("Remove", :remove);
+        menu.addItem("Add New", :add);
+        WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
     }
 
     function removeCurrentCode() {
@@ -264,8 +251,29 @@ class AppView extends WatchUi.View {
     }
 
     function startNewCodeMode() {
-        isNewCodeMode = true;
-        WatchUi.requestUpdate();
+        System.println("Starting text input");
+        var textPicker = new WatchUi.TextPicker("Enter QR Text");
+        WatchUi.pushView(textPicker, new TextPickerDelegate(self), WatchUi.SLIDE_UP);
+    }
+
+    function onTap(clickEvent) {
+        if (isNewCodeMode) {
+            System.println("Tap in new code mode");
+            // Start download for new code
+            downloadImage("new_code_" + System.getTimer());
+            return true;
+        }
+        return false;
+    }
+
+    function onSwipe(swipeEvent) {
+        if (isNewCodeMode) {
+            // Cancel new code mode on swipe
+            isNewCodeMode = false;
+            WatchUi.requestUpdate();
+            return true;
+        }
+        return false;
     }
 }
 
@@ -305,6 +313,38 @@ class AppDelegate extends WatchUi.BehaviorDelegate {
 
     function onSwipe(swipeEvent) {
         System.println(swipeEvent.getDirection()); // e.g. SWIPE_DOWN = 2
+        return true;
+    }
+}
+
+class TextPickerDelegate extends WatchUi.TextPickerDelegate {
+    var view;
+
+    function initialize(view) {
+        TextPickerDelegate.initialize();
+        self.view = view;
+    }
+
+    function onTextEntered(text, changed) {
+        System.println("Text entered: " + text);
+        if (text != null && text.length() > 0) {
+            try {
+                view.downloadImage(text);
+            } catch (e) {
+                System.println("Error in onTextEntered: " + e.getErrorMessage());
+            }
+        } else {
+            System.println("Empty text entered");
+        }
+        view.isNewCodeMode = false;
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        return true;
+    }
+
+    function onCancel() {
+        System.println("Text input cancelled");
+        view.isNewCodeMode = false;
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
     }
 } 
