@@ -99,19 +99,12 @@ class AppView extends WatchUi.View {
                 
                 System.println("Processing downloaded image");
                 var bitmapResource = data as WatchUi.BitmapResource;
-                if (isNewCodeMode) {
-                    // Add new code
-                    images.add(bitmapResource);
-                    Storage.setValue("qr_image_" + (images.size() - 1), bitmapResource);
-                    Storage.setValue("qr_count", images.size());
-                    System.println("New code added at index: " + (images.size() - 1));
-                    isNewCodeMode = false;
-                } else {
-                    // Update current code
-                    images[currentIndex] = bitmapResource;
-                    Storage.setValue("qr_image_" + currentIndex, bitmapResource);
-                    System.println("Updated code at index: " + currentIndex);
-                }
+                
+                // Update current code
+                images[currentIndex] = bitmapResource;
+                Storage.setValue("qr_image_" + currentIndex, bitmapResource);
+                System.println("Updated code at index: " + currentIndex);
+                
                 WatchUi.requestUpdate();
                 System.println("Image downloaded and processed successfully");
             } catch (e) {
@@ -319,31 +312,36 @@ class AppDelegate extends WatchUi.BehaviorDelegate {
 
 class TextPickerDelegate extends WatchUi.TextPickerDelegate {
     var view;
+    var currentText;
 
     function initialize(view) {
         TextPickerDelegate.initialize();
         self.view = view;
+        self.currentText = "";
     }
 
     function onTextEntered(text, changed) {
         System.println("Text entered: " + text);
         if (text != null && text.length() > 0) {
             try {
-                view.downloadImage(text);
+                if (changed) {
+                    System.println("Text changed, regenerating QR code");
+                    view.downloadImage(text);
+                } else {
+                    System.println("Text unchanged, keeping current QR code");
+                }
             } catch (e) {
                 System.println("Error in onTextEntered: " + e.getErrorMessage());
             }
         } else {
             System.println("Empty text entered");
         }
-        view.isNewCodeMode = false;
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
     }
 
     function onCancel() {
         System.println("Text input cancelled");
-        view.isNewCodeMode = false;
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
     }
