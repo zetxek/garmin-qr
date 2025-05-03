@@ -86,8 +86,8 @@ class AppView extends WatchUi.View {
             :maxHeight => 240
         };
 
-        // Store the text for later reference
-        Storage.setValue("qr_text_" + currentIndex, text);
+        // Store the text for later reference (in memory, not storage)
+        self.pendingText = text;
 
         Communications.makeImageRequest(
             url,
@@ -128,6 +128,20 @@ class AppView extends WatchUi.View {
                 
                 WatchUi.requestUpdate();
                 System.println("Image downloaded and processed successfully");
+
+                var glanceUrl = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + self.pendingText + "&size=60";
+                var params = null;
+                var options = {
+                    :maxWidth => 60,
+                    :maxHeight => 60
+                };
+                // Pass the index to the glance callback
+                Communications.makeImageRequest(
+                    glanceUrl,
+                    params,
+                    options,
+                    method(:glanceCallback)
+                );
             } catch (e) {
                 System.println("Error saving image: " + e.getErrorMessage());
                 showError("Failed to save QR code");
@@ -141,6 +155,15 @@ class AppView extends WatchUi.View {
             } else {
                 showError("Failed to generate QR code");
             }
+        }
+    }
+
+    function glanceCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
+        if (responseCode == 200 && data != null) {
+            Storage.setValue("qr_glance_image_" + self.currentIndex, data as WatchUi.BitmapResource);
+            System.println("Stored glance QR code at index: " + self.currentIndex);
+        } else {
+            System.println("Failed to download glance QR code");
         }
     }
 
@@ -279,9 +302,8 @@ class AppView extends WatchUi.View {
     }
 
     function getCurrentCodeText() {
-        // Extract text from the current QR code's URL
-        var url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=";
         var text = Storage.getValue("qr_text_" + currentIndex);
+        System.println("getCurrentCodeText: currentIndex=" + currentIndex + ", text=" + text);
         if (text == null) {
             return "Unknown";
         }
@@ -466,7 +488,7 @@ class GlanceView extends WatchUi.GlanceView {
             var count = Storage.getValue("qr_count");
             if (count != null) {
                 for (var i = 0; i < count; i++) {
-                    var cachedImage = Storage.getValue("qr_image_" + i);
+                    var cachedImage = Storage.getValue("qr_glance_image_" + i);
                     if (cachedImage != null) {
                         images.add(cachedImage as WatchUi.BitmapResource);
                     }
@@ -482,14 +504,29 @@ class GlanceView extends WatchUi.GlanceView {
         dc.clear();
 
         if (images.size() > 0) {
-            // Draw the first QR code
+            var bmp = images[0] as WatchUi.BitmapResource;
+            var bmpWidth = bmp.getWidth();
+            var bmpHeight = bmp.getHeight();
             var screenWidth = dc.getWidth();
             var screenHeight = dc.getHeight();
-            var size = screenHeight - 30; // Leave space for text
-            var x = (screenWidth - size) / 2;
-            var y = (screenHeight - size) / 2;
-            dc.drawBitmap(x, y, images[0] as WatchUi.BitmapResource);
-            
+
+            // Only draw if it fits
+            if (bmpWidth <= screenWidth && bmpHeight <= screenHeight) {
+                var x = (screenWidth - bmpWidth) / 2;
+                var y = (screenHeight - bmpHeight) / 2;
+                dc.drawBitmap(x, y, bmp);
+            } else {
+                // Optionally, show a message or icon
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(
+                    screenWidth / 2,
+                    screenHeight / 2,
+                    Graphics.FONT_XTINY,
+                    "QR too large",
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+                );
+            }
+
             // Draw count if more than one code
             if (images.size() > 1) {
                 dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
