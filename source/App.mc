@@ -6,6 +6,7 @@ using Toybox.Lang;
 using Toybox.Timer;
 using Toybox.Communications;
 using Toybox.Application.Storage;
+using Toybox.Attention;
 
 class App extends Application.AppBase {
     function initialize() {
@@ -21,6 +22,10 @@ class App extends Application.AppBase {
     function getInitialView() {
         var view = new AppView();
         return [ view, new AppDelegate(view) ];
+    }
+
+    function getGlanceView() {
+        return [ new GlanceView() ];
     }
 }
 
@@ -76,9 +81,12 @@ class AppView extends WatchUi.View {
         var url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
         var params = null;
         var options = {
-            :maxWidth => 150,
-            :maxHeight => 150
+            :maxWidth => 240,
+            :maxHeight => 240
         };
+
+        // Store the text for later reference
+        Storage.setValue("qr_text_" + currentIndex, text);
 
         Communications.makeImageRequest(
             url,
@@ -142,7 +150,6 @@ class AppView extends WatchUi.View {
         
         if (images.size() == 0) {
             // Show empty state
-            System.println("Drawing empty state");
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
                 dc.getWidth() / 2,
@@ -153,10 +160,9 @@ class AppView extends WatchUi.View {
             );
         } else if (currentIndex < images.size()) {
             // Show current QR code
-            System.println("Drawing image " + currentIndex);
             drawImage(dc, images[currentIndex]);
             
-            // Draw text at the bottom
+            // Draw text at the bottom, always visible
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
                 dc.getWidth() / 2,
@@ -172,7 +178,7 @@ class AppView extends WatchUi.View {
             dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
                 dc.getWidth() / 2,
-                dc.getHeight() - 20,  // 20 pixels from bottom
+                dc.getHeight() - 6,  // 6 pixels from bottom
                 Graphics.FONT_XTINY,
                 errorMessage,
                 Graphics.TEXT_JUSTIFY_CENTER
@@ -183,9 +189,14 @@ class AppView extends WatchUi.View {
     function drawImage(dc, image) {
         var screenWidth = dc.getWidth();
         var screenHeight = dc.getHeight();
-        var x = (screenWidth - 150) / 2;
-        var y = (screenHeight - 150) / 2;
-        dc.drawBitmap(x, y, image as WatchUi.BitmapResource);
+        var bottomTextHeight = 30; // Reserve space for text at the bottom
+        var margin = 10; // Margin from top and sides
+        var bmp = image as WatchUi.BitmapResource;
+        var bmpWidth = bmp.getWidth();
+        var bmpHeight = bmp.getHeight();
+        var x = (screenWidth - bmpWidth) / 2;
+        var y = (screenHeight - bottomTextHeight - bmpHeight) / 2 + margin;
+        dc.drawBitmap(x, y, bmp);
     }
 
     function onHide() {
@@ -216,6 +227,8 @@ class AppView extends WatchUi.View {
             }
             System.println("Moved to code: " + currentIndex);
             WatchUi.requestUpdate();
+            // Add haptic feedback
+            Attention.vibrate([new Attention.VibeProfile(50, 100)]);
             return true;
         } else if (key == WatchUi.KEY_DOWN) {
             System.println("DOWN pressed");
@@ -226,6 +239,8 @@ class AppView extends WatchUi.View {
             }
             System.println("Moved to code: " + currentIndex);
             WatchUi.requestUpdate();
+            // Add haptic feedback
+            Attention.vibrate([new Attention.VibeProfile(50, 100)]);
             return true;
         } else if (key == WatchUi.KEY_ENTER) {
             System.println("ENTER pressed - showing menu");
@@ -246,9 +261,21 @@ class AppView extends WatchUi.View {
     function showItemMenu() {
         var menu = new WatchUi.Menu();
         menu.setTitle("Code Options");
+        menu.addItem("Text: " + getCurrentCodeText(), :none);
+        menu.addItem("Edit", :edit);
         menu.addItem("Remove", :remove);
         menu.addItem("Add New", :add);
         WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
+    }
+
+    function getCurrentCodeText() {
+        // Extract text from the current QR code's URL
+        var url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=";
+        var text = Storage.getValue("qr_text_" + currentIndex);
+        if (text == null) {
+            return "Unknown";
+        }
+        return text;
     }
 
     function removeCurrentCode() {
@@ -258,8 +285,15 @@ class AppView extends WatchUi.View {
             
             // Update storage
             Storage.deleteValue("qr_image_" + currentIndex);
+            Storage.deleteValue("qr_text_" + currentIndex);  // Remove stored text
             for (var i = currentIndex; i < images.size(); i++) {
                 Storage.setValue("qr_image_" + i, images[i]);
+                // Move text storage
+                var text = Storage.getValue("qr_text_" + (i + 1));
+                if (text != null) {
+                    Storage.setValue("qr_text_" + i, text);
+                    Storage.deleteValue("qr_text_" + (i + 1));
+                }
             }
             Storage.setValue("qr_count", images.size());
             
@@ -289,12 +323,39 @@ class AppView extends WatchUi.View {
     }
 
     function onSwipe(swipeEvent) {
-        if (isNewCodeMode) {
-            // Cancel new code mode on swipe
-            isNewCodeMode = false;
+        if (images.size() == 0) {
+            return false;
+        }
+
+        var direction = swipeEvent.getDirection();
+        System.println("Swipe detected: " + direction);
+        
+        if (direction == WatchUi.SWIPE_DOWN) {
+            // Move to next code
+            if (currentIndex < images.size() - 1) {
+                currentIndex++;
+            } else {
+                currentIndex = 0;  // Wrap to beginning
+            }
+            System.println("Moved to code: " + currentIndex);
             WatchUi.requestUpdate();
+            // Add haptic feedback
+            Attention.vibrate([new Attention.VibeProfile(50, 100)]);
+            return true;
+        } else if (direction == WatchUi.SWIPE_UP) {
+            // Move to previous code
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                currentIndex = images.size() - 1;  // Wrap to end
+            }
+            System.println("Moved to code: " + currentIndex);
+            WatchUi.requestUpdate();
+            // Add haptic feedback
+            Attention.vibrate([new Attention.VibeProfile(50, 100)]);
             return true;
         }
+        
         return false;
     }
 
@@ -313,11 +374,14 @@ class CodeMenuDelegate extends WatchUi.MenuInputDelegate {
     }
 
     function onMenuItem(item) {
-        if (item == :remove) {
+        if (item == :edit) {
+            view.startNewCodeMode();
+        } else if (item == :remove) {
             view.removeCurrentCode();
         } else if (item == :add) {
             view.startNewCodeMode();
         }
+        // :none is intentionally not handled
     }
 }
 
@@ -378,5 +442,68 @@ class TextPickerDelegate extends WatchUi.TextPickerDelegate {
         System.println("Text input cancelled");
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         return true;
+    }
+}
+
+class GlanceView extends WatchUi.GlanceView {
+    var images as Lang.Array<Null or WatchUi.BitmapResource>;
+
+    function initialize() {
+        GlanceView.initialize();
+        images = new [0];
+        loadCachedImages();
+    }
+
+    function loadCachedImages() {
+        try {
+            var count = Storage.getValue("qr_count");
+            if (count != null) {
+                for (var i = 0; i < count; i++) {
+                    var cachedImage = Storage.getValue("qr_image_" + i);
+                    if (cachedImage != null) {
+                        images.add(cachedImage as WatchUi.BitmapResource);
+                    }
+                }
+            }
+        } catch (e) {
+            System.println("Error loading cached images for glance: " + e.getErrorMessage());
+        }
+    }
+
+    function onUpdate(dc) {
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.clear();
+
+        if (images.size() > 0) {
+            // Draw the first QR code
+            var screenWidth = dc.getWidth();
+            var screenHeight = dc.getHeight();
+            var size = screenHeight - 30; // Leave space for text
+            var x = (screenWidth - size) / 2;
+            var y = (screenHeight - size) / 2;
+            dc.drawBitmap(x, y, images[0] as WatchUi.BitmapResource);
+            
+            // Draw count if more than one code
+            if (images.size() > 1) {
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(
+                    screenWidth / 2,
+                    screenHeight - 15,
+                    Graphics.FONT_XTINY,
+                    images.size().toString() + " codes",
+                    Graphics.TEXT_JUSTIFY_CENTER
+                );
+            }
+        } else {
+            // Show empty state
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(
+                dc.getWidth() / 2,
+                dc.getHeight() / 2,
+                Graphics.FONT_MEDIUM,
+                "No QR codes",
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+            );
+        }
     }
 } 
