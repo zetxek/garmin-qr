@@ -509,7 +509,7 @@ class GlanceView extends WatchUi.GlanceView {
             var bmpHeight = bmp.getHeight();
             var screenHeight = dc.getHeight();
 
-            var marginLeft = 0; // Increase margin for clarity
+            var marginLeft = 10; // Increase margin for clarity
             var x = marginLeft;
             var y = (screenHeight - bmpHeight) / 2;
             dc.drawBitmap(x, y, bmp);
