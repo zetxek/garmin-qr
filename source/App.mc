@@ -89,11 +89,12 @@ class AppView extends WatchUi.View {
         isDownloading = true;
         System.println("Starting download for text: " + text);
         var url;
-        if (pendingCodeType == "barcode") {
+        if (pendingCodeType.equals("barcode")) {
             url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text;
         } else {
             url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
         }
+        System.println("URL: " + url);
         var params = null;
         var options = {
             :maxWidth => 240,
