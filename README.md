@@ -53,4 +53,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-[Add contribution guidelines if applicable]
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+### Issues
+
+If you find a bug or have a feature request, please open an issue in the [GitHub issue tracker](https://github.com/zetxek/garmin-qr/issues).
