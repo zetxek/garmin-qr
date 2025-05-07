@@ -1,7 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
-    <iq:application entry="App" id="1234567890abcdef1234567890abcdef" launcherIcon="@Drawables.LauncherIcon" name="@Strings.AppName" type="watch-app">
+    <iq:application entry="App" id="1234567890abcdef1234567890abcdef" launcherIcon="@Drawables.LauncherIcon" name="@Strings.AppName" type="watch-app" minSdkVersion="5.0.0">
         <iq:products>
+            <iq:product id="approachs50"/>
+            <iq:product id="approachs7042mm"/>
+            <iq:product id="approachs7047mm"/>
+            <iq:product id="d2airx10"/>
+            <iq:product id="d2mach1"/>
+            <iq:product id="descentg2"/>
+            <iq:product id="descentmk343mm"/>
+            <iq:product id="descentmk351mm"/>
+            <iq:product id="edge1040"/>
+            <iq:product id="edge1050"/>
+            <iq:product id="edge540"/>
+            <iq:product id="edge840"/>
+            <iq:product id="edgeexplore2"/>
+            <iq:product id="enduro3"/>
+            <iq:product id="epix2"/>
+            <iq:product id="epix2pro42mm"/>
+            <iq:product id="epix2pro47mm"/>
+            <iq:product id="epix2pro51mm"/>
+            <iq:product id="fenix7"/>
             <iq:product id="fenix7pro"/>
             <iq:product id="fenix7pronowifi"/>
             <iq:product id="fenix7s"/>
@@ -13,6 +32,33 @@
             <iq:product id="fenix847mm"/>
             <iq:product id="fenix8solar47mm"/>
             <iq:product id="fenix8solar51mm"/>
+            <iq:product id="fenixe"/>
+            <iq:product id="fr165"/>
+            <iq:product id="fr165m"/>
+            <iq:product id="fr255"/>
+            <iq:product id="fr255m"/>
+            <iq:product id="fr255s"/>
+            <iq:product id="fr255sm"/>
+            <iq:product id="fr265"/>
+            <iq:product id="fr265s"/>
+            <iq:product id="fr955"/>
+            <iq:product id="fr965"/>
+            <iq:product id="instinct3amoled45mm"/>
+            <iq:product id="instinct3amoled50mm"/>
+            <iq:product id="instinct3solar45mm"/>
+            <iq:product id="instincte40mm"/>
+            <iq:product id="instincte45mm"/>
+            <iq:product id="marq2"/>
+            <iq:product id="marq2aviator"/>
+            <iq:product id="venu2"/>
+            <iq:product id="venu2plus"/>
+            <iq:product id="venu2s"/>
+            <iq:product id="venu3"/>
+            <iq:product id="venu3s"/>
+            <iq:product id="venusq2"/>
+            <iq:product id="venusq2m"/>
+            <iq:product id="vivoactive5"/>
+            <iq:product id="vivoactive6"/>
         </iq:products>
         <iq:permissions>
             <iq:uses-permission id="Communications"/>

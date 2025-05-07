@@ -8,6 +8,7 @@ using Toybox.Communications;
 using Toybox.Application.Storage;
 using Toybox.Attention;
 
+(:app)
 class App extends Application.AppBase {
     function initialize() {
         AppBase.initialize();
@@ -37,6 +38,10 @@ class AppView extends WatchUi.View {
     var errorMessage as Null or Lang.String;
     var errorTimer as Null or Timer.Timer;
     var pendingText as Null or Lang.String;
+    var pendingCodeType as Lang.String; // "qr" or "barcode"
+    var returnToListAfterDownload as Lang.Boolean;
+    var pendingGlanceCodeType as Lang.String;
+    var pendingGlanceText as Lang.String;
 
     function initialize() {
         View.initialize();
@@ -45,6 +50,10 @@ class AppView extends WatchUi.View {
         currentIndex = 0;
         isDownloading = false;
         isNewCodeMode = false;
+        pendingCodeType = "qr"; // Default to QR
+        returnToListAfterDownload = false;
+        pendingGlanceCodeType = "qr";
+        pendingGlanceText = "";
         
         // Load cached images
         loadCachedImages();
@@ -79,7 +88,12 @@ class AppView extends WatchUi.View {
         
         isDownloading = true;
         System.println("Starting download for text: " + text);
-        var url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
+        var url;
+        if (pendingCodeType == "barcode") {
+            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text;
+        } else {
+            url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
+        }
         var params = null;
         var options = {
             :maxWidth => 240,
@@ -88,6 +102,11 @@ class AppView extends WatchUi.View {
 
         // Store the text for later reference (in memory, not storage)
         self.pendingText = text;
+        self.pendingGlanceCodeType = self.pendingCodeType;
+        self.pendingGlanceText = text;
+        System.println("pendingCodeType: " + self.pendingCodeType + ", pendingGlanceCodeType: " + self.pendingGlanceCodeType + ", text: " + text);
+
+        System.println("pendingGlanceCodeType: '" + self.pendingGlanceCodeType + "' (len: " + self.pendingGlanceCodeType.length() + ")");
 
         Communications.makeImageRequest(
             url,
@@ -128,7 +147,13 @@ class AppView extends WatchUi.View {
                 WatchUi.requestUpdate();
                 System.println("Image downloaded and processed successfully");
 
-                var glanceUrl = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + self.pendingText + "&size=60";
+                var glanceUrl;
+                if (self.pendingGlanceCodeType.equals("barcode")) {
+                    glanceUrl = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + self.pendingGlanceText + "&size=60";
+                } else {
+                    glanceUrl = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + self.pendingGlanceText + "&size=60";
+                }
+                System.println("Glance URL: " + glanceUrl + " (type: " + self.pendingGlanceCodeType + ")");
                 var params = null;
                 var options = {
                     :maxWidth => 60,
@@ -143,6 +168,12 @@ class AppView extends WatchUi.View {
                 );
 
                 self.pendingText = null;
+
+                if (self.returnToListAfterDownload) {
+                    self.currentIndex = images.size() - 1;
+                    while (WatchUi.popView(WatchUi.SLIDE_DOWN)) {}
+                    self.returnToListAfterDownload = false;
+                }
             } catch (e) {
                 System.println("Error saving image: " + e.getErrorMessage());
                 showError("Failed to save QR code");
@@ -287,9 +318,10 @@ class AppView extends WatchUi.View {
 
     function showAddMenu() {
         var menu = new WatchUi.Menu();
-        menu.setTitle("Add QR Code");
-        menu.addItem("Add New", :add);
-        WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
+        menu.setTitle("Select Code Type");
+        menu.addItem("QR Code", :qr);
+        menu.addItem("Barcode", :barcode);
+        WatchUi.pushView(menu, new CodeTypeMenuDelegate(self), WatchUi.SLIDE_UP);
     }
 
     function showItemMenu() {
@@ -420,8 +452,7 @@ class CodeMenuDelegate extends WatchUi.MenuInputDelegate {
         } else if (item == :remove) {
             view.removeCurrentCode();
         } else if (item == :add) {
-            view.currentIndex = view.images.size();
-            view.startNewCodeMode();
+            view.showAddMenu();
         }
         // :none is intentionally not handled
     }
@@ -465,6 +496,7 @@ class TextPickerDelegate extends WatchUi.TextPickerDelegate {
         if (text != null && text.length() > 0) {
             try {
                 System.println("Generating QR code for entered text");
+                view.returnToListAfterDownload = true;
                 view.downloadImage(text);
             } catch (e) {
                 System.println("Error in onTextEntered: " + e.getErrorMessage());
@@ -483,6 +515,7 @@ class TextPickerDelegate extends WatchUi.TextPickerDelegate {
     }
 }
 
+(:glance)
 class GlanceView extends WatchUi.GlanceView {
     var images as Lang.Array<Null or WatchUi.BitmapResource>;
 
@@ -540,5 +573,22 @@ class GlanceView extends WatchUi.GlanceView {
             );
         }
         // No code count or other text is drawn
+    }
+}
+
+class CodeTypeMenuDelegate extends WatchUi.MenuInputDelegate {
+    var view;
+    function initialize(view) {
+        MenuInputDelegate.initialize();
+        self.view = view;
+    }
+    function onMenuItem(item) {
+        if (item == :qr) {
+            view.pendingCodeType = "qr";
+        } else if (item == :barcode) {
+            view.pendingCodeType = "barcode";
+        }
+        view.currentIndex = view.images.size();
+        view.startNewCodeMode();
     }
 } 
