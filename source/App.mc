@@ -795,9 +795,10 @@ class GlanceView extends WatchUi.GlanceView {
             var maxWidth = dc.getWidth() - textX - 5; // Leave 5px margin
             
             // If text is too long, truncate with ellipsis
-            if (dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY) > maxWidth) {
+            var textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
+            if (textWidth > maxWidth) {
                 // Try to ensure at least part of the text is visible
-                var maxChars = displayText.length() * maxWidth / dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
+                var maxChars = displayText.length() * maxWidth / textWidth;
                 if (maxChars > 3) { // Need at least 3 chars plus "..."
                     displayText = displayText.substring(0, maxChars.toNumber() - 3) + "...";
                 }
