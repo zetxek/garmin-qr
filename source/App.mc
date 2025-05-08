@@ -92,14 +92,11 @@ class AppView extends WatchUi.View {
         if (images.size() > 10) {
             System.println("Too many images, removing oldest to free memory");
             var oldestToRemove = images.size() - 10;
-            for (var i = 0; i < oldestToRemove; i++) {
-                // Keep the first 10 images and remove the rest
-                var removeIndex = 10 + i;
-                if (removeIndex < images.size()) {
-                    System.println("Removing extra image at index: " + removeIndex);
-                    images.remove(images[removeIndex]);
-                    Storage.deleteValue("qr_image_" + removeIndex);
-                }
+            for (var i = images.size() - 1; i >= 10; i--) {
+                // Remove images starting from the end of the array
+                System.println("Removing extra image at index: " + i);
+                images.remove(images[i]);
+                Storage.deleteValue("qr_image_" + i);
             }
         }
         
