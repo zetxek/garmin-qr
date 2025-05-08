@@ -42,6 +42,7 @@ class AppView extends WatchUi.View {
     var returnToListAfterDownload as Lang.Boolean;
     var pendingGlanceCodeType as Lang.String;
     var pendingGlanceText as Lang.String;
+    var pendingTitle as Null or Lang.String; // New property for title
 
     function initialize() {
         View.initialize();
@@ -54,6 +55,7 @@ class AppView extends WatchUi.View {
         returnToListAfterDownload = false;
         pendingGlanceCodeType = "qr";
         pendingGlanceText = "";
+        pendingTitle = null;
         
         // Load cached images
         loadCachedImages();
@@ -86,6 +88,18 @@ class AppView extends WatchUi.View {
             return;
         }
         
+        // Clean up memory - remove unnecessary images to make room
+        if (images.size() > 10) {
+            System.println("Too many images, removing oldest to free memory");
+            var oldestToRemove = images.size() - 10;
+            for (var i = images.size() - 1; i >= 10; i--) {
+                // Remove images starting from the end of the array
+                System.println("Removing extra image at index: " + i);
+                images.remove(images[i]);
+                Storage.deleteValue("qr_image_" + i);
+            }
+        }
+        
         isDownloading = true;
         System.println("Starting download for text: " + text);
         var url;
@@ -97,8 +111,8 @@ class AppView extends WatchUi.View {
         System.println("URL: " + url);
         var params = null;
         var options = {
-            :maxWidth => 240,
-            :maxHeight => 240
+            :maxWidth => 200,  // Reduced size to use less memory
+            :maxHeight => 200  // Reduced size to use less memory
         };
 
         // Store the text for later reference (in memory, not storage)
@@ -118,11 +132,11 @@ class AppView extends WatchUi.View {
     }
 
     function responseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
-        System.println("responseCallback. Response code: " + responseCode);
+        System.println("=== responseCallback start. Response code: " + responseCode);
         isDownloading = false;
         
-        if (responseCode == 200) {
-            try {
+        try {
+            if (responseCode == 200) {
                 if (data == null) {
                     System.println("Error: Received null data");
                     showError("Failed to generate QR code");
@@ -132,72 +146,130 @@ class AppView extends WatchUi.View {
                 System.println("Processing downloaded image");
                 var bitmapResource = data as WatchUi.BitmapResource;
                 
+                // Log memory info
+                System.println("Memory before adding image: " + System.getSystemStats().usedMemory + "/" + System.getSystemStats().totalMemory);
+                
                 if (currentIndex < images.size()) {
                     // Edit existing code
+                    System.println("Editing existing code at index: " + currentIndex);
                     images[currentIndex] = bitmapResource;
                 } else {
                     // Add new code
+                    System.println("Adding new code at index: " + images.size());
                     images.add(bitmapResource);
                     currentIndex = images.size() - 1;
+                    System.println("New currentIndex: " + currentIndex);
                 }
-                Storage.setValue("qr_image_" + currentIndex, bitmapResource);
-                Storage.setValue("qr_text_" + currentIndex, self.pendingText);
-                Storage.setValue("qr_count", images.size());
-                System.println("Updated code at index: " + currentIndex);
                 
-                WatchUi.requestUpdate();
-                System.println("Image downloaded and processed successfully");
-
-                var glanceUrl;
-                if (self.pendingGlanceCodeType.equals("barcode")) {
-                    glanceUrl = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + self.pendingGlanceText + "&size=60";
-                } else {
-                    glanceUrl = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + self.pendingGlanceText + "&size=60";
+                try {
+                    System.println("Saving image to storage at index: " + currentIndex);
+                    Storage.setValue("qr_image_" + currentIndex, bitmapResource);
+                    System.println("Saving text to storage: " + self.pendingText);
+                    Storage.setValue("qr_text_" + currentIndex, self.pendingText);
+                    
+                    System.println("Saving qr_count: " + images.size());
+                    Storage.setValue("qr_count", images.size());
+                    System.println("Updated code at index: " + currentIndex);
+                } catch(e) {
+                    System.println("Error in storage operations: " + e.getErrorMessage());
+                    showError("Storage error: " + e.getErrorMessage());
+                    return;
                 }
-                System.println("Glance URL: " + glanceUrl + " (type: " + self.pendingGlanceCodeType + ")");
-                var params = null;
-                var options = {
-                    :maxWidth => 60,
-                    :maxHeight => 60
-                };
-                // Pass the index to the glance callback
-                Communications.makeImageRequest(
-                    glanceUrl,
-                    params,
-                    options,
-                    method(:glanceCallback)
-                );
-
-                self.pendingText = null;
-
-                if (self.returnToListAfterDownload) {
-                    self.currentIndex = images.size() - 1;
-                    while (WatchUi.popView(WatchUi.SLIDE_DOWN)) {}
-                    self.returnToListAfterDownload = false;
+                
+                try {
+                    System.println("Requesting UI update");
+                    WatchUi.requestUpdate();
+                    System.println("Image downloaded and processed successfully");
+                } catch(e) {
+                    System.println("Error requesting update: " + e.getErrorMessage());
                 }
-            } catch (e) {
-                System.println("Error saving image: " + e.getErrorMessage());
-                showError("Failed to save QR code");
-            }
-        } else {
-            System.println("Download failed with code: " + responseCode);
-            if (responseCode == -100) {  // Network timeout
-                showError("Network timeout");
-            } else if (responseCode == -101) {  // Network request failed
-                showError("Network error");
+
+                try {
+                    System.println("Preparing glance image");
+                    var glanceUrl;
+                    if (self.pendingGlanceCodeType.equals("barcode")) {
+                        glanceUrl = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + self.pendingGlanceText + "&size=60";
+                    } else {
+                        glanceUrl = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + self.pendingGlanceText + "&size=60";
+                    }
+                    System.println("Glance URL: " + glanceUrl + " (type: " + self.pendingGlanceCodeType + ")");
+                    var params = null;
+                    var options = {
+                        :maxWidth => 60,
+                        :maxHeight => 60
+                    };
+                    
+                    try {
+                        // Pass the index to the glance callback
+                        System.println("Making glance image request");
+                        Communications.makeImageRequest(
+                            glanceUrl,
+                            params,
+                            options,
+                            method(:glanceCallback)
+                        );
+                        System.println("Glance image request made successfully");
+                    } catch(e) {
+                        System.println("Error making glance image request: " + e.getErrorMessage());
+                    }
+
+                    self.pendingText = null;
+                } catch(e) {
+                    System.println("Error in glance preparation: " + e.getErrorMessage());
+                }
+
+                try {
+                    if (self.returnToListAfterDownload) {
+                        System.println("Returning to list after download");
+                        self.currentIndex = images.size() - 1;
+                        
+                        // Safer way to pop views without using while loop
+                        try {
+                            // Instead of popping views, just request an update
+                            // This avoids issues with UI navigation timing
+                            WatchUi.requestUpdate();
+                            System.println("Requested UI update instead of popping view");
+                        } catch (e) {
+                            System.println("Error updating UI: " + e.getErrorMessage());
+                        }
+                        
+                        self.returnToListAfterDownload = false;
+                        System.println("Returned to list successfully");
+                    }
+                } catch(e) {
+                    System.println("Error returning to list: " + e.getErrorMessage());
+                }
             } else {
-                showError("Failed to generate QR code");
+                System.println("Download failed with code: " + responseCode);
+                if (responseCode == -100) {  // Network timeout
+                    showError("Network timeout");
+                } else if (responseCode == -101) {  // Network request failed
+                    showError("Network error");
+                } else {
+                    showError("Failed to generate QR code");
+                }
             }
+        } catch (e) {
+            System.println("MAJOR ERROR in responseCallback: " + e.getErrorMessage());
+            showError("Error: " + e.getErrorMessage());
         }
+        System.println("=== responseCallback end");
     }
 
     function glanceCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
-        if (responseCode == 200 && data != null) {
-            Storage.setValue("qr_glance_image_" + self.currentIndex, data as WatchUi.BitmapResource);
-            System.println("Stored glance QR code at index: " + self.currentIndex);
-        } else {
-            System.println("Failed to download glance QR code");
+        System.println("=== glanceCallback start. Response code: " + responseCode);
+        try {
+            if (responseCode == 200 && data != null) {
+                System.println("Storing glance QR code at index: " + self.currentIndex);
+                Storage.setValue("qr_glance_image_" + self.currentIndex, data as WatchUi.BitmapResource);
+                System.println("Stored glance QR code at index: " + self.currentIndex);
+            } else {
+                System.println("Failed to download glance QR code. Response code: " + responseCode);
+            }
+        } catch(e) {
+            System.println("Error in glanceCallback: " + e.getErrorMessage());
         }
+        System.println("=== glanceCallback end");
     }
 
     function onLayout(dc) {
@@ -262,6 +334,21 @@ class AppView extends WatchUi.View {
         var bmpHeight = bmp.getHeight();
         var x = (screenWidth - bmpWidth) / 2;
         var y = (screenHeight - bottomTextHeight - bmpHeight) / 2 + margin;
+        
+        // Draw title if available (higher above the QR code)
+        var title = Storage.getValue("qr_title_" + currentIndex);
+        if (title != null && title.length() > 0) {
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(
+                screenWidth / 2,
+                y - 50, // Position much higher above the QR code - was 35
+                Graphics.FONT_TINY,
+                title,
+                Graphics.TEXT_JUSTIFY_CENTER
+            );
+        }
+        
+        // Draw the QR code
         dc.drawBitmap(x, y, bmp);
     }
 
@@ -328,10 +415,23 @@ class AppView extends WatchUi.View {
     function showItemMenu() {
         var menu = new WatchUi.Menu();
         menu.setTitle("Code Options");
-        menu.addItem("Text: " + getCurrentCodeText(), :none);
-        menu.addItem("Edit", :edit);
-        menu.addItem("Remove", :remove);
-        menu.addItem("Add New", :add);
+        
+        // Make the text item actionable to edit the text
+        var codeText = getCurrentCodeText();
+        menu.addItem("Text: " + codeText, :edit_text);
+        
+        // Make the title item actionable to edit the title
+        var currentTitle = Storage.getValue("qr_title_" + currentIndex);
+        if (currentTitle == null) {
+            currentTitle = "";
+        }
+        menu.addItem("Title: " + (currentTitle.length() > 0 ? currentTitle : "(none)"), :edit_title);
+        
+        // Add other menu options (removed Edit button)
+        menu.addItem("[-] Remove", :remove);
+        menu.addItem("[+] Add New", :add);
+        
+        // Push to WatchUI
         WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
     }
 
@@ -352,6 +452,7 @@ class AppView extends WatchUi.View {
             // Update storage
             Storage.deleteValue("qr_image_" + currentIndex);
             Storage.deleteValue("qr_text_" + currentIndex);  // Remove stored text
+            Storage.deleteValue("qr_title_" + currentIndex); // Remove stored title
             for (var i = currentIndex; i < images.size(); i++) {
                 Storage.setValue("qr_image_" + i, images[i]);
                 // Move text storage
@@ -359,6 +460,12 @@ class AppView extends WatchUi.View {
                 if (text != null) {
                     Storage.setValue("qr_text_" + i, text);
                     Storage.deleteValue("qr_text_" + (i + 1));
+                }
+                // Move title storage
+                var title = Storage.getValue("qr_title_" + (i + 1));
+                if (title != null) {
+                    Storage.setValue("qr_title_" + i, title);
+                    Storage.deleteValue("qr_title_" + (i + 1));
                 }
             }
             Storage.setValue("qr_count", images.size());
@@ -384,6 +491,20 @@ class AppView extends WatchUi.View {
         }
         var textPicker = new WatchUi.TextPicker(initialText == "" ? "Your_text" : initialText);
         WatchUi.pushView(textPicker, new TextPickerDelegate(self), WatchUi.SLIDE_UP);
+    }
+    
+    function startTitleInput() {
+        System.println("Starting title input");
+        var initialTitle = "";
+        if (currentIndex < images.size()) {
+            // Editing: load saved title if available
+            var savedTitle = Storage.getValue("qr_title_" + currentIndex);
+            if (savedTitle != null) {
+                initialTitle = savedTitle;
+            }
+        }
+        var textPicker = new WatchUi.TextPicker(initialTitle);
+        WatchUi.pushView(textPicker, new TitleInputDelegate(self), WatchUi.SLIDE_UP);
     }
 
     function onTap(clickEvent) {
@@ -448,14 +569,15 @@ class CodeMenuDelegate extends WatchUi.MenuInputDelegate {
     }
 
     function onMenuItem(item) {
-        if (item == :edit) {
+        if (item == :edit_text) {
             view.startNewCodeMode();
+        } else if (item == :edit_title) {
+            view.startTitleInput();
         } else if (item == :remove) {
             view.removeCurrentCode();
         } else if (item == :add) {
             view.showAddMenu();
         }
-        // :none is intentionally not handled
     }
 }
 
@@ -494,24 +616,114 @@ class TextPickerDelegate extends WatchUi.TextPickerDelegate {
 
     function onTextEntered(text, changed) {
         System.println("Text entered: " + text);
+        
         if (text != null && text.length() > 0) {
             try {
                 System.println("Generating QR code for entered text");
                 view.returnToListAfterDownload = true;
+                
+                // Handle long text by truncating if needed (prevent memory issues)
+                if (text.length() > 100) {
+                    text = text.substring(0, 100);
+                    System.println("Text truncated to 100 chars to prevent memory issues");
+                }
+                
+                // First pop the view before starting the download
+                // to avoid UI navigation timing issues
+                try {
+                    WatchUi.popView(WatchUi.SLIDE_DOWN);
+                } catch (e) {
+                    System.println("Error popping view before download: " + e.getErrorMessage());
+                }
+                
+                // Then start the download
                 view.downloadImage(text);
             } catch (e) {
                 System.println("Error in onTextEntered: " + e.getErrorMessage());
+                view.showError("Error: " + e.getErrorMessage());
+                
+                // Ensure view is popped if there was an error
+                try {
+                    WatchUi.popView(WatchUi.SLIDE_DOWN);
+                } catch (e2) {
+                    // Ignore nested error
+                }
             }
         } else {
             System.println("Empty text entered");
+            try {
+                WatchUi.popView(WatchUi.SLIDE_DOWN);
+            } catch (e) {
+                System.println("Error popping view for empty text: " + e.getErrorMessage());
+            }
         }
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        
         return true;
     }
 
     function onCancel() {
         System.println("Text input cancelled");
+        try {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        } catch (e) {
+            System.println("Error popping view on cancel: " + e.getErrorMessage());
+        }
+        return true;
+    }
+}
+
+class TitleInputDelegate extends WatchUi.TextPickerDelegate {
+    var view;
+
+    function initialize(view) {
+        TextPickerDelegate.initialize();
+        self.view = view;
+    }
+
+    function onTextEntered(title, changed) {
+        System.println("Title entered: " + title);
+        
+        // Store the title directly in storage
+        if (title != null && title.length() > 0) {
+            try {
+                Storage.setValue("qr_title_" + view.currentIndex, title);
+                System.println("Saved title to storage: " + title + " for index " + view.currentIndex);
+            } catch (e) {
+                System.println("Error saving title: " + e.getErrorMessage());
+            }
+        } else {
+            // If empty title, remove the title
+            try {
+                Storage.deleteValue("qr_title_" + view.currentIndex);
+                System.println("Deleted title from storage for index " + view.currentIndex);
+            } catch (e) {
+                System.println("Error deleting title: " + e.getErrorMessage());
+            }
+        }
+        
+        // Return to the main view
+        try {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            // Request update after view is popped
+            WatchUi.requestUpdate();
+        } catch (e) {
+            System.println("Error popping view after title entry: " + e.getErrorMessage());
+            // Try to request update anyway
+            try {
+                WatchUi.requestUpdate();
+            } catch (e2) {
+                // Ignore nested error
+            }
+        }
+        
+        return true;
+    }
+
+    function onCancel() {
+        System.println("Title input cancelled");
+        // Return to the main view
         WatchUi.popView(WatchUi.SLIDE_DOWN);
+        
         return true;
     }
 }
@@ -557,23 +769,55 @@ class GlanceView extends WatchUi.GlanceView {
             var y = (screenHeight - bmpHeight) / 2;
             dc.drawBitmap(x, y, bmp);
 
-            // Draw the QR text to the right of the QR code
+            // Get the title and text
+            var title = Storage.getValue("qr_title_0");
             var text = Storage.getValue("qr_text_0");
-            if (text == null) {
-                text = "";
+            var displayText = text;
+            
+            // Format the display text based on title availability
+            if (title != null && title.length() > 0) {
+                displayText = title + " (" + text + ")";
             }
+            
+            if (displayText == null) {
+                displayText = "";
+            }
+            
+            // Draw the text to the right of the QR code
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             var textX = x + bmpWidth + 10; // 10px padding to the right of the QR
             var textY = screenHeight / 2;
+            
+            // Truncate text if it's too long for the available space
+            var maxWidth = dc.getWidth() - textX - 5; // Leave 5px margin
+            
+            // If text is too long, truncate with ellipsis
+            var textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
+            if (textWidth > maxWidth) {
+                // Try to ensure at least part of the text is visible
+                var maxChars = displayText.length() * maxWidth / textWidth;
+                if (maxChars > 3) { // Need at least 3 chars plus "..."
+                    displayText = displayText.substring(0, maxChars.toNumber() - 3) + "...";
+                }
+            }
+            
             dc.drawText(
                 textX,
                 textY,
                 Graphics.FONT_XTINY,
-                text,
+                displayText,
                 Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
             );
+        } else {
+            // No QR codes - show message
+            dc.drawText(
+                dc.getWidth() / 2,
+                dc.getHeight() / 2,
+                Graphics.FONT_TINY,
+                "No QR codes",
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+            );
         }
-        // No code count or other text is drawn
     }
 }
 
@@ -590,6 +834,8 @@ class CodeTypeMenuDelegate extends WatchUi.MenuInputDelegate {
             view.pendingCodeType = "barcode";
         }
         view.currentIndex = view.images.size();
+        
+        // Go directly to text input (skipping title input)
         view.startNewCodeMode();
     }
-} 
+}
