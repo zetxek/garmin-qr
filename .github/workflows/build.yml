@@ -1,0 +1,54 @@
+name: Build Garmin App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Download Connect IQ SDK
+        run: |
+          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-4.2.5.zip
+          unzip connectiq-sdk-lin-4.2.5.zip
+          echo "CONNECTIQ_SDK_HOME=$(pwd)/connectiq-sdk-lin-4.2.5" >> $GITHUB_ENV
+
+      - name: Build Debug
+        run: |
+          $CONNECTIQ_SDK_HOME/bin/monkeyc -o bin/garmin-qr.prg -m manifest.xml -y developer_key.der -d fenix7pro -w -f monkey.jungle
+
+      - name: Build Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          $CONNECTIQ_SDK_HOME/bin/monkeyc -o bin/garmin-qr.prg -m manifest.xml -y developer_key.der -d fenix7pro -r -f monkey.jungle
+
+      - name: Upload Debug Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-build
+          path: bin/garmin-qr.prg
+          if-no-files-found: error
+
+      - name: Upload Release Build
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build
+          path: bin/garmin-qr.prg
+          if-no-files-found: error 
