@@ -2,4 +2,28 @@
 <resources>
     <bitmap id="LauncherIcon" filename="qr.png"/>
     <bitmap id="DisplayImage1" filename="qr.png"/>
+    <bitmap id="TitleIcon" filename="qr.png" dithering="none">
+        <palette>
+            <color>000000</color>
+            <color>FFFFFF</color>
+        </palette>
+    </bitmap>
+    <bitmap id="TextIcon" filename="qr.png" dithering="none">
+        <palette>
+            <color>000000</color>
+            <color>FFFFFF</color>
+        </palette>
+    </bitmap>
+    <bitmap id="RemoveIcon" filename="qr.png" dithering="none">
+        <palette>
+            <color>000000</color>
+            <color>FFFFFF</color>
+        </palette>
+    </bitmap>
+    <bitmap id="AddIcon" filename="qr.png" dithering="none">
+        <palette>
+            <color>000000</color>
+            <color>FFFFFF</color>
+        </palette>
+    </bitmap>
 </resources> 
