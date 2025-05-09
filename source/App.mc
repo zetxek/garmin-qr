@@ -64,75 +64,102 @@ class AppView extends WatchUi.View {
     function loadCachedImages() {
         System.println("Loading cached images");
         try {
-            var count = Storage.getValue("qr_count");
+            var count = Application.getApp().getProperty("qr_count");
             if (count != null) {
-                System.println("Count: " + count);  
+                System.println("Count: " + count);
+                // We'll just store the count and codes info - don't try to cache the actual bitmaps
                 for (var i = 0; i < count; i++) {
-                    var cachedImage = Storage.getValue("qr_image_" + i);
-                    if (cachedImage != null) {
-                        images.add(cachedImage as WatchUi.BitmapResource);
-                    }
+                    downloadStoredCode(i);
                 }
-                System.println("Loaded " + images.size() + " cached images");
-            }else{
+            } else {
                 System.println("No cached images");
             }
         } catch (e) {
             System.println("Error loading cached images: " + e.getErrorMessage());
         }
     }
-
-    function downloadImage(text as Lang.String) {
-        if (isDownloading) {
-            System.println("Already downloading");
-            return;
-        }
-        
-        // Clean up memory - remove unnecessary images to make room
-        if (images.size() > 10) {
-            System.println("Too many images, removing oldest to free memory");
-            var oldestToRemove = images.size() - 10;
-            for (var i = images.size() - 1; i >= 10; i--) {
-                // Remove images starting from the end of the array
-                System.println("Removing extra image at index: " + i);
-                images.remove(images[i]);
-                Storage.deleteValue("qr_image_" + i);
+    
+    // Download a previously stored code
+    function downloadStoredCode(index) {
+        if (index >= 0) {
+            var text = getStorageValue("qr_text_" + index);
+            if (text != null && text.length() > 0) {
+                System.println("Re-downloading stored code for index " + index + ": '" + text + "'");
+                
+                // We don't need to modify currentIndex here, as we're just populating the array
+                var isQR = true; // Default to QR
+                var codeType = Application.getApp().getProperty("qr_type_" + index);
+                if (codeType != null && codeType.equals("barcode")) {
+                    isQR = false;
+                }
+                
+                // Create a placeholder for now (will be replaced when download completes)
+                images.add(null);
+                
+                // Start the download
+                var url;
+                if (!isQR) {
+                    url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text;
+                    self.pendingCodeType = "barcode";
+                } else {
+                    url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
+                    self.pendingCodeType = "qr";
+                }
+                
+                // Special case for loading stored codes
+                self.pendingText = text;
+                self.pendingGlanceText = text;
+                self.pendingGlanceCodeType = self.pendingCodeType;
+                
+                var params = null;
+                var options = {
+                    :maxWidth => 200,
+                    :maxHeight => 200
+                };
+                
+                try {
+                    System.println("Making stored code request for index " + index);
+                    var indexCopy = index; // Create a copy to use in callback
+                    Communications.makeImageRequest(
+                        url,
+                        params,
+                        options,
+                        method(:storedCodeCallback)
+                    );
+                } catch (e) {
+                    System.println("Error requesting stored code: " + e.getErrorMessage());
+                }
+            } else {
+                System.println("No text found for stored code at index " + index);
             }
         }
+    }
+    
+    // Callback for stored code downloads
+    function storedCodeCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
+        System.println("=== storedCodeCallback, response code: " + responseCode);
         
-        isDownloading = true;
-        System.println("Starting download for text: " + text);
-        var url;
-        if (pendingCodeType.equals("barcode")) {
-            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text;
-        } else {
-            url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
+        try {
+            if (responseCode == 200 && data != null) {
+                // Store the image in memory at the current index
+                var bitmapResource = data as WatchUi.BitmapResource;
+                
+                // Update the current image
+                images[currentIndex] = bitmapResource;
+                
+                // Request UI update
+                WatchUi.requestUpdate();
+            } else {
+                System.println("Failed to download stored code image. Response code: " + responseCode);
+            }
+        } catch (e) {
+            System.println("Error in storedCodeCallback: " + e.getErrorMessage());
         }
-        System.println("URL: " + url);
-        var params = null;
-        var options = {
-            :maxWidth => 200,  // Reduced size to use less memory
-            :maxHeight => 200  // Reduced size to use less memory
-        };
-
-        // Store the text for later reference (in memory, not storage)
-        self.pendingText = text;
-        self.pendingGlanceCodeType = self.pendingCodeType;
-        self.pendingGlanceText = text;
-        System.println("pendingCodeType: " + self.pendingCodeType + ", pendingGlanceCodeType: " + self.pendingGlanceCodeType + ", text: " + text);
-
-        System.println("pendingGlanceCodeType: '" + self.pendingGlanceCodeType + "' (len: " + self.pendingGlanceCodeType.length() + ")");
-
-        Communications.makeImageRequest(
-            url,
-            params,
-            options,
-            method(:responseCallback)
-        );
     }
 
     function responseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
         System.println("=== responseCallback start. Response code: " + responseCode);
+        System.println("responseCallback state - pendingText: '" + self.pendingText + "', currentIndex: " + currentIndex);
         isDownloading = false;
         
         try {
@@ -161,19 +188,52 @@ class AppView extends WatchUi.View {
                     System.println("New currentIndex: " + currentIndex);
                 }
                 
+                // First try to update just the text and count (skip image storage)
                 try {
-                    System.println("Saving image to storage at index: " + currentIndex);
-                    Storage.setValue("qr_image_" + currentIndex, bitmapResource);
-                    System.println("Saving text to storage: " + self.pendingText);
-                    Storage.setValue("qr_text_" + currentIndex, self.pendingText);
+                    var textToStore = self.pendingText;
+                    // If pendingText is somehow null/empty, try to recover from backup
+                    if (textToStore == null || textToStore.equals("")) {
+                        textToStore = Application.getApp().getProperty("qr_pending_text_backup");
+                        System.println("Recovered text from backup: '" + textToStore + "'");
+                    }
+                    
+                    // Debug the pendingText value before saving
+                    System.println("Saving text to storage: '" + textToStore + "'");
+                    
+                    // Use multiple storage methods for redundancy
+                    try {
+                        Storage.setValue("qr_text_" + currentIndex, textToStore);
+                        System.println("Text saved using Storage.setValue");
+                    } catch(eStorage) {
+                        System.println("Error in Storage.setValue: " + eStorage.getErrorMessage());
+                    }
+                    
+                    try {
+                        Application.getApp().setProperty("qr_text_" + currentIndex, textToStore);
+                        System.println("Text saved using App.setProperty");
+                    } catch(eApp) {
+                        System.println("Error in App.setProperty: " + eApp.getErrorMessage());
+                    }
+                    
+                    // Save the code type too
+                    try {
+                        Application.getApp().setProperty("qr_type_" + currentIndex, self.pendingCodeType);
+                        System.println("Code type saved: " + self.pendingCodeType);
+                    } catch(eType) {
+                        System.println("Error saving code type: " + eType.getErrorMessage());
+                    }
+                    
+                    // Verify text was saved correctly by reading it back
+                    var savedText = getStorageValue("qr_text_" + currentIndex);
+                    System.println("Verification - Read back saved text: '" + savedText + "'");
                     
                     System.println("Saving qr_count: " + images.size());
-                    Storage.setValue("qr_count", images.size());
+                    Application.getApp().setProperty("qr_count", images.size());
                     System.println("Updated code at index: " + currentIndex);
                 } catch(e) {
-                    System.println("Error in storage operations: " + e.getErrorMessage());
-                    showError("Storage error: " + e.getErrorMessage());
-                    return;
+                    System.println("Error in text storage operations: " + e.getErrorMessage());
+                    showError("Text storage error");
+                    // Continue anyway
                 }
                 
                 try {
@@ -261,7 +321,7 @@ class AppView extends WatchUi.View {
         try {
             if (responseCode == 200 && data != null) {
                 System.println("Storing glance QR code at index: " + self.currentIndex);
-                Storage.setValue("qr_glance_image_" + self.currentIndex, data as WatchUi.BitmapResource);
+                Application.getApp().setProperty("qr_glance_image_" + self.currentIndex, data as WatchUi.BitmapResource);
                 System.println("Stored glance QR code at index: " + self.currentIndex);
             } else {
                 System.println("Failed to download glance QR code. Response code: " + responseCode);
@@ -336,13 +396,27 @@ class AppView extends WatchUi.View {
         var y = (screenHeight - bottomTextHeight - bmpHeight) / 2 + margin;
         
         // Draw title if available (higher above the QR code)
-        var title = Storage.getValue("qr_title_" + currentIndex);
+        var title = Application.getApp().getProperty("qr_title_" + currentIndex);
         if (title != null && title.length() > 0) {
+            // Draw background for better readability
+            var textWidth = dc.getTextWidthInPixels(title, Graphics.FONT_SMALL);
+            var textHeight = dc.getFontHeight(Graphics.FONT_SMALL);
+            var bgPadding = 4;
+            
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+            dc.fillRectangle(
+                (screenWidth - textWidth) / 2 - bgPadding,
+                y - 60 - bgPadding,
+                textWidth + (bgPadding * 2),
+                textHeight + (bgPadding * 2)
+            );
+            
+            // Draw title text
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
                 screenWidth / 2,
-                y - 50, // Position much higher above the QR code - was 35
-                Graphics.FONT_TINY,
+                y - 60, // Position much higher above the QR code - increased from 50
+                Graphics.FONT_SMALL, // Slightly larger font
                 title,
                 Graphics.TEXT_JUSTIFY_CENTER
             );
@@ -416,16 +490,18 @@ class AppView extends WatchUi.View {
         var menu = new WatchUi.Menu();
         menu.setTitle("Code Options");
         
-        // Make the text item actionable to edit the text
-        var codeText = getCurrentCodeText();
-        menu.addItem("Text: " + codeText, :edit_text);
-        
         // Make the title item actionable to edit the title
-        var currentTitle = Storage.getValue("qr_title_" + currentIndex);
+        var currentTitle = Application.getApp().getProperty("qr_title_" + currentIndex);
         if (currentTitle == null) {
             currentTitle = "";
         }
         menu.addItem("Title: " + (currentTitle.length() > 0 ? currentTitle : "(none)"), :edit_title);
+        
+        // Make the text item actionable to edit the text
+        System.println("About to get code text for menu display");
+        var codeText = getCurrentCodeText();
+        System.println("Menu will display text: '" + codeText + "'");
+        menu.addItem("Text: " + codeText, :edit_text);
         
         // Add other menu options (removed Edit button)
         menu.addItem("[-] Remove", :remove);
@@ -435,12 +511,100 @@ class AppView extends WatchUi.View {
         WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
     }
 
-    function getCurrentCodeText() {
-        var text = Storage.getValue("qr_text_" + currentIndex);
-        System.println("getCurrentCodeText: currentIndex=" + currentIndex + ", text=" + text);
-        if (text == null) {
-            return "Unknown";
+    function getStorageValue(key) {
+        var value = null;
+        
+        // Try using Application.getApp().getProperty with error handling
+        try {
+            value = Application.getApp().getProperty(key);
+            System.println("getStorageValue - App.getProperty('" + key + "') returned: '" + value + "'");
+        } catch(e) {
+            System.println("getStorageValue - Error in App.getProperty: " + e.getErrorMessage());
         }
+        
+        // If that didn't work, try using Storage directly as fallback
+        if (value == null) {
+            try {
+                value = Storage.getValue(key);
+                System.println("getStorageValue - Storage.getValue('" + key + "') returned: '" + value + "'");
+                
+                // If we got it from Storage but not from getProperty, save it back
+                // to ensure consistency between the two methods
+                if (value != null) {
+                    try {
+                        Application.getApp().setProperty(key, value);
+                        System.println("getStorageValue - Synced value from Storage to App.Property");
+                    } catch(e) {
+                        System.println("getStorageValue - Error syncing to App.Property: " + e.getErrorMessage());
+                    }
+                }
+            } catch (e) {
+                System.println("getStorageValue - Error accessing Storage: " + e.getErrorMessage());
+            }
+        }
+        
+        // Last fallback for QR text: check if we're looking for text and try the backup
+        if (value == null && key.find("qr_text_") == 0) {
+            try {
+                var backupText = Application.getApp().getProperty("qr_pending_text_backup");
+                if (backupText != null && backupText.length() > 0) {
+                    System.println("getStorageValue - Using backup text as last resort: '" + backupText + "'");
+                    value = backupText;
+                    
+                    // Try to save it to the proper place
+                    try {
+                        Storage.setValue(key, value);
+                        System.println("getStorageValue - Saved backup to proper Storage key");
+                    } catch(e) {
+                        System.println("getStorageValue - Error saving backup to Storage: " + e.getErrorMessage());
+                    }
+                    
+                    try {
+                        Application.getApp().setProperty(key, value);
+                        System.println("getStorageValue - Saved backup to proper App.Property key");
+                    } catch(e) {
+                        System.println("getStorageValue - Error saving backup to App.Property: " + e.getErrorMessage());
+                    }
+                }
+            } catch(e) {
+                System.println("getStorageValue - Error checking backup: " + e.getErrorMessage());
+            }
+        }
+        
+        return value;
+    }
+
+    function getCurrentCodeText() {
+        System.println("Beginning getCurrentCodeText, currentIndex=" + currentIndex);
+        var text = getStorageValue("qr_text_" + currentIndex);
+        System.println("getCurrentCodeText: currentIndex=" + currentIndex + ", raw text='" + text + "'");
+        
+        // If no text found, try the last backup text as a failsafe
+        if (text == null || text.equals("")) {
+            // Try the backup as last resort
+            var backupText = Application.getApp().getProperty("qr_pending_text_backup");
+            if (backupText != null && !backupText.equals("")) {
+                System.println("Found backup text, using it: '" + backupText + "'");
+                
+                // Save it to the right place while we're at it
+                Application.getApp().setProperty("qr_text_" + currentIndex, backupText);
+                Storage.setValue("qr_text_" + currentIndex, backupText);
+                
+                text = backupText;
+            } else {
+                System.println("Text is null or empty and no backup found, returning 'Unknown'");
+                return "Unknown";
+            }
+        }
+        
+        // Truncate long text for display in menu
+        if (text.length() > 20) {
+            var truncated = text.substring(0, 17) + "...";
+            System.println("Text is long, truncated to: '" + truncated + "'");
+            return truncated;
+        }
+        
+        System.println("Returning original text: '" + text + "'");
         return text;
     }
 
@@ -450,25 +614,29 @@ class AppView extends WatchUi.View {
             images.remove(images[currentIndex]);
             
             // Update storage
-            Storage.deleteValue("qr_image_" + currentIndex);
-            Storage.deleteValue("qr_text_" + currentIndex);  // Remove stored text
-            Storage.deleteValue("qr_title_" + currentIndex); // Remove stored title
+            Application.getApp().deleteProperty("qr_image_" + currentIndex);
+            Application.getApp().deleteProperty("qr_text_" + currentIndex);  // Remove stored text
+            Application.getApp().deleteProperty("qr_title_" + currentIndex); // Remove stored title
+            
             for (var i = currentIndex; i < images.size(); i++) {
-                Storage.setValue("qr_image_" + i, images[i]);
+                Application.getApp().setProperty("qr_image_" + i, images[i]);
+                
                 // Move text storage
-                var text = Storage.getValue("qr_text_" + (i + 1));
+                var text = Application.getApp().getProperty("qr_text_" + (i + 1));
                 if (text != null) {
-                    Storage.setValue("qr_text_" + i, text);
-                    Storage.deleteValue("qr_text_" + (i + 1));
+                    Application.getApp().setProperty("qr_text_" + i, text);
+                    Application.getApp().deleteProperty("qr_text_" + (i + 1));
                 }
+                
                 // Move title storage
-                var title = Storage.getValue("qr_title_" + (i + 1));
+                var title = Application.getApp().getProperty("qr_title_" + (i + 1));
                 if (title != null) {
-                    Storage.setValue("qr_title_" + i, title);
-                    Storage.deleteValue("qr_title_" + (i + 1));
+                    Application.getApp().setProperty("qr_title_" + i, title);
+                    Application.getApp().deleteProperty("qr_title_" + (i + 1));
                 }
             }
-            Storage.setValue("qr_count", images.size());
+            
+            Application.getApp().setProperty("qr_count", images.size());
             
             // Adjust current index
             if (currentIndex >= images.size()) {
@@ -484,7 +652,7 @@ class AppView extends WatchUi.View {
         var initialText = "";
         if (currentIndex < images.size()) {
             // Editing: load saved text if available
-            var savedText = Storage.getValue("qr_text_" + currentIndex);
+            var savedText = getStorageValue("qr_text_" + currentIndex);
             if (savedText != null) {
                 initialText = savedText;
             }
@@ -498,7 +666,7 @@ class AppView extends WatchUi.View {
         var initialTitle = "";
         if (currentIndex < images.size()) {
             // Editing: load saved title if available
-            var savedTitle = Storage.getValue("qr_title_" + currentIndex);
+            var savedTitle = Application.getApp().getProperty("qr_title_" + currentIndex);
             if (savedTitle != null) {
                 initialTitle = savedTitle;
             }
@@ -558,6 +726,72 @@ class AppView extends WatchUi.View {
         errorMessage = message;
         WatchUi.requestUpdate();
     }
+
+    function downloadImage(text as Lang.String) {
+        if (isDownloading) {
+            System.println("Already downloading");
+            return;
+        }
+        
+        // Clean up memory - remove unnecessary images to make room
+        if (images.size() > 10) {
+            System.println("Too many images, removing oldest to free memory");
+            var oldestToRemove = images.size() - 10;
+            for (var i = images.size() - 1; i >= 10; i--) {
+                // Remove images starting from the end of the array
+                System.println("Removing extra image at index: " + i);
+                images.remove(images[i]);
+                Storage.deleteValue("qr_text_" + i);
+            }
+        }
+        
+        isDownloading = true;
+        System.println("Starting download for text: '" + text + "'");
+        var url;
+        if (pendingCodeType.equals("barcode")) {
+            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text;
+        } else {
+            url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
+        }
+        System.println("URL: " + url);
+        var params = null;
+        var options = {
+            :maxWidth => 200,  // Reduced size to use less memory
+            :maxHeight => 200  // Reduced size to use less memory
+        };
+
+        // Store the text for later reference (in memory, not storage)
+        self.pendingText = text;
+        self.pendingGlanceCodeType = self.pendingCodeType;
+        self.pendingGlanceText = text;
+        
+        // Store the text early using a special key as well - redundancy safety
+        try {
+            // Store a copy with a temporary key in case pendingText is lost
+            Application.getApp().setProperty("qr_pending_text_backup", text);
+            System.println("Stored backup text in 'qr_pending_text_backup': '" + text + "'");
+        } catch (e) {
+            System.println("Error storing backup text: " + e.getErrorMessage());
+        }
+        
+        System.println("Downloaded state - pendingText: '" + self.pendingText + "', currentIndex: " + currentIndex);
+        System.println("pendingCodeType: " + self.pendingCodeType + ", pendingGlanceCodeType: " + self.pendingGlanceCodeType + ", text: " + text);
+
+        System.println("Making Communications.makeImageRequest call...");
+        try {
+            Communications.makeImageRequest(
+                url,
+                params,
+                options,
+                method(:responseCallback)
+            );
+            System.println("Communications.makeImageRequest call succeeded");
+        } catch (e) {
+            System.println("ERROR in makeImageRequest: " + e.getErrorMessage());
+            isDownloading = false;
+            showError("Network error: " + e.getErrorMessage());
+        }
+    }
 }
 
 class CodeMenuDelegate extends WatchUi.MenuInputDelegate {
@@ -615,17 +849,17 @@ class TextPickerDelegate extends WatchUi.TextPickerDelegate {
     }
 
     function onTextEntered(text, changed) {
-        System.println("Text entered: " + text);
+        System.println("Text entered: '" + text + "' (changed: " + changed + ")");
         
         if (text != null && text.length() > 0) {
             try {
-                System.println("Generating QR code for entered text");
+                System.println("Generating QR code for entered text: '" + text + "'");
                 view.returnToListAfterDownload = true;
                 
                 // Handle long text by truncating if needed (prevent memory issues)
                 if (text.length() > 100) {
                     text = text.substring(0, 100);
-                    System.println("Text truncated to 100 chars to prevent memory issues");
+                    System.println("Text truncated to 100 chars to prevent memory issues: '" + text + "'");
                 }
                 
                 // First pop the view before starting the download
@@ -686,7 +920,8 @@ class TitleInputDelegate extends WatchUi.TextPickerDelegate {
         // Store the title directly in storage
         if (title != null && title.length() > 0) {
             try {
-                Storage.setValue("qr_title_" + view.currentIndex, title);
+                // Use Property API for 3.1.0 compatibility
+                Application.getApp().setProperty("qr_title_" + view.currentIndex, title);
                 System.println("Saved title to storage: " + title + " for index " + view.currentIndex);
             } catch (e) {
                 System.println("Error saving title: " + e.getErrorMessage());
@@ -694,7 +929,8 @@ class TitleInputDelegate extends WatchUi.TextPickerDelegate {
         } else {
             // If empty title, remove the title
             try {
-                Storage.deleteValue("qr_title_" + view.currentIndex);
+                // Use Property API for 3.1.0 compatibility
+                Application.getApp().deleteProperty("qr_title_" + view.currentIndex);
                 System.println("Deleted title from storage for index " + view.currentIndex);
             } catch (e) {
                 System.println("Error deleting title: " + e.getErrorMessage());
@@ -740,10 +976,10 @@ class GlanceView extends WatchUi.GlanceView {
 
     function loadCachedImages() {
         try {
-            var count = Storage.getValue("qr_count");
+            var count = Application.getApp().getProperty("qr_count");
             if (count != null) {
                 for (var i = 0; i < count; i++) {
-                    var cachedImage = Storage.getValue("qr_glance_image_" + i);
+                    var cachedImage = Application.getApp().getProperty("qr_glance_image_" + i);
                     if (cachedImage != null) {
                         images.add(cachedImage as WatchUi.BitmapResource);
                     }
@@ -763,6 +999,7 @@ class GlanceView extends WatchUi.GlanceView {
             var bmpWidth = bmp.getWidth();
             var bmpHeight = bmp.getHeight();
             var screenHeight = dc.getHeight();
+            var screenWidth = dc.getWidth();
 
             var marginLeft = 10; // Increase margin for clarity
             var x = marginLeft;
@@ -770,44 +1007,80 @@ class GlanceView extends WatchUi.GlanceView {
             dc.drawBitmap(x, y, bmp);
 
             // Get the title and text
-            var title = Storage.getValue("qr_title_0");
-            var text = Storage.getValue("qr_text_0");
-            var displayText = text;
+            var title = Application.getApp().getProperty("qr_title_0");
+            var text = Application.getApp().getProperty("qr_text_0");
             
-            // Format the display text based on title availability
-            if (title != null && title.length() > 0) {
-                displayText = title + " (" + text + ")";
-            }
-            
-            if (displayText == null) {
-                displayText = "";
-            }
-            
-            // Draw the text to the right of the QR code
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            // Available width for text
             var textX = x + bmpWidth + 10; // 10px padding to the right of the QR
-            var textY = screenHeight / 2;
+            var availableWidth = screenWidth - textX - 5; // 5px margin on right
             
-            // Truncate text if it's too long for the available space
-            var maxWidth = dc.getWidth() - textX - 5; // Leave 5px margin
-            
-            // If text is too long, truncate with ellipsis
-            var textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
-            if (textWidth > maxWidth) {
-                // Try to ensure at least part of the text is visible
-                var maxChars = displayText.length() * maxWidth / textWidth;
-                if (maxChars > 3) { // Need at least 3 chars plus "..."
-                    displayText = displayText.substring(0, maxChars.toNumber() - 3) + "...";
+            // Draw the title if available
+            if (title != null && title.length() > 0) {
+                // Draw title with emphasis
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                
+                // Truncate title if needed
+                var titleText = title;
+                var titleWidth = dc.getTextWidthInPixels(titleText, Graphics.FONT_TINY);
+                if (titleWidth > availableWidth) {
+                    // Try to ensure at least part of the title is visible
+                    var maxChars = titleText.length() * availableWidth / titleWidth;
+                    if (maxChars > 3) { // Need at least 3 chars plus "..."
+                        titleText = titleText.substring(0, maxChars.toNumber() - 3) + "...";
+                    }
                 }
+                
+                dc.drawText(
+                    textX,
+                    y + 5, // Position near top of QR code
+                    Graphics.FONT_TINY,
+                    titleText,
+                    Graphics.TEXT_JUSTIFY_LEFT
+                );
+                
+                // Draw text below title if there's room
+                if (text != null) {
+                    var displayText = text;
+                    var textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
+                    if (textWidth > availableWidth) {
+                        var maxChars = displayText.length() * availableWidth / textWidth;
+                        if (maxChars > 3) {
+                            displayText = displayText.substring(0, maxChars.toNumber() - 3) + "...";
+                        }
+                    }
+                    
+                    dc.drawText(
+                        textX,
+                        y + 25, // Position below title
+                        Graphics.FONT_XTINY,
+                        displayText,
+                        Graphics.TEXT_JUSTIFY_LEFT
+                    );
+                }
+            } else {
+                // No title, just display the text
+                var displayText = text;
+                if (displayText == null) {
+                    displayText = "";
+                }
+                
+                // Truncate text if needed
+                var textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
+                if (textWidth > availableWidth) {
+                    var maxChars = displayText.length() * availableWidth / textWidth;
+                    if (maxChars > 3) {
+                        displayText = displayText.substring(0, maxChars.toNumber() - 3) + "...";
+                    }
+                }
+                
+                dc.drawText(
+                    textX,
+                    screenHeight / 2, // Center vertically when no title
+                    Graphics.FONT_XTINY,
+                    displayText,
+                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
+                );
             }
-            
-            dc.drawText(
-                textX,
-                textY,
-                Graphics.FONT_XTINY,
-                displayText,
-                Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
-            );
         } else {
             // No QR codes - show message
             dc.drawText(
