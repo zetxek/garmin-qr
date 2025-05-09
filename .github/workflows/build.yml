@@ -24,10 +24,12 @@ jobs:
           java-version: '11'
 
       - name: Download Connect IQ SDK
+        env:
+          CIQ_SDK_VERSION: 4.2.7
         run: |
-          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-4.2.5.zip
-          unzip connectiq-sdk-lin-4.2.5.zip
-          echo "CONNECTIQ_SDK_HOME=$(pwd)/connectiq-sdk-lin-4.2.5" >> $GITHUB_ENV
+          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-${CIQ_SDK_VERSION}.zip
+          unzip connectiq-sdk-lin-${CIQ_SDK_VERSION}.zip
+          echo "CONNECTIQ_SDK_HOME=$(pwd)/connectiq-sdk-lin-${CIQ_SDK_VERSION}" >> $GITHUB_ENV
 
       - name: Build Debug
         run: |
