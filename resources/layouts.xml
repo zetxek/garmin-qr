@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:iq="http://www.garmin.com/xml/connectiq">
+    <layouts>
+        <layout id="SettingsLayout">
+            <label id="SettingsTitle" x="center" y="10" font="Graphics.FONT_MEDIUM" color="Graphics.COLOR_WHITE" text="Settings" />
+            <label id="SettingsDescription" x="center" y="40" font="Graphics.FONT_SMALL" color="Graphics.COLOR_LT_GRAY" text="Configure your QR code settings" />
+        </layout>
+    </layouts>
+</resources> 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:iq="http://www.garmin.com/xml/connectiq">
+    <settings>
+        <setting propertyKey="@Properties.codesList" title="@Strings.codesTitle" maxLength="4">
+            <setting title="@Strings.codeType" type="string">
+                <settingConfig id="codeType" type="list">
+                    <listEntry value="0">@Strings.QR</listEntry>
+                    <listEntry value="1">@Strings.barcode</listEntry>
+                </settingConfig>
+            </setting>
+            <setting title="@Strings.codeTitle" type="string">
+                <settingConfig id="title" type="alphanumeric"/>
+            </setting>
+            <setting title="@Strings.codeText" type="string">
+                <settingConfig id="text" type="alphanumeric" required="true"/>
+            </setting>
+
+            <defaults>
+                <entry>
+                    <default id="codeType">0</default>
+                    <default id="title"></default>
+                    <default id="text"></default>
+                </entry>
+            </defaults>
+        </setting>
+    </settings>
+</resources>
