@@ -15,6 +15,7 @@ class App extends Application.AppBase {
     }
 
     function onStart(state) {
+        onSettingsChanged();
     }
 
     function onStop(state) {
@@ -32,6 +33,36 @@ class App extends Application.AppBase {
     // Settings provider implementation
     function getSettingsView() {
         return [ new SettingsView(), new SettingsDelegate() ];
+    }
+
+    function onSettingsChanged() {
+        System.println("Settings changed, updating codes...");
+        var settings = Application.Properties.getValue("codesList") as Lang.Array<Lang.Dictionary>;
+        System.println("Settings: " + settings);
+        if (settings != null) {
+            for (var i = 0; i < settings.size(); i++) {
+                var code = settings[i];
+                var keys = code.keys();
+                for (var k = 0; k < keys.size(); k++) {
+                    var key = keys[k];
+                    System.println("[OnSettingsChanged] Key: " + key + ", Value: " + code.get(key));
+                }
+                // Save to Storage using the literal keys from settings
+                var text = code.get("code_$index_text") as Lang.String;
+                var title = code.get("code_$index_title") as Lang.String;
+                var type = code.get("code_$index_type") as Lang.String;
+                if (text != null && text.length() > 0) {
+                    Storage.setValue("code_" + i + "_text", text);
+                    Storage.setValue("code_" + i + "_title", title);
+                    Storage.setValue("code_" + i + "_type", type);
+                    System.println("[OnSettingsChanged] Saved code_" + i + "_text = " + text);
+                } else {
+                    Storage.deleteValue("code_" + i + "_text");
+                    Storage.deleteValue("code_" + i + "_title");
+                    Storage.deleteValue("code_" + i + "_type");
+                }
+            }
+        }
     }
 }
 
@@ -86,12 +117,26 @@ class AppView extends WatchUi.View {
     }
 
     function loadAllCodes() {
-        System.println("Loading all codes");
-        for (var i = 0; i < 10; i++) {
-            var text = Storage.getValue("code" + i + "_text");
+        System.println("Loading all codes from Storage");
+        for (var i = 0; i < images.size(); i++) {
+            images[i] = null;
+        }
+        var i = 0;
+        while (i < images.size()) {
+            var text = Storage.getValue("code_" + i + "_text");
+            var title = Storage.getValue("code_" + i + "_title");
+            System.println("[LoadAllCodes] Code " + i + " - Text: " + (text != null ? text : "null") + ", Title: " + (title != null ? title : "null"));
+
             if (text != null && text.length() > 0) {
                 downloadImage(text, i);
             }
+            i++;
+        }
+        System.println("Loaded " + i + " codes");
+
+        for (var j = 0; j < images.size(); j++) {
+            var text = Storage.getValue("code_" + j + "_text");
+            System.println("[LoadAllCodes] code_" + j + "_text = " + text);
         }
     }
 
@@ -104,7 +149,7 @@ class AppView extends WatchUi.View {
         isDownloading = true;
         System.println("Starting download for text: " + text + " at index: " + index);
         
-        var codeType = Storage.getValue("code" + index + "_type");
+        var codeType = Storage.getValue("code_" + index + "_type");
         if (codeType == null) {
             codeType = "qr";
         }
@@ -134,6 +179,10 @@ class AppView extends WatchUi.View {
     function responseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
         System.println("=== responseCallback start. Response code: " + responseCode);
         isDownloading = false;
+        if (responseCode == 200 && data != null) {
+            images[currentIndex] = data as WatchUi.BitmapResource;
+            WatchUi.requestUpdate();
+        }
         
         try {
             if (responseCode == 200) {
@@ -190,19 +239,15 @@ class AppView extends WatchUi.View {
 
     function onUpdate(dc) {
         View.onUpdate(dc);
-        
-        // Clear the screen
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
-        
         var hasAnyCodes = false;
-        for (var i = 0; i < 10; i++) {
+        for (var i = 0; i < images.size(); i++) {
             if (images[i] != null) {
                 hasAnyCodes = true;
                 break;
             }
         }
-        
         if (!hasAnyCodes) {
             // Show empty state
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
@@ -234,7 +279,6 @@ class AppView extends WatchUi.View {
                 Graphics.TEXT_JUSTIFY_CENTER
             );
         } else if (images[currentIndex] != null) {
-            // Show current code
             drawImage(dc, images[currentIndex]);
             
             // Draw text at the bottom
@@ -273,7 +317,7 @@ class AppView extends WatchUi.View {
         var y = (screenHeight - bottomTextHeight - bmpHeight) / 2 + margin;
         
         // Draw title if available
-        var title = Storage.getValue("code" + currentIndex + "_title");
+        var title = Storage.getValue("code_" + currentIndex + "_title");
         if (title != null && title.length() > 0) {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(

@@ -3,23 +3,23 @@
     <settings>
         <setting propertyKey="@Properties.codesList" title="@Strings.codesTitle" maxLength="4">
             <setting title="@Strings.codeType" type="string">
-                <settingConfig id="codeType" type="list">
+                <settingConfig id="code_$index_type" type="list">
                     <listEntry value="0">@Strings.QR</listEntry>
                     <listEntry value="1">@Strings.barcode</listEntry>
                 </settingConfig>
             </setting>
             <setting title="@Strings.codeTitle" type="string">
-                <settingConfig id="title" type="alphanumeric"/>
+                <settingConfig id="code_$index_title" type="alphanumeric"/>
             </setting>
             <setting title="@Strings.codeText" type="string">
-                <settingConfig id="text" type="alphanumeric" required="true"/>
+                <settingConfig id="code_$index_text" type="alphanumeric" required="true"/>
             </setting>
 
             <defaults>
                 <entry>
-                    <default id="codeType">0</default>
-                    <default id="title"></default>
-                    <default id="text"></default>
+                    <default id="code_$index_type">0</default>
+                    <default id="code_$index_title"></default>
+                    <default id="code_$index_text"></default>
                 </entry>
             </defaults>
         </setting>
