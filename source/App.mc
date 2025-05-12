@@ -368,6 +368,9 @@ class AppView extends WatchUi.View {
             WatchUi.requestUpdate();
             Attention.vibrate([new Attention.VibeProfile(50, 100)]);
             return true;
+        } else if (key == 4) { // Key 4 pressed
+            showCodeMenu();
+            return true;
         }
         
         return false;
@@ -376,6 +379,36 @@ class AppView extends WatchUi.View {
     function showError(message as Lang.String) {
         errorMessage = message;
         WatchUi.requestUpdate();
+    }
+
+    function showCodeMenu() {
+        var menu = new WatchUi.Menu();
+        menu.setTitle("Code Info");
+
+        var codeType = Storage.getValue("code_" + currentIndex + "_type");
+        var title = Storage.getValue("code_" + currentIndex + "_title");
+        var text = Storage.getValue("code_" + currentIndex + "_text");
+
+        menu.addItem("Type: " + (codeType != null ? codeType : "N/A"), :info_type);
+        menu.addItem("Title: " + (title != null ? title : "N/A"), :info_title);
+        menu.addItem("Text: " + (text != null ? text : "N/A"), :info_text);
+        menu.addItem("Refresh Codes", :refresh_codes);
+
+        WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
+    }
+}
+
+class CodeMenuDelegate extends WatchUi.BehaviorDelegate {
+    var appView;
+    function initialize(appView) {
+        BehaviorDelegate.initialize();
+        self.appView = appView;
+    }
+    function onMenuItem(item) {
+        if (item == :refresh_codes) {
+            appView.loadAllCodes();
+        }
+        return true;
     }
 }
 
