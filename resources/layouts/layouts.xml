@@ -3,4 +3,18 @@
     <layout id="MainLayout">
         <label x="130" y="130" font="Gfx.FONT_MEDIUM" color="Gfx.COLOR_WHITE" justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" text="@Strings.AppName"/>
     </layout>
+    <layout id="AboutLayout">
+        <bitmap id="GithubQR" x="center" y="center" filename="../drawables/github-qr.png" />
+
+        <text-area
+            id="AboutText"
+            x="0"
+            y="10"
+            width="100%"
+            height="100%"
+            font="Gfx.FONT_XTINY"
+            color="Gfx.COLOR_WHITE"
+            justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER"
+            text="@Strings.AboutText"/>
+    </layout>
 </resources> 

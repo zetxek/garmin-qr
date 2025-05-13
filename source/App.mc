@@ -15,7 +15,7 @@ class App extends Application.AppBase {
     }
 
     function onStart(state) {
-        onSettingsChanged();
+        // Do not call onSettingsChanged here
     }
 
     function onStop(state) {
@@ -99,16 +99,20 @@ class SettingsDelegate extends WatchUi.BehaviorDelegate {
 }
 
 class AppView extends WatchUi.View {
-    var images as Lang.Array<Null or WatchUi.BitmapResource>;
+    var images as Lang.Array<Lang.Dictionary>;
     var currentIndex as Lang.Number;
     var isDownloading;
     var errorMessage as Null or Lang.String;
     var errorTimer as Null or Timer.Timer;
+    var downloadingImageIdx as Null or Lang.Number;
+    // Add a static reference to the current AppView
+    public static var current as Null or AppView;
 
     function initialize() {
         View.initialize();
         System.println("AppView initialized");
-        images = new [10]; // Fixed size array for 10 codes
+        AppView.current = self;
+        images = [];
         currentIndex = 0;
         isDownloading = false;
         
@@ -118,56 +122,64 @@ class AppView extends WatchUi.View {
 
     function loadAllCodes() {
         System.println("Loading all codes from Storage");
-        for (var i = 0; i < images.size(); i++) {
-            images[i] = null;
-        }
-        var i = 0;
-        while (i < images.size()) {
+        images = [];
+        for (var i = 0; i < 10; i++) {
             var text = Storage.getValue("code_" + i + "_text");
             var title = Storage.getValue("code_" + i + "_title");
             System.println("[LoadAllCodes] Code " + i + " - Text: " + (text != null ? text : "null") + ", Title: " + (title != null ? title : "null"));
-
             if (text != null && text.length() > 0) {
-                downloadImage(text, i);
+                images.add({:index => i, :image => null});
             }
-            i++;
         }
-        System.println("Loaded " + i + " codes");
-
+        System.println("Loaded " + images.size() + " codes");
         for (var j = 0; j < images.size(); j++) {
-            var text = Storage.getValue("code_" + j + "_text");
-            System.println("[LoadAllCodes] code_" + j + "_text = " + text);
+            var imgStatus = images[j][:image] != null ? "downloaded" : "not downloaded";
+            var idx = images[j][:index];
+            var text = Storage.getValue("code_" + idx + "_text");
+            System.println("[LoadAllCodes] code_" + idx + "_text = " + text + ", image: " + imgStatus);
+        }
+        refreshMissingImages();
+    }
+
+    function refreshMissingImages() {
+        for (var i = 0; i < images.size(); i++) {
+            var idx = images[i][:index];
+            var text = Storage.getValue("code_" + idx + "_text");
+            var imgStatus = images[i][:image] != null ? "downloaded" : "not downloaded";
+            System.println("[refreshMissingImages] code_" + idx + "_text = " + text + ", image: " + imgStatus);
+            if (images[i][:image] == null) {
+                if (text != null && text.length() > 0) {
+                    downloadImage(text, i);
+                }
+            }
         }
     }
 
-    function downloadImage(text as Lang.String, index as Lang.Number) {
+    function downloadImage(text as Lang.String, imagesIdx as Lang.Number) {
         if (isDownloading) {
             System.println("Already downloading");
             return;
         }
-        
         isDownloading = true;
+        downloadingImageIdx = imagesIdx;
+        var index = images[imagesIdx][:index];
         System.println("Starting download for text: " + text + " at index: " + index);
-        
         var codeType = Storage.getValue("code_" + index + "_type");
         if (codeType == null) {
             codeType = "qr";
         }
-        
         var url;
         if (codeType.equals("barcode")) {
             url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text;
         } else {
             url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
         }
-        
         System.println("URL: " + url);
         var params = null;
         var options = {
             :maxWidth => 200,
             :maxHeight => 200
         };
-
         Communications.makeImageRequest(
             url,
             params,
@@ -177,10 +189,11 @@ class AppView extends WatchUi.View {
     }
 
     function responseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
+        var imagesIdx = downloadingImageIdx;
         System.println("=== responseCallback start. Response code: " + responseCode);
         isDownloading = false;
         if (responseCode == 200 && data != null) {
-            images[currentIndex] = data as WatchUi.BitmapResource;
+            images[imagesIdx][:image] = data as WatchUi.BitmapResource;
             WatchUi.requestUpdate();
         }
         
@@ -194,12 +207,12 @@ class AppView extends WatchUi.View {
                 
                 System.println("Processing downloaded image");
                 var bitmapResource = data as WatchUi.BitmapResource;
-                images[currentIndex] = bitmapResource;
+                images[imagesIdx][:image] = bitmapResource;
                 
                 try {
-                    System.println("Saving image to storage at index: " + currentIndex);
-                    Storage.setValue("qr_image_" + currentIndex, bitmapResource);
-                    System.println("Updated code at index: " + currentIndex);
+                    System.println("Saving image to storage at index: " + imagesIdx);
+                    Storage.setValue("qr_image_" + imagesIdx, bitmapResource);
+                    System.println("Updated code at index: " + imagesIdx);
                 } catch(e) {
                     System.println("Error in storage operations: " + e.getErrorMessage());
                     showError("Storage error: " + e.getErrorMessage());
@@ -241,27 +254,16 @@ class AppView extends WatchUi.View {
         View.onUpdate(dc);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
-        var hasAnyCodes = false;
-        for (var i = 0; i < images.size(); i++) {
-            if (images[i] != null) {
-                hasAnyCodes = true;
-                break;
-            }
-        }
-        if (!hasAnyCodes) {
+        if (images.size() == 0) {
             // Show empty state
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             var centerY = dc.getHeight() / 2;
-            
-            // Get text heights
             var mainText = "No codes configured";
             var subText = "Configure in settings";
             var mainFont = Graphics.FONT_TINY;
             var subFont = Graphics.FONT_XTINY;
             var mainTextHeight = dc.getFontHeight(mainFont);
             var subTextHeight = dc.getFontHeight(subFont);
-            
-            // Draw main text
             dc.drawText(
                 dc.getWidth() / 2,
                 centerY - (mainTextHeight / 2) - (subTextHeight / 2),
@@ -269,8 +271,6 @@ class AppView extends WatchUi.View {
                 mainText,
                 Graphics.TEXT_JUSTIFY_CENTER
             );
-            
-            // Draw sub text
             dc.drawText(
                 dc.getWidth() / 2,
                 centerY + (mainTextHeight / 2) + (subTextHeight / 2) - subTextHeight,
@@ -278,21 +278,36 @@ class AppView extends WatchUi.View {
                 subText,
                 Graphics.TEXT_JUSTIFY_CENTER
             );
-        } else if (images[currentIndex] != null) {
-            drawImage(dc, images[currentIndex]);
-            
-            // Draw text at the bottom
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(
-                dc.getWidth() / 2,
-                dc.getHeight() - 40,
-                Graphics.FONT_XTINY,
-                "Code " + (currentIndex + 1) + " of 10",
-                Graphics.TEXT_JUSTIFY_CENTER
-            );
+        } else if (images.size() > 0) {
+            if (images[currentIndex][:image] != null) {
+                drawImage(dc, images[currentIndex][:image], images[currentIndex][:index]);
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(
+                    dc.getWidth() / 2,
+                    dc.getHeight() - 40,
+                    Graphics.FONT_XTINY,
+                    "Code " + (currentIndex + 1) + " of " + images.size(),
+                    Graphics.TEXT_JUSTIFY_CENTER
+                );
+            } else {
+                // If image is not downloaded, trigger download
+                var idx = images[currentIndex][:index];
+                var text = Storage.getValue("code_" + idx + "_text");
+                if (!isDownloading && text != null && text.length() > 0) {
+                    System.println("[onUpdate] Image not downloaded for code_" + idx + ", starting download");
+                    downloadImage(text, currentIndex);
+                }
+                // Show loading or error state
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(
+                    dc.getWidth() / 2,
+                    dc.getHeight() / 2,
+                    Graphics.FONT_TINY,
+                    "Loading image...",
+                    Graphics.TEXT_JUSTIFY_CENTER
+                );
+            }
         }
-        
-        // Show error message if there is one
         if (errorMessage != null) {
             dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
@@ -305,7 +320,7 @@ class AppView extends WatchUi.View {
         }
     }
 
-    function drawImage(dc, image) {
+    function drawImage(dc, image, index) {
         var screenWidth = dc.getWidth();
         var screenHeight = dc.getHeight();
         var bottomTextHeight = 30;
@@ -315,9 +330,7 @@ class AppView extends WatchUi.View {
         var bmpHeight = bmp.getHeight();
         var x = (screenWidth - bmpWidth) / 2;
         var y = (screenHeight - bottomTextHeight - bmpHeight) / 2 + margin;
-        
-        // Draw title if available
-        var title = Storage.getValue("code_" + currentIndex + "_title");
+        var title = Storage.getValue("code_" + index + "_title");
         if (title != null && title.length() > 0) {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
@@ -328,8 +341,6 @@ class AppView extends WatchUi.View {
                 Graphics.TEXT_JUSTIFY_CENTER
             );
         }
-        
-        // Draw the code
         dc.drawBitmap(x, y, bmp);
     }
 
@@ -337,42 +348,30 @@ class AppView extends WatchUi.View {
     }
 
     function onKey(keyEvent) {
-        // Clear any error message when a key is pressed
         if (errorMessage != null) {
             errorMessage = null;
             WatchUi.requestUpdate();
         }
-
         var key = keyEvent.getKey();
         System.println("onKey: " + key + " (currentIndex: " + currentIndex + ")");
-        
         if (key == WatchUi.KEY_UP) {
-            System.println("UP pressed");
-            if (currentIndex > 0) {
-                currentIndex--;
-            } else {
-                currentIndex = 9;  // Wrap to end
+            if (images.size() > 0) {
+                currentIndex = (currentIndex - 1 + images.size()) % images.size();
+                WatchUi.requestUpdate();
+                Attention.vibrate([new Attention.VibeProfile(50, 100)]);
             }
-            System.println("Moved to code: " + currentIndex);
-            WatchUi.requestUpdate();
-            Attention.vibrate([new Attention.VibeProfile(50, 100)]);
             return true;
         } else if (key == WatchUi.KEY_DOWN) {
-            System.println("DOWN pressed");
-            if (currentIndex < 9) {
-                currentIndex++;
-            } else {
-                currentIndex = 0;  // Wrap to beginning
+            if (images.size() > 0) {
+                currentIndex = (currentIndex + 1) % images.size();
+                WatchUi.requestUpdate();
+                Attention.vibrate([new Attention.VibeProfile(50, 100)]);
             }
-            System.println("Moved to code: " + currentIndex);
-            WatchUi.requestUpdate();
-            Attention.vibrate([new Attention.VibeProfile(50, 100)]);
             return true;
-        } else if (key == 4) { // Key 4 pressed
+        } else if (key == 4) {
             showCodeMenu();
             return true;
         }
-        
         return false;
     }
 
@@ -382,18 +381,26 @@ class AppView extends WatchUi.View {
     }
 
     function showCodeMenu() {
+        if (images.size() == 0) {
+            return;
+        }
         var menu = new WatchUi.Menu();
         menu.setTitle("Code Info");
-
-        var codeType = Storage.getValue("code_" + currentIndex + "_type");
-        var title = Storage.getValue("code_" + currentIndex + "_title");
-        var text = Storage.getValue("code_" + currentIndex + "_text");
-
-        menu.addItem("Type: " + (codeType != null ? codeType : "N/A"), :info_type);
+        var idx = images[currentIndex][:index];
+        var codeType = Storage.getValue("code_" + idx + "_type");
+        var title = Storage.getValue("code_" + idx + "_title");
+        var text = Storage.getValue("code_" + idx + "_text");
+        var typeLabel = "N/A";
+        if (codeType.equals("0") || codeType.equals("qr")) {
+            typeLabel = "QR";
+        } else if (codeType.equals("1") || codeType.equals("barcode")) {
+            typeLabel = "barcode";
+        }
+        menu.addItem("Type: " + typeLabel, :info_type);
         menu.addItem("Title: " + (title != null ? title : "N/A"), :info_title);
         menu.addItem("Text: " + (text != null ? text : "N/A"), :info_text);
         menu.addItem("Refresh Codes", :refresh_codes);
-
+        menu.addItem("About the app", :about_app);
         WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
     }
 }
@@ -407,6 +414,9 @@ class CodeMenuDelegate extends WatchUi.BehaviorDelegate {
     function onMenuItem(item) {
         if (item == :refresh_codes) {
             appView.loadAllCodes();
+            appView.refreshMissingImages();
+        } else if (item == :about_app) {
+            WatchUi.pushView(new AboutView(), null, WatchUi.SLIDE_UP);
         }
         return true;
     }
@@ -526,5 +536,42 @@ class GlanceView extends WatchUi.GlanceView {
                 Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
             );
         }
+    }
+}
+
+class AboutView extends WatchUi.View {
+    var showQR as Lang.Boolean;
+    function initialize() {
+        View.initialize();
+        showQR = false;
+    }
+    function onLayout(dc) {
+        setLayout(Rez.Layouts.AboutLayout(dc));
+    }
+    function onUpdate(dc) {
+        View.onUpdate(dc);
+        var aboutText = findDrawableById("AboutText");
+        var githubQR = findDrawableById("GithubQR");
+        if (showQR) {
+            if (aboutText != null) { aboutText.setVisible(false); }
+            if (githubQR != null) { githubQR.setVisible(true); }
+        } else {
+            if (aboutText != null) { aboutText.setVisible(true); }
+            if (githubQR != null) { githubQR.setVisible(false); }
+        }
+    }
+    function onTap(tapEvent) {
+        showQR = !showQR;
+        WatchUi.requestUpdate();
+        return true;
+    }
+    function onKey(keyEvent) {
+        var key = keyEvent.getKey();
+        if (key == WatchUi.KEY_START) {
+            showQR = !showQR;
+            WatchUi.requestUpdate();
+            return true;
+        }
+        return false;
     }
 }
