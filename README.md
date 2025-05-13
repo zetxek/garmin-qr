@@ -13,7 +13,7 @@ Using https://github.com/zetxek/qr-generator to generate QR codes and barcodes â
 
 ## Supported Devices
 
-- Fenix 7 series
+- Fenix 7 & 8 series
 - Epix 2 series
 - Edge series
 - Approach series
@@ -21,13 +21,40 @@ Using https://github.com/zetxek/qr-generator to generate QR codes and barcodes â
 
 ## Usage
 
-1. Open the app on your watch
-2. Press any key to add a new code
-3. Select code type (QR or Barcode)
-4. Enter the text to encode
-5. The code will be generated and displayed
-6. Use up/down keys to navigate between stored codes
-7. Press enter to access options (edit, remove, add new)
+1. Edit the app settings from Garmin Connect IQ app or Garmin Express
+2. Open the app on your watch
+3. The code will be generated and displayed
+4. Use up/down keys to navigate between stored codes
+5. Press enter to access options
+
+## Managing Codes
+
+You can manage your QR and barcode entries using the Garmin Connect IQ app or Garmin Express on your phone or computer:
+
+- **Add a Code:**
+  1. Open the app settings from the Connect IQ app or Garmin Express.
+  2. Tap 'Add' or the plus (+) button to create a new code entry.
+  3. Choose the code type (QR or Barcode), enter a title, and the text to encode.
+  4. Save your changes and sync with your device.
+
+- **Edit a Code:**
+  1. In the app settings, tap on an existing code entry.
+  2. Change the title, type, or text as needed.
+  3. Save and sync.
+
+- **Remove a Code:**
+  1. In the app settings, tap the delete (trash) icon or swipe to remove a code entry.
+  2. Save and sync.
+
+- **Refresh Codes on Device:**
+  - On your watch, open the app and press the menu button (key 4) to access the code menu.
+  - Select 'Refresh Codes' to reload the latest codes from storage.
+
+- **Navigate Codes:**
+  - Use the up/down keys to switch between your saved codes.
+
+- **About Screen:**
+  - In the code menu, select 'About the app' to view app info and toggle between about text and a QR code for the GitHub repository by tapping the screen or pressing the start button.
 
 ## Development
 
