@@ -428,6 +428,30 @@ class AppView extends WatchUi.View {
             Storage.setValue("qr_image_glance_0", data as WatchUi.BitmapResource);
         }
     }
+
+    function onSwipe(swipeEvent) {
+        var direction = swipeEvent.getDirection();
+        System.println("Swipe detected: " + direction);
+
+        if (images.size() == 0) {
+            return false;
+        }
+        
+        if (direction == WatchUi.SWIPE_DOWN) {
+            // Next code (same as KEY_DOWN)
+            currentIndex = (currentIndex + 1) % images.size();
+            WatchUi.requestUpdate();
+            Attention.vibrate([new Attention.VibeProfile(50, 100)]);
+            return true;
+        } else if (direction == WatchUi.SWIPE_UP) {
+            // Previous code (same as KEY_UP)
+            currentIndex = (currentIndex - 1 + images.size()) % images.size();
+            WatchUi.requestUpdate();
+            Attention.vibrate([new Attention.VibeProfile(50, 100)]);
+            return true;
+        }
+        return false;
+    }
 }
 
 class CodeMenuDelegate extends WatchUi.BehaviorDelegate {
@@ -457,6 +481,10 @@ class AppDelegate extends WatchUi.BehaviorDelegate {
 
     function onKey(keyEvent) {
         return view.onKey(keyEvent);
+    }
+
+    function onSwipe(swipeEvent) {
+        return view.onSwipe(swipeEvent);
     }
 }
 
