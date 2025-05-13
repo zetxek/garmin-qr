@@ -195,6 +195,7 @@ class AppView extends WatchUi.View {
         if (responseCode == 200 && data != null) {
             images[imagesIdx][:image] = data as WatchUi.BitmapResource;
             WatchUi.requestUpdate();
+            AppView.downloadGlanceImage(Storage.getValue("code_" + imagesIdx + "_text"), imagesIdx);
         }
         
         try {
@@ -403,6 +404,30 @@ class AppView extends WatchUi.View {
         menu.addItem("About the app", :about_app);
         WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
     }
+
+    public function downloadGlanceImage(text as Lang.String, index as Lang.Number) {
+        var codeType = Storage.getValue("code_" + index + "_type");
+        if (codeType == null) { codeType = "qr"; }
+        var url;
+        if (codeType.equals("barcode")) {
+            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80";
+        } else {
+            url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text + "&size=80";
+        }
+        var options = { :maxWidth => 80, :maxHeight => 80 };
+        Communications.makeImageRequest(
+            url,
+            null,
+            options,
+            method(:glanceResponseCallback)
+        );
+    }
+
+    public static function glanceResponseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
+        if (responseCode == 200 && data != null) {
+            Storage.setValue("qr_image_glance_0", data as WatchUi.BitmapResource);
+        }
+    }
 }
 
 class CodeMenuDelegate extends WatchUi.BehaviorDelegate {
@@ -471,35 +496,39 @@ class GlanceView extends WatchUi.GlanceView {
         }
 
         if (hasAnyCodes) {
-            var bmp = images[0];
+            var bmp = Storage.getValue("qr_image_glance_0");
             if (bmp != null) {
                 try {
                     var bmpWidth = bmp.getWidth();
                     var bmpHeight = bmp.getHeight();
+                    var screenWidth = dc.getWidth();
                     var screenHeight = dc.getHeight();
 
-                    var marginLeft = 10;
-                    var x = marginLeft;
-                    var y = (screenHeight - bmpHeight) / 2;
+                    // Calculate scale factor to fit QR code within screen
+                    var maxSize = min(screenWidth, screenHeight) - 20; // 10px margin each side
+                    var scale = 1.0;
+                    if (bmpWidth > maxSize || bmpHeight > maxSize) {
+                        scale = min(maxSize / bmpWidth, maxSize / bmpHeight);
+                    }
+                    var drawWidth = bmpWidth * scale;
+                    var drawHeight = bmpHeight * scale;
+                    var x = (screenWidth - drawWidth) / 2;
+                    var y = (screenHeight - drawHeight) / 2;
                     dc.drawBitmap(x, y, bmp);
 
                     // Get the title and text
                     var title = Storage.getValue("code0_title");
                     var text = Storage.getValue("code0_text");
                     var displayText = "";
-                    
                     if (text != null) {
                         displayText = text;
                     }
-                    
                     if (title != null && title.length() > 0) {
                         displayText = title + " (" + displayText + ")";
                     }
-                    
                     dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-                    var textX = x + bmpWidth + 10;
+                    var textX = x + drawWidth + 10;
                     var textY = screenHeight / 2;
-                    
                     var maxWidth = dc.getWidth() - textX - 5;
                     var textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
                     if (textWidth > maxWidth) {
@@ -508,7 +537,6 @@ class GlanceView extends WatchUi.GlanceView {
                             displayText = displayText.substring(0, maxChars.toNumber() - 3) + "...";
                         }
                     }
-                    
                     dc.drawText(
                         textX,
                         textY,
@@ -535,6 +563,34 @@ class GlanceView extends WatchUi.GlanceView {
                 "No codes configured",
                 Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
             );
+        }
+    }
+
+    function min(a, b) {
+        return (a < b) ? a : b;
+    }
+
+    function downloadGlanceImage(text as Lang.String, index as Lang.Number) {
+        var codeType = Storage.getValue("code_" + index + "_type");
+        if (codeType == null) { codeType = "qr"; }
+        var url;
+        if (codeType.equals("barcode")) {
+            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80";
+        } else {
+            url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text + "&size=80";
+        }
+        var options = { :maxWidth => 80, :maxHeight => 80 };
+        Communications.makeImageRequest(
+            url,
+            null,
+            options,
+            method(:glanceResponseCallback)
+        );
+    }
+
+    function glanceResponseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
+        if (responseCode == 200 && data != null) {
+            Storage.setValue("qr_image_glance_0", data as WatchUi.BitmapResource);
         }
     }
 }
