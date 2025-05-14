@@ -107,6 +107,7 @@ class AppView extends WatchUi.View {
     var downloadingImageIdx as Null or Lang.Number;
     // Add a static reference to the current AppView
     public static var current as Null or AppView;
+    var emptyState = false;
 
     function initialize() {
         View.initialize();
@@ -245,6 +246,7 @@ class AppView extends WatchUi.View {
     }
 
     function onLayout(dc) {
+        // We'll set the layout in onUpdate based on state
     }
 
     function onShow() {
@@ -252,34 +254,32 @@ class AppView extends WatchUi.View {
     }
 
     function onUpdate(dc) {
+        System.println("onUpdate");
         View.onUpdate(dc);
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        dc.clear();
+        
         if (images.size() == 0) {
-            // Show empty state
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            var centerY = dc.getHeight() / 2;
-            var mainText = "No codes configured";
-            var subText = "Configure in settings";
-            var mainFont = Graphics.FONT_TINY;
-            var subFont = Graphics.FONT_XTINY;
-            var mainTextHeight = dc.getFontHeight(mainFont);
-            var subTextHeight = dc.getFontHeight(subFont);
-            dc.drawText(
-                dc.getWidth() / 2,
-                centerY - (mainTextHeight / 2) - (subTextHeight / 2),
-                mainFont,
-                mainText,
-                Graphics.TEXT_JUSTIFY_CENTER
-            );
-            dc.drawText(
-                dc.getWidth() / 2,
-                centerY + (mainTextHeight / 2) + (subTextHeight / 2) - subTextHeight,
-                subFont,
-                subText,
-                Graphics.TEXT_JUSTIFY_CENTER
-            );
-        } else if (images.size() > 0) {
+            System.println("Showing empty state layout");
+            // Try using layout
+            try {
+                setLayout(Rez.Layouts.EmptyStateLayout(dc));
+                View.onUpdate(dc); // Make sure layout is rendered
+                System.println("Layout set successfully");
+            } catch (e) {
+                System.println("Error setting layout: " + e.getErrorMessage());
+            }
+            emptyState = true;
+            return; // Let the layout handle drawing
+        } else if (emptyState) {
+            // Clear layout if we were showing empty state
+            setLayout(null);
+            emptyState = false;
+        }
+        
+        // Only proceed with drawing if not in empty state
+        if (!emptyState) {
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.clear();
+            
             if (images[currentIndex][:image] != null) {
                 drawImage(dc, images[currentIndex][:image], images[currentIndex][:index]);
                 dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
@@ -308,16 +308,17 @@ class AppView extends WatchUi.View {
                     Graphics.TEXT_JUSTIFY_CENTER
                 );
             }
-        }
-        if (errorMessage != null) {
-            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(
-                dc.getWidth() / 2,
-                dc.getHeight() - 6,
-                Graphics.FONT_XTINY,
-                errorMessage,
-                Graphics.TEXT_JUSTIFY_CENTER
-            );
+            
+            if (errorMessage != null) {
+                dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(
+                    dc.getWidth() / 2,
+                    dc.getHeight() - 6,
+                    Graphics.FONT_XTINY,
+                    errorMessage,
+                    Graphics.TEXT_JUSTIFY_CENTER
+                );
+            }
         }
     }
 
@@ -382,24 +383,26 @@ class AppView extends WatchUi.View {
     }
 
     function showCodeMenu() {
-        if (images.size() == 0) {
-            return;
-        }
         var menu = new WatchUi.Menu();
         menu.setTitle("Code Info");
-        var idx = images[currentIndex][:index];
-        var codeType = Storage.getValue("code_" + idx + "_type");
-        var title = Storage.getValue("code_" + idx + "_title");
-        var text = Storage.getValue("code_" + idx + "_text");
-        var typeLabel = "N/A";
-        if (codeType.equals("0") || codeType.equals("qr")) {
-            typeLabel = "QR";
-        } else if (codeType.equals("1") || codeType.equals("barcode")) {
-            typeLabel = "barcode";
+        
+        if (images.size() > 0) {
+            var idx = images[currentIndex][:index];
+            var codeType = Storage.getValue("code_" + idx + "_type");
+            var title = Storage.getValue("code_" + idx + "_title");
+            var text = Storage.getValue("code_" + idx + "_text");
+            var typeLabel = "N/A";
+            if (codeType.equals("0") || codeType.equals("qr")) {
+                typeLabel = "QR";
+            } else if (codeType.equals("1") || codeType.equals("barcode")) {
+                typeLabel = "barcode";
+            }
+            menu.addItem("Type: " + typeLabel, :info_type);
+            menu.addItem("Title: " + (title != null ? title : "N/A"), :info_title);
+            menu.addItem("Text: " + (text != null ? text : "N/A"), :info_text);
         }
-        menu.addItem("Type: " + typeLabel, :info_type);
-        menu.addItem("Title: " + (title != null ? title : "N/A"), :info_title);
-        menu.addItem("Text: " + (text != null ? text : "N/A"), :info_text);
+        
+        // Always show these options
         menu.addItem("Refresh Codes", :refresh_codes);
         menu.addItem("About the app", :about_app);
         WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
@@ -513,7 +516,6 @@ class GlanceView extends WatchUi.GlanceView {
 
     function onUpdate(dc) {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        dc.clear();
 
         var hasAnyCodes = false;
         for (var i = 0; i < 10; i++) {

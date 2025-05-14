@@ -9,6 +9,8 @@
     <string id="codeTitle">Title</string>
     <string id="codeText">Text</string>
     <string id="appVersion">0.0.10</string>
+    <string id="NoCodesText">No codes configured</string>
+    <string id="NoCodesSubText">Configure in Garmin IQ app settings</string>
     <string id="AboutText">
 About the app
 
