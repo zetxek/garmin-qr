@@ -107,6 +107,7 @@ class AppView extends WatchUi.View {
     var downloadingImageIdx as Null or Lang.Number;
     // Add a static reference to the current AppView
     public static var current as Null or AppView;
+    var emptyState = false;
 
     function initialize() {
         View.initialize();
@@ -126,7 +127,7 @@ class AppView extends WatchUi.View {
         for (var i = 0; i < 10; i++) {
             var text = Storage.getValue("code_" + i + "_text");
             var title = Storage.getValue("code_" + i + "_title");
-            System.println("[LoadAllCodes] Code " + i + " - Text: " + (text != null ? text : "null") + ", Title: " + (title != null ? title : "null"));
+            System.println("[LoadAllCodes] Code " + i + " - Text: " + (text != null ? text : "null") + ", Title: " + (title != null ? title : "null") + ", Type: " + Storage.getValue("code_" + i + "_type"));
             if (text != null && text.length() > 0) {
                 images.add({:index => i, :image => null});
             }
@@ -136,7 +137,7 @@ class AppView extends WatchUi.View {
             var imgStatus = images[j][:image] != null ? "downloaded" : "not downloaded";
             var idx = images[j][:index];
             var text = Storage.getValue("code_" + idx + "_text");
-            System.println("[LoadAllCodes] code_" + idx + "_text = " + text + ", image: " + imgStatus);
+            System.println("[LoadAllCodes] code_" + idx + "_text = " + text + ", image: " + imgStatus + ", type: " + Storage.getValue("code_" + idx + "_type"));
         }
         refreshMissingImages();
     }
@@ -245,6 +246,7 @@ class AppView extends WatchUi.View {
     }
 
     function onLayout(dc) {
+        // We'll set the layout in onUpdate based on state
     }
 
     function onShow() {
@@ -252,34 +254,32 @@ class AppView extends WatchUi.View {
     }
 
     function onUpdate(dc) {
+        System.println("onUpdate");
         View.onUpdate(dc);
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        dc.clear();
+        
         if (images.size() == 0) {
-            // Show empty state
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            var centerY = dc.getHeight() / 2;
-            var mainText = "No codes configured";
-            var subText = "Configure in settings";
-            var mainFont = Graphics.FONT_TINY;
-            var subFont = Graphics.FONT_XTINY;
-            var mainTextHeight = dc.getFontHeight(mainFont);
-            var subTextHeight = dc.getFontHeight(subFont);
-            dc.drawText(
-                dc.getWidth() / 2,
-                centerY - (mainTextHeight / 2) - (subTextHeight / 2),
-                mainFont,
-                mainText,
-                Graphics.TEXT_JUSTIFY_CENTER
-            );
-            dc.drawText(
-                dc.getWidth() / 2,
-                centerY + (mainTextHeight / 2) + (subTextHeight / 2) - subTextHeight,
-                subFont,
-                subText,
-                Graphics.TEXT_JUSTIFY_CENTER
-            );
-        } else if (images.size() > 0) {
+            System.println("Showing empty state layout");
+            // Try using layout
+            try {
+                setLayout(Rez.Layouts.EmptyStateLayout(dc));
+                View.onUpdate(dc); // Make sure layout is rendered
+                System.println("Layout set successfully");
+            } catch (e) {
+                System.println("Error setting layout: " + e.getErrorMessage());
+            }
+            emptyState = true;
+            return; // Let the layout handle drawing
+        } else if (emptyState) {
+            // Clear layout if we were showing empty state
+            setLayout(null);
+            emptyState = false;
+        }
+        
+        // Only proceed with drawing if not in empty state
+        if (!emptyState) {
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.clear();
+            
             if (images[currentIndex][:image] != null) {
                 drawImage(dc, images[currentIndex][:image], images[currentIndex][:index]);
                 dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
@@ -308,16 +308,17 @@ class AppView extends WatchUi.View {
                     Graphics.TEXT_JUSTIFY_CENTER
                 );
             }
-        }
-        if (errorMessage != null) {
-            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(
-                dc.getWidth() / 2,
-                dc.getHeight() - 6,
-                Graphics.FONT_XTINY,
-                errorMessage,
-                Graphics.TEXT_JUSTIFY_CENTER
-            );
+            
+            if (errorMessage != null) {
+                dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(
+                    dc.getWidth() / 2,
+                    dc.getHeight() - 6,
+                    Graphics.FONT_XTINY,
+                    errorMessage,
+                    Graphics.TEXT_JUSTIFY_CENTER
+                );
+            }
         }
     }
 
@@ -382,27 +383,35 @@ class AppView extends WatchUi.View {
     }
 
     function showCodeMenu() {
-        if (images.size() == 0) {
-            return;
+        var menu = new WatchUi.Menu2({:title => "Code Info"});
+        
+        if (images.size() > 0) {
+            var idx = images[currentIndex][:index];
+            var codeType = Storage.getValue("code_" + idx + "_type");
+            var title = Storage.getValue("code_" + idx + "_title");
+            var text = Storage.getValue("code_" + idx + "_text");
+            var typeLabel = "N/A";
+            
+            System.println("Code type for index " + idx + ": " + codeType);
+            
+            if (codeType == null || codeType.equals("0") || codeType.equals("qr")) {
+                typeLabel = "QR Code";
+            } else if (codeType.equals("1") || codeType.equals("barcode")) {
+                typeLabel = "Barcode";
+            }
+            
+            menu.addItem(new WatchUi.MenuItem("Type", typeLabel, :info_type, {}));
+            menu.addItem(new WatchUi.MenuItem("Title", title != null ? title : "N/A", :info_title, {}));
+            menu.addItem(new WatchUi.MenuItem("Text", text != null ? text : "N/A", :info_text, {}));
+            menu.addItem(new WatchUi.MenuItem("Delete Code", null, :delete_code, {}));
         }
-        var menu = new WatchUi.Menu();
-        menu.setTitle("Code Info");
-        var idx = images[currentIndex][:index];
-        var codeType = Storage.getValue("code_" + idx + "_type");
-        var title = Storage.getValue("code_" + idx + "_title");
-        var text = Storage.getValue("code_" + idx + "_text");
-        var typeLabel = "N/A";
-        if (codeType.equals("0") || codeType.equals("qr")) {
-            typeLabel = "QR";
-        } else if (codeType.equals("1") || codeType.equals("barcode")) {
-            typeLabel = "barcode";
-        }
-        menu.addItem("Type: " + typeLabel, :info_type);
-        menu.addItem("Title: " + (title != null ? title : "N/A"), :info_title);
-        menu.addItem("Text: " + (text != null ? text : "N/A"), :info_text);
-        menu.addItem("Refresh Codes", :refresh_codes);
-        menu.addItem("About the app", :about_app);
-        WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
+        
+        // Always show these options
+        menu.addItem(new WatchUi.MenuItem("Add Code", null, :add_code, {}));
+        menu.addItem(new WatchUi.MenuItem("Refresh Codes", null, :refresh_codes, {:icon => Rez.Drawables.refresh}));
+        menu.addItem(new WatchUi.MenuItem("About the app", null, :about_app, {}));
+        
+        WatchUi.pushView(menu, new CodeInfoMenu2InputDelegate(self), WatchUi.SLIDE_UP);
     }
 
     public function downloadGlanceImage(text as Lang.String, index as Lang.Number) {
@@ -454,20 +463,36 @@ class AppView extends WatchUi.View {
     }
 }
 
-class CodeMenuDelegate extends WatchUi.BehaviorDelegate {
+class CodeInfoMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
     var appView;
+    
     function initialize(appView) {
-        BehaviorDelegate.initialize();
+        Menu2InputDelegate.initialize();
         self.appView = appView;
     }
-    function onMenuItem(item) {
-        if (item == :refresh_codes) {
+    
+    function onSelect(item) {
+        var itemId = item.getId();
+        if (itemId == :refresh_codes) {
             appView.loadAllCodes();
             appView.refreshMissingImages();
-        } else if (item == :about_app) {
-            WatchUi.pushView(new AboutView(), null, WatchUi.SLIDE_UP);
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        } else if (itemId == :about_app) {
+            var aboutView = new AboutView();
+            WatchUi.pushView(aboutView, new AboutViewDelegate(aboutView), WatchUi.SLIDE_UP);
+        } else if (itemId == :add_code) {
+            var delegate = new AddCodeMenuDelegate(self.appView);
+            delegate.showMenu();
+        } else if (itemId == :delete_code) {
+            var confirmMenu = new WatchUi.Menu2({:title => "Confirm Delete"});
+            confirmMenu.addItem(new WatchUi.MenuItem("Yes", null, :yes_delete, {}));
+            confirmMenu.addItem(new WatchUi.MenuItem("No", null, :no_delete, {}));
+            WatchUi.pushView(confirmMenu, new ConfirmDeleteDelegate(self.appView), WatchUi.SLIDE_UP);
+        } else {
+            // For info items, just go back to main view
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
         }
-        return true;
+        return;
     }
 }
 
@@ -513,7 +538,6 @@ class GlanceView extends WatchUi.GlanceView {
 
     function onUpdate(dc) {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        dc.clear();
 
         var hasAnyCodes = false;
         for (var i = 0; i < 10; i++) {
@@ -657,5 +681,277 @@ class AboutView extends WatchUi.View {
             return true;
         }
         return false;
+    }
+    function onSwipe(swipeEvent) {
+        // Toggle between text and QR code on any swipe
+        showQR = !showQR;
+        WatchUi.requestUpdate();
+        return true;
+    }
+}
+
+class AboutViewDelegate extends WatchUi.BehaviorDelegate {
+    var view;
+    
+    function initialize(view) {
+        BehaviorDelegate.initialize();
+        self.view = view;
+    }
+    
+    function onSwipe(swipeEvent) {
+        return view.onSwipe(swipeEvent);
+    }
+    
+    function onTap(tapEvent) {
+        return view.onTap(tapEvent);
+    }
+    
+    function onKey(keyEvent) {
+        return view.onKey(keyEvent);
+    }
+}
+
+class AddCodeTextPickerDelegate extends WatchUi.TextPickerDelegate {
+    var parentDelegate;
+    var field;
+    function initialize(parentDelegate, field) {
+        TextPickerDelegate.initialize();
+        self.parentDelegate = parentDelegate;
+        self.field = field;
+    }
+    function onTextEntered(text, changed) {
+        System.println("[TextPickerDelegate] onTextEntered: field=" + self.field + ", text=" + text);
+        if (text != null) {
+            if (self.field == :input_title) {
+                self.parentDelegate.codeTitle = text;
+            } else if (self.field == :input_text) {
+                self.parentDelegate.codeText = text;
+            }
+        }
+        System.println("[TextPickerDelegate] After update: codeTitle=" + self.parentDelegate.codeTitle + ", codeText=" + self.parentDelegate.codeText);
+        self.parentDelegate.showMenu();
+        return true;
+    }
+}
+
+class TypeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
+    var parentDelegate;
+    
+    function initialize(parentDelegate) {
+        Menu2InputDelegate.initialize();
+        self.parentDelegate = parentDelegate;
+    }
+    
+    function onSelect(item) {
+        System.println("[TypeMenu2InputDelegate] onSelect: id=" + item.getId());
+        if (item.getId() == :type_qr) {
+            self.parentDelegate.codeType = "0";  // Use "0" for QR consistently
+        } else if (item.getId() == :type_barcode) {
+            self.parentDelegate.codeType = "1";  // Use "1" for barcode consistently
+        }
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        self.parentDelegate.showMenu();
+        return;
+    }
+}
+
+class AddCodeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
+    var parentDelegate;
+    function initialize(parentDelegate) {
+        Menu2InputDelegate.initialize();
+        self.parentDelegate = parentDelegate;
+    }
+    function onSelect(item) {
+        System.println("[Menu2InputDelegate] onSelect: itemId=" + item.getId());
+        if (item.getId() == :input_title) {
+            var picker = new WatchUi.TextPicker("Title");
+            var pickerDelegate = new AddCodeTextPickerDelegate(self.parentDelegate, :input_title);
+            WatchUi.pushView(picker, pickerDelegate, WatchUi.SLIDE_UP);
+        } else if (item.getId() == :input_text) {
+            var picker = new WatchUi.TextPicker("Code");
+            var pickerDelegate = new AddCodeTextPickerDelegate(self.parentDelegate, :input_text);
+            WatchUi.pushView(picker, pickerDelegate, WatchUi.SLIDE_UP);
+        } else if (item.getId() == :input_type) {
+            // Show the type selection menu
+            var typeMenu = new WatchUi.Menu2({:title => "Select Type"});
+            typeMenu.addItem(new WatchUi.MenuItem("QR Code", null, :type_qr, {}));
+            typeMenu.addItem(new WatchUi.MenuItem("Barcode", null, :type_barcode, {}));
+            var typeMenuDelegate = new TypeMenu2InputDelegate(self.parentDelegate);
+            WatchUi.pushView(typeMenu, typeMenuDelegate, WatchUi.SLIDE_UP);
+        } else if (item.getId() == :save_code) {
+            System.println("Saving code: title=" + self.parentDelegate.codeTitle + ", text=" + self.parentDelegate.codeText + ", type=" + self.parentDelegate.codeType);
+            
+            // Find next available slot in storage
+            var newIndex = 0;
+            for (var i = 0; i < 10; i++) {
+                if (Storage.getValue("code_" + i + "_text") == null) {
+                    newIndex = i;
+                    break;
+                }
+            }
+            
+            // 1. Save to Storage for app internal use
+            Storage.setValue("code_" + newIndex + "_text", self.parentDelegate.codeText);
+            Storage.setValue("code_" + newIndex + "_title", self.parentDelegate.codeTitle);
+            Storage.setValue("code_" + newIndex + "_type", self.parentDelegate.codeType.equals("barcode") ? "1" : "0");
+            
+            // 2. Save to Application.Properties for settings editor
+            // Get or initialize the codesList array
+            var codesList = [];
+            try {
+                var existingList = Application.Properties.getValue("codesList");
+                if (existingList != null) {
+                    codesList = existingList as Lang.Array;
+                }
+            } catch (e) {
+                // Property doesn't exist yet, that's fine
+                System.println("Creating new codesList array");
+            }
+            
+            // Ensure the array has enough entries
+            while (codesList.size() <= newIndex) {
+                codesList.add({});
+            }
+            
+            // Create a dictionary with the correct format for settings.xml
+            // IMPORTANT: The keys must exactly match the format in settings.xml
+            var codeEntry = {
+                "code_$index_text" => self.parentDelegate.codeText,
+                "code_$index_title" => self.parentDelegate.codeTitle,
+                "code_$index_type" => self.parentDelegate.codeType.equals("barcode") ? "1" : "0"
+            };
+            
+            // Update this specific index in the array
+            codesList[newIndex] = codeEntry;
+            
+            // Update the codesList property
+            try {
+                System.println("Saving codesList with entry at index " + newIndex + ": " + codeEntry);
+                Application.Properties.setValue("codesList", codesList);
+            } catch (e) {
+                System.println("Error setting codesList: " + e.getErrorMessage());
+            }
+            
+            System.println("Saved to index " + newIndex + " in both Storage and Properties");
+            
+            // Return to main screen
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            
+            // Reload all codes to include the new one
+            AppView.current.loadAllCodes();
+            
+            // Find the index of the newly added code in the loaded images
+            var imagesIndex = -1;
+            for (var j = 0; j < AppView.current.images.size(); j++) {
+                if (AppView.current.images[j][:index] == newIndex) {
+                    imagesIndex = j;
+                    break;
+                }
+            }
+            
+            if (imagesIndex >= 0) {
+                // Set the current index to show the new code
+                AppView.current.currentIndex = imagesIndex;
+                
+                // Download the image
+                if (self.parentDelegate.codeText != null && self.parentDelegate.codeText.length() > 0) {
+                    AppView.current.downloadImage(self.parentDelegate.codeText, imagesIndex);
+                    AppView.current.downloadGlanceImage(self.parentDelegate.codeText, newIndex);
+                }
+            } else {
+                System.println("Warning: Could not find newly added code in images array");
+            }
+            
+            // Request UI update to show the new code
+            WatchUi.requestUpdate();
+        }
+        return;
+    }
+}
+
+class AddCodeMenuDelegate extends WatchUi.BehaviorDelegate {
+    var codeTitle = "";
+    var codeText = "";
+    var codeType = "0";  // Default to QR ("0")
+    var parentView;
+    var menu2; // Store reference to the menu
+    var menu2Delegate;
+
+    function initialize(parentView) {
+        BehaviorDelegate.initialize();
+        self.parentView = parentView;
+        self.menu2Delegate = new AddCodeMenu2InputDelegate(self);
+    }
+
+    function showMenu() {
+        System.println("[AddCodeMenuDelegate] showMenu: codeTitle=" + codeTitle + ", codeText=" + codeText + ", codeType=" + codeType);
+        
+        var typeLabel = codeType.equals("1") ? "Barcode" : "QR Code";
+        
+        if (menu2 == null) {
+            // First time showing the menu
+            menu2 = new WatchUi.Menu2({:title => "Add Code"});
+            menu2.addItem(new WatchUi.MenuItem("Title", codeTitle.equals("") ? "<enter>" : codeTitle, :input_title, {}));
+            menu2.addItem(new WatchUi.MenuItem("Code", codeText.equals("") ? "<enter>" : codeText, :input_text, {}));
+            menu2.addItem(new WatchUi.MenuItem("Type", typeLabel, :input_type, {}));
+            menu2.addItem(new WatchUi.MenuItem("Save", null, :save_code, {}));
+            WatchUi.pushView(menu2, menu2Delegate, WatchUi.SLIDE_UP);
+        } else {
+            // Update existing menu items
+            menu2.updateItem(new WatchUi.MenuItem("Title", codeTitle.equals("") ? "<enter>" : codeTitle, :input_title, {}), 0);
+            menu2.updateItem(new WatchUi.MenuItem("Code", codeText.equals("") ? "<enter>" : codeText, :input_text, {}), 1);
+            menu2.updateItem(new WatchUi.MenuItem("Type", typeLabel, :input_type, {}), 2);
+            // Request UI refresh
+            WatchUi.requestUpdate();
+        }
+    }
+}
+
+class ConfirmDeleteDelegate extends WatchUi.Menu2InputDelegate {
+    var appView;
+    
+    function initialize(appView) {
+        Menu2InputDelegate.initialize();
+        self.appView = appView;
+    }
+    
+    function onSelect(item) {
+        var itemId = item.getId();
+        if (itemId == :yes_delete) {
+            // Get the index of the code to delete
+            var idx = appView.images[appView.currentIndex][:index];
+            System.println("Deleting code at index: " + idx);
+            
+            // 1. Delete from Storage
+            Storage.deleteValue("code_" + idx + "_text");
+            Storage.deleteValue("code_" + idx + "_title");
+            Storage.deleteValue("code_" + idx + "_type");
+            
+            // 2. Delete from Application.Properties
+            try {
+                var codesList = Application.Properties.getValue("codesList") as Lang.Array;
+                if (codesList != null && idx < codesList.size()) {
+                    // Clear this entry (replace with empty dictionary instead of removing
+                    // to keep index order consistent)
+                    codesList[idx] = {};
+                    Application.Properties.setValue("codesList", codesList);
+                    System.println("Deleted code from Application.Properties");
+                }
+            } catch (e) {
+                System.println("Error deleting from Properties: " + e.getErrorMessage());
+            }
+            
+            // Pop all menus and return to main view
+            WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop confirmation dialog
+            WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop the code info menu
+            
+            // Refresh codes on main screen
+            appView.loadAllCodes();
+            WatchUi.requestUpdate();
+        } else if (itemId == :no_delete) {
+            // Just pop the confirmation dialog
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        }
+        return;
     }
 }

@@ -17,4 +17,28 @@
             justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER"
             text="@Strings.AboutText"/>
     </layout>
+    
+    <layout id="EmptyStateLayout">
+        <text-area
+            id="MainEmptyText"
+            x="10"
+            y="100"
+            width="90%"
+            height="100%"
+            font="Gfx.FONT_TINY"
+            color="Gfx.COLOR_WHITE"
+            justification="Gfx.TEXT_JUSTIFY_CENTER"
+            text="@Strings.NoCodesText"/>
+            
+        <text-area
+            id="SubEmptyText"
+            x="10"
+            y="50%"
+            width="90%"
+            height="100%"
+            font="Gfx.FONT_XTINY"
+            color="Gfx.COLOR_WHITE"
+            justification="Gfx.TEXT_JUSTIFY_CENTER"
+            text="@Strings.NoCodesSubText"/>
+    </layout>
 </resources> 

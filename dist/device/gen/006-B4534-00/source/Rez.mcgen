@@ -7,6 +7,12 @@ using Toybox.Graphics as Gfx;
 module Rez {
     module Drawables {
         (:initialized) var DisplayImage1 as ResourceId;
+        (:initialized) var add as ResourceId;
+        (:initialized) var delete as ResourceId;
+        (:initialized) var edit as ResourceId;
+        (:initialized) var refresh as ResourceId;
+        (:initialized) var remove as ResourceId;
+        (:initialized) var GithubQR as ResourceId;
         (:initialized) var LauncherIcon as ResourceId;
     } // Drawables
 
@@ -16,9 +22,44 @@ module Rez {
 
             return [rez_cmp_local_text_1193959466] as Array<WatchUi.Drawable>;
         }
+
+        function AboutLayout(dc as Graphics.Dc) as Array<WatchUi.Drawable> {
+            var rez_cmp_local_bitmap_GithubQR = new WatchUi.Bitmap({:identifier=>"GithubQR", :rezId=>$.Rez.Drawables.GithubQR, :locX=>WatchUi.LAYOUT_HALIGN_CENTER, :locY=>WatchUi.LAYOUT_VALIGN_CENTER});
+            rez_cmp_local_bitmap_GithubQR.setLocation(((416 - rez_cmp_local_bitmap_GithubQR.width) * 0.5), ((416 - rez_cmp_local_bitmap_GithubQR.height) * 0.5));
+
+            var rez_cmp_local_textarea_AboutText = new WatchUi.TextArea({:identifier=>"AboutText", :color=>Gfx.COLOR_WHITE, :width=>(416 * (100 / 100.0)), :locX=>0, :locY=>10, :text=>$.Rez.Strings.AboutText, :justification=>Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER, :height=>(416 * (100 / 100.0)), :font=>[Gfx.FONT_XTINY] as Array<Graphics.FontType>});
+
+            return [rez_cmp_local_bitmap_GithubQR, rez_cmp_local_textarea_AboutText] as Array<WatchUi.Drawable>;
+        }
+
+        function EmptyStateLayout(dc as Graphics.Dc) as Array<WatchUi.Drawable> {
+            var rez_cmp_local_textarea_MainEmptyText = new WatchUi.TextArea({:identifier=>"MainEmptyText", :color=>Gfx.COLOR_WHITE, :width=>(416 * (90 / 100.0)), :locX=>10, :locY=>100, :text=>$.Rez.Strings.NoCodesText, :justification=>Gfx.TEXT_JUSTIFY_CENTER, :height=>(416 * (100 / 100.0)), :font=>[Gfx.FONT_TINY] as Array<Graphics.FontType>});
+
+            var rez_cmp_local_textarea_SubEmptyText = new WatchUi.TextArea({:identifier=>"SubEmptyText", :color=>Gfx.COLOR_WHITE, :width=>(416 * (90 / 100.0)), :locX=>10, :locY=>(416 * (50 / 100.0)), :text=>$.Rez.Strings.NoCodesSubText, :justification=>Gfx.TEXT_JUSTIFY_CENTER, :height=>(416 * (100 / 100.0)), :font=>[Gfx.FONT_XTINY] as Array<Graphics.FontType>});
+
+            return [rez_cmp_local_textarea_MainEmptyText, rez_cmp_local_textarea_SubEmptyText] as Array<WatchUi.Drawable>;
+        }
+
+        function SettingsLayout(dc as Graphics.Dc) as Array<WatchUi.Drawable> {
+            var rez_cmp_local_text_SettingsTitle = new WatchUi.Text({:identifier=>"SettingsTitle", :color=>Graphics.COLOR_WHITE, :locX=>(416 * 0.5), :locY=>10, :text=>"Settings", :font=>Graphics.FONT_MEDIUM});
+
+            var rez_cmp_local_text_SettingsDescription = new WatchUi.Text({:identifier=>"SettingsDescription", :color=>Graphics.COLOR_LT_GRAY, :locX=>(416 * 0.5), :locY=>40, :text=>"Configure your QR code settings", :font=>Graphics.FONT_SMALL});
+
+            return [rez_cmp_local_text_SettingsTitle, rez_cmp_local_text_SettingsDescription] as Array<WatchUi.Drawable>;
+        }
     } // Layouts
 
     module Strings {
+        (:initialized) var QR as ResourceId;
+        (:initialized) var appVersion as ResourceId;
+        (:initialized) var AboutText as ResourceId;
+        (:initialized) var NoCodesSubText as ResourceId;
+        (:initialized) var codeType as ResourceId;
+        (:initialized) var NoCodesText as ResourceId;
+        (:initialized) var codeTitle as ResourceId;
+        (:initialized) var codeText as ResourceId;
+        (:initialized) var barcode as ResourceId;
+        (:initialized) var codesTitle as ResourceId;
         (:initialized) var AppName as ResourceId;
     } // Strings
 
