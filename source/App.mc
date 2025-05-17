@@ -400,6 +400,7 @@ class AppView extends WatchUi.View {
             menu.addItem(new WatchUi.MenuItem("Type", typeLabel, :info_type, {}));
             menu.addItem(new WatchUi.MenuItem("Title", title != null ? title : "N/A", :info_title, {}));
             menu.addItem(new WatchUi.MenuItem("Text", text != null ? text : "N/A", :info_text, {}));
+            menu.addItem(new WatchUi.MenuItem("Delete Code", null, :delete_code, {}));
         }
         
         // Always show these options
@@ -479,6 +480,11 @@ class CodeInfoMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
         } else if (itemId == :add_code) {
             var delegate = new AddCodeMenuDelegate(self.appView);
             delegate.showMenu();
+        } else if (itemId == :delete_code) {
+            var confirmMenu = new WatchUi.Menu2({:title => "Confirm Delete"});
+            confirmMenu.addItem(new WatchUi.MenuItem("Yes", null, :yes_delete, {}));
+            confirmMenu.addItem(new WatchUi.MenuItem("No", null, :no_delete, {}));
+            WatchUi.pushView(confirmMenu, new ConfirmDeleteDelegate(self.appView), WatchUi.SLIDE_UP);
         } else {
             // For info items, just go back to main view
             WatchUi.popView(WatchUi.SLIDE_DOWN);
@@ -895,5 +901,54 @@ class AddCodeMenuDelegate extends WatchUi.BehaviorDelegate {
             // Request UI refresh
             WatchUi.requestUpdate();
         }
+    }
+}
+
+class ConfirmDeleteDelegate extends WatchUi.Menu2InputDelegate {
+    var appView;
+    
+    function initialize(appView) {
+        Menu2InputDelegate.initialize();
+        self.appView = appView;
+    }
+    
+    function onSelect(item) {
+        var itemId = item.getId();
+        if (itemId == :yes_delete) {
+            // Get the index of the code to delete
+            var idx = appView.images[appView.currentIndex][:index];
+            System.println("Deleting code at index: " + idx);
+            
+            // 1. Delete from Storage
+            Storage.deleteValue("code_" + idx + "_text");
+            Storage.deleteValue("code_" + idx + "_title");
+            Storage.deleteValue("code_" + idx + "_type");
+            
+            // 2. Delete from Application.Properties
+            try {
+                var codesList = Application.Properties.getValue("codesList") as Lang.Array;
+                if (codesList != null && idx < codesList.size()) {
+                    // Clear this entry (replace with empty dictionary instead of removing
+                    // to keep index order consistent)
+                    codesList[idx] = {};
+                    Application.Properties.setValue("codesList", codesList);
+                    System.println("Deleted code from Application.Properties");
+                }
+            } catch (e) {
+                System.println("Error deleting from Properties: " + e.getErrorMessage());
+            }
+            
+            // Pop all menus and return to main view
+            WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop confirmation dialog
+            WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop the code info menu
+            
+            // Refresh codes on main screen
+            appView.loadAllCodes();
+            WatchUi.requestUpdate();
+        } else if (itemId == :no_delete) {
+            // Just pop the confirmation dialog
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        }
+        return;
     }
 }
