@@ -383,8 +383,7 @@ class AppView extends WatchUi.View {
     }
 
     function showCodeMenu() {
-        var menu = new WatchUi.Menu();
-        menu.setTitle("Code Info");
+        var menu = new WatchUi.Menu2({:title => "Code Info"});
         
         if (images.size() > 0) {
             var idx = images[currentIndex][:index];
@@ -392,21 +391,23 @@ class AppView extends WatchUi.View {
             var title = Storage.getValue("code_" + idx + "_title");
             var text = Storage.getValue("code_" + idx + "_text");
             var typeLabel = "N/A";
-            if (codeType.equals("0") || codeType.equals("qr")) {
-                typeLabel = "QR";
-            } else if (codeType.equals("1") || codeType.equals("barcode")) {
-                typeLabel = "barcode";
+            if (codeType == null || codeType.equals("qr")) {
+                typeLabel = "QR Code";
+            } else if (codeType.equals("barcode")) {
+                typeLabel = "Barcode";
             }
-            menu.addItem("Type: " + typeLabel, :info_type);
-            menu.addItem("Title: " + (title != null ? title : "N/A"), :info_title);
-            menu.addItem("Text: " + (text != null ? text : "N/A"), :info_text);
+            
+            menu.addItem(new WatchUi.MenuItem("Type", typeLabel, :info_type, {}));
+            menu.addItem(new WatchUi.MenuItem("Title", title != null ? title : "N/A", :info_title, {}));
+            menu.addItem(new WatchUi.MenuItem("Text", text != null ? text : "N/A", :info_text, {}));
         }
         
         // Always show these options
-        menu.addItem("Add Code", :add_code);
-        menu.addItem("Refresh Codes", :refresh_codes);
-        menu.addItem("About the app", :about_app);
-        WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
+        menu.addItem(new WatchUi.MenuItem("Add Code", null, :add_code, {}));
+        menu.addItem(new WatchUi.MenuItem("Refresh Codes", null, :refresh_codes, {}));
+        menu.addItem(new WatchUi.MenuItem("About the app", null, :about_app, {}));
+        
+        WatchUi.pushView(menu, new CodeInfoMenu2InputDelegate(self), WatchUi.SLIDE_UP);
     }
 
     public function downloadGlanceImage(text as Lang.String, index as Lang.Number) {
@@ -458,37 +459,30 @@ class AppView extends WatchUi.View {
     }
 }
 
-class CodeMenuDelegate extends WatchUi.BehaviorDelegate {
+class CodeInfoMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
     var appView;
+    
     function initialize(appView) {
-        BehaviorDelegate.initialize();
+        Menu2InputDelegate.initialize();
         self.appView = appView;
     }
-    function onMenuItem(item) {
-        if (item == :refresh_codes) {
+    
+    function onSelect(item) {
+        var itemId = item.getId();
+        if (itemId == :refresh_codes) {
             appView.loadAllCodes();
             appView.refreshMissingImages();
-        } else if (item == :about_app) {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        } else if (itemId == :about_app) {
             WatchUi.pushView(new AboutView(), null, WatchUi.SLIDE_UP);
-        } else if (item == :add_code) {
+        } else if (itemId == :add_code) {
             var delegate = new AddCodeMenuDelegate(self.appView);
             delegate.showMenu();
-        } else if (item == :input_title) {
-            var picker = new WatchUi.TextPicker("Title");
-            var pickerDelegate = new AddCodeTextPickerDelegate(self, :input_title);
-            WatchUi.pushView(picker, pickerDelegate, WatchUi.SLIDE_UP);
-        } else if (item == :input_text) {
-            var picker = new WatchUi.TextPicker("Code");
-            var pickerDelegate = new AddCodeTextPickerDelegate(self, :input_text);
-            WatchUi.pushView(picker, pickerDelegate, WatchUi.SLIDE_UP);
+        } else {
+            // For info items, just go back to main view
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
         }
-        return true;
-    }
-
-    function onTextEntered(text, changed) {
-        // Handle text input result
-        System.println("Text: " + text + ", Changed: " + changed);
-        // No need to do anything with the result in this context
+        return;
     }
 }
 
