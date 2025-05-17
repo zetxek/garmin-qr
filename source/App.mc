@@ -744,28 +744,58 @@ class AddCodeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
         } else if (item.getId() == :save_code) {
             System.println("Saving code: title=" + self.parentDelegate.codeTitle + ", text=" + self.parentDelegate.codeText + ", type=" + self.parentDelegate.codeType);
             
-            // Save to Application.Properties
-            var codes = Application.Properties.getValue("codesList") as Lang.Array<Lang.Dictionary>;
-            if (codes == null) { codes = []; }
-            var newCode = { "code_text" => self.parentDelegate.codeText, "code_title" => self.parentDelegate.codeTitle, "code_type" => self.parentDelegate.codeType };
-            codes.add(newCode);
-            Application.Properties.setValue("codesList", codes);
-            
-            // Find the next available storage index
+            // Find next available slot in storage
             var newIndex = 0;
             for (var i = 0; i < 10; i++) {
-                var text = Storage.getValue("code_" + i + "_text");
-                if (text == null) {
+                if (Storage.getValue("code_" + i + "_text") == null) {
                     newIndex = i;
                     break;
                 }
             }
             
-            // Save to Storage for loadAllCodes() to find
+            // 1. Save to Storage for app internal use
             Storage.setValue("code_" + newIndex + "_text", self.parentDelegate.codeText);
             Storage.setValue("code_" + newIndex + "_title", self.parentDelegate.codeTitle);
-            Storage.setValue("code_" + newIndex + "_type", self.parentDelegate.codeType);
-            System.println("Saved to Storage at index " + newIndex);
+            Storage.setValue("code_" + newIndex + "_type", self.parentDelegate.codeType.equals("barcode") ? "1" : "0");
+            
+            // 2. Save to Application.Properties for settings editor
+            // Get or initialize the codesList array
+            var codesList = [];
+            try {
+                var existingList = Application.Properties.getValue("codesList");
+                if (existingList != null) {
+                    codesList = existingList as Lang.Array;
+                }
+            } catch (e) {
+                // Property doesn't exist yet, that's fine
+                System.println("Creating new codesList array");
+            }
+            
+            // Ensure the array has enough entries
+            while (codesList.size() <= newIndex) {
+                codesList.add({});
+            }
+            
+            // Create a dictionary with the correct format for settings.xml
+            // IMPORTANT: The keys must exactly match the format in settings.xml
+            var codeEntry = {
+                "code_$index_text" => self.parentDelegate.codeText,
+                "code_$index_title" => self.parentDelegate.codeTitle,
+                "code_$index_type" => self.parentDelegate.codeType.equals("barcode") ? "1" : "0"
+            };
+            
+            // Update this specific index in the array
+            codesList[newIndex] = codeEntry;
+            
+            // Update the codesList property
+            try {
+                System.println("Saving codesList with entry at index " + newIndex + ": " + codeEntry);
+                Application.Properties.setValue("codesList", codesList);
+            } catch (e) {
+                System.println("Error setting codesList: " + e.getErrorMessage());
+            }
+            
+            System.println("Saved to index " + newIndex + " in both Storage and Properties");
             
             // Return to main screen
             WatchUi.popView(WatchUi.SLIDE_DOWN);
