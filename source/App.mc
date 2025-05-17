@@ -475,17 +475,19 @@ class CodeMenuDelegate extends WatchUi.BehaviorDelegate {
             delegate.showMenu();
         } else if (item == :input_title) {
             var picker = new WatchUi.TextPicker("Title");
-            WatchUi.pushView(picker, null, WatchUi.SLIDE_UP);
+            var pickerDelegate = new AddCodeTextPickerDelegate(self, :input_title);
+            WatchUi.pushView(picker, pickerDelegate, WatchUi.SLIDE_UP);
         } else if (item == :input_text) {
             var picker = new WatchUi.TextPicker("Code");
-            WatchUi.pushView(picker, null, WatchUi.SLIDE_UP);
+            var pickerDelegate = new AddCodeTextPickerDelegate(self, :input_text);
+            WatchUi.pushView(picker, pickerDelegate, WatchUi.SLIDE_UP);
         }
         return true;
     }
 
-    function onTextPickerComplete(picker, result) {
+    function onTextEntered(text, changed) {
         // Handle text input result
-        System.println("Text input result: " + result);
+        System.println("Text: " + text + ", Changed: " + changed);
         // No need to do anything with the result in this context
     }
 }
@@ -678,66 +680,89 @@ class AboutView extends WatchUi.View {
     }
 }
 
-class AddCodeMenuDelegate extends WatchUi.BehaviorDelegate {
-    var codeTitle = "";
-    var codeText = "";
-    var codeType = "qr";
-    var parentView;
-    var lastInputField = null;
-
-    function initialize(parentView) {
-        BehaviorDelegate.initialize();
-        self.parentView = parentView;
+class AddCodeTextPickerDelegate extends WatchUi.TextPickerDelegate {
+    var parentDelegate;
+    var field;
+    function initialize(parentDelegate, field) {
+        TextPickerDelegate.initialize();
+        self.parentDelegate = parentDelegate;
+        self.field = field;
     }
+    function onTextEntered(text, changed) {
+        System.println("[TextPickerDelegate] onTextEntered: field=" + self.field + ", text=" + text);
+        if (text != null) {
+            if (self.field == :input_title) {
+                self.parentDelegate.codeTitle = text;
+            } else if (self.field == :input_text) {
+                self.parentDelegate.codeText = text;
+            }
+        }
+        System.println("[TextPickerDelegate] After update: codeTitle=" + self.parentDelegate.codeTitle + ", codeText=" + self.parentDelegate.codeText);
+        self.parentDelegate.showMenu();
+        return true;
+    }
+}
 
-    function onMenuItem(item) {
-        if (item == :input_title) {
-            lastInputField = :input_title;
+class AddCodeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
+    var parentDelegate;
+    function initialize(parentDelegate) {
+        Menu2InputDelegate.initialize();
+        self.parentDelegate = parentDelegate;
+    }
+    function onSelect(item) {
+        System.println("[Menu2InputDelegate] onSelect: itemId=" + item.getId());
+        if (item.getId() == :input_title) {
             var picker = new WatchUi.TextPicker("Title");
-            WatchUi.pushView(picker, null, WatchUi.SLIDE_UP);
-        } else if (item == :input_text) {
-            lastInputField = :input_text;
+            var pickerDelegate = new AddCodeTextPickerDelegate(self.parentDelegate, :input_title);
+            WatchUi.pushView(picker, pickerDelegate, WatchUi.SLIDE_UP);
+        } else if (item.getId() == :input_text) {
             var picker = new WatchUi.TextPicker("Code");
-            WatchUi.pushView(picker, null, WatchUi.SLIDE_UP);
-        } else if (item == :input_type) {
-            // Optionally implement a picker for type
-        } else if (item == :save_code) {
+            var pickerDelegate = new AddCodeTextPickerDelegate(self.parentDelegate, :input_text);
+            WatchUi.pushView(picker, pickerDelegate, WatchUi.SLIDE_UP);
+        } else if (item.getId() == :save_code) {
+            System.println("Saving code: title=" + self.parentDelegate.codeTitle + ", text=" + self.parentDelegate.codeText);
             var codes = Application.Properties.getValue("codesList") as Lang.Array<Lang.Dictionary>;
             if (codes == null) { codes = []; }
-            var newCode = { "code_text" => codeText, "code_title" => codeTitle, "code_type" => codeType };
+            var newCode = { "code_text" => self.parentDelegate.codeText, "code_title" => self.parentDelegate.codeTitle, "code_type" => self.parentDelegate.codeType };
             codes.add(newCode);
             Application.Properties.setValue("codesList", codes);
             WatchUi.popView(WatchUi.SLIDE_DOWN);
             AppView.current.loadAllCodes();
         }
-        return true;
+        return;
     }
+}
 
-    function onTextPickerComplete(picker, result) {
-        if (result != null) {
-            switch (lastInputField) {
-                case :input_title:
-                    codeTitle = result;
-                    break;
-                case :input_text:
-                    codeText = result;
-                    break;
-                // case :input_type:
-                //     codeType = result;
-                //     break;
-            }
-        }
-        lastInputField = null;
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
-        showMenu();
+class AddCodeMenuDelegate extends WatchUi.BehaviorDelegate {
+    var codeTitle = "";
+    var codeText = "";
+    var codeType = "qr";
+    var parentView;
+    var menu2; // Store reference to the menu
+    var menu2Delegate;
+
+    function initialize(parentView) {
+        BehaviorDelegate.initialize();
+        self.parentView = parentView;
+        self.menu2Delegate = new AddCodeMenu2InputDelegate(self);
     }
 
     function showMenu() {
-        var menu = new WatchUi.Menu();
-        menu.setTitle("Add Code");
-        menu.addItem("Title: " + (codeTitle == "" ? "<enter>" : codeTitle), :input_title);
-        menu.addItem("Code: " + (codeText == "" ? "<enter>" : codeText), :input_text);
-        menu.addItem("Save", :save_code);
-        WatchUi.pushView(menu, self, WatchUi.SLIDE_UP);
+        System.println("[AddCodeMenuDelegate] showMenu: codeTitle=" + codeTitle + ", codeText=" + codeText);
+        
+        if (menu2 == null) {
+            // First time showing the menu
+            menu2 = new WatchUi.Menu2({:title => "Add Code"});
+            menu2.addItem(new WatchUi.MenuItem("Title", codeTitle.equals("") ? "<enter>" : codeTitle, :input_title, {}));
+            menu2.addItem(new WatchUi.MenuItem("Code", codeText.equals("") ? "<enter>" : codeText, :input_text, {}));
+            menu2.addItem(new WatchUi.MenuItem("Save", null, :save_code, {}));
+            WatchUi.pushView(menu2, menu2Delegate, WatchUi.SLIDE_UP);
+        } else {
+            // Update existing menu items
+            menu2.updateItem(new WatchUi.MenuItem("Title", codeTitle.equals("") ? "<enter>" : codeTitle, :input_title, {}), 0);
+            menu2.updateItem(new WatchUi.MenuItem("Code", codeText.equals("") ? "<enter>" : codeText, :input_text, {}), 1);
+            // Request UI refresh
+            WatchUi.requestUpdate();
+        }
     }
 }
