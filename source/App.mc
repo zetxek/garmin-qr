@@ -474,7 +474,8 @@ class CodeInfoMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
             appView.refreshMissingImages();
             WatchUi.popView(WatchUi.SLIDE_DOWN);
         } else if (itemId == :about_app) {
-            WatchUi.pushView(new AboutView(), null, WatchUi.SLIDE_UP);
+            var aboutView = new AboutView();
+            WatchUi.pushView(aboutView, new AboutViewDelegate(aboutView), WatchUi.SLIDE_UP);
         } else if (itemId == :add_code) {
             var delegate = new AddCodeMenuDelegate(self.appView);
             delegate.showMenu();
@@ -671,6 +672,33 @@ class AboutView extends WatchUi.View {
             return true;
         }
         return false;
+    }
+    function onSwipe(swipeEvent) {
+        // Toggle between text and QR code on any swipe
+        showQR = !showQR;
+        WatchUi.requestUpdate();
+        return true;
+    }
+}
+
+class AboutViewDelegate extends WatchUi.BehaviorDelegate {
+    var view;
+    
+    function initialize(view) {
+        BehaviorDelegate.initialize();
+        self.view = view;
+    }
+    
+    function onSwipe(swipeEvent) {
+        return view.onSwipe(swipeEvent);
+    }
+    
+    function onTap(tapEvent) {
+        return view.onTap(tapEvent);
+    }
+    
+    function onKey(keyEvent) {
+        return view.onKey(keyEvent);
     }
 }
 
