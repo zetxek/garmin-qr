@@ -3,6 +3,9 @@
 ⌚️ A Connect IQ watch app for Garmin devices that allows you to generate and display QR codes and barcodes directly on your watch.
 Using https://github.com/zetxek/qr-generator to generate QR codes and barcodes ☁️
 
+![2025-05-17 22 21 58](https://github.com/user-attachments/assets/e23133ed-530a-461c-838f-a75362b8f734)
+
+
 ## Features
 
 - Generate QR codes and barcodes from text input
