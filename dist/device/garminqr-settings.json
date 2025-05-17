@@ -68,7 +68,7 @@
       "QR" : "QR",
       "appVersion" : "0.0.11",
       "AboutText" : "\nAbout the app\n\nAuthor: Adrián Moreno Peña\nVersion: 0.0.11\nCode: github.com/zetxek/garmin-qr\n",
-      "NoCodesSubText" : "Configure in Garmin IQ app settings",
+      "NoCodesSubText" : "Configure in Garmin IQ settings or from the app",
       "codeType" : "Code Type",
       "NoCodesText" : "No codes configured",
       "codeTitle" : "Title",
