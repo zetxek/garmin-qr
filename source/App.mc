@@ -403,6 +403,7 @@ class AppView extends WatchUi.View {
         }
         
         // Always show these options
+        menu.addItem("Add Code", :add_code);
         menu.addItem("Refresh Codes", :refresh_codes);
         menu.addItem("About the app", :about_app);
         WatchUi.pushView(menu, new CodeMenuDelegate(self), WatchUi.SLIDE_UP);
@@ -469,8 +470,23 @@ class CodeMenuDelegate extends WatchUi.BehaviorDelegate {
             appView.refreshMissingImages();
         } else if (item == :about_app) {
             WatchUi.pushView(new AboutView(), null, WatchUi.SLIDE_UP);
+        } else if (item == :add_code) {
+            var delegate = new AddCodeMenuDelegate(self.appView);
+            delegate.showMenu();
+        } else if (item == :input_title) {
+            var picker = new WatchUi.TextPicker("Title");
+            WatchUi.pushView(picker, null, WatchUi.SLIDE_UP);
+        } else if (item == :input_text) {
+            var picker = new WatchUi.TextPicker("Code");
+            WatchUi.pushView(picker, null, WatchUi.SLIDE_UP);
         }
         return true;
+    }
+
+    function onTextPickerComplete(picker, result) {
+        // Handle text input result
+        System.println("Text input result: " + result);
+        // No need to do anything with the result in this context
     }
 }
 
@@ -659,5 +675,69 @@ class AboutView extends WatchUi.View {
             return true;
         }
         return false;
+    }
+}
+
+class AddCodeMenuDelegate extends WatchUi.BehaviorDelegate {
+    var codeTitle = "";
+    var codeText = "";
+    var codeType = "qr";
+    var parentView;
+    var lastInputField = null;
+
+    function initialize(parentView) {
+        BehaviorDelegate.initialize();
+        self.parentView = parentView;
+    }
+
+    function onMenuItem(item) {
+        if (item == :input_title) {
+            lastInputField = :input_title;
+            var picker = new WatchUi.TextPicker("Title");
+            WatchUi.pushView(picker, null, WatchUi.SLIDE_UP);
+        } else if (item == :input_text) {
+            lastInputField = :input_text;
+            var picker = new WatchUi.TextPicker("Code");
+            WatchUi.pushView(picker, null, WatchUi.SLIDE_UP);
+        } else if (item == :input_type) {
+            // Optionally implement a picker for type
+        } else if (item == :save_code) {
+            var codes = Application.Properties.getValue("codesList") as Lang.Array<Lang.Dictionary>;
+            if (codes == null) { codes = []; }
+            var newCode = { "code_text" => codeText, "code_title" => codeTitle, "code_type" => codeType };
+            codes.add(newCode);
+            Application.Properties.setValue("codesList", codes);
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            AppView.current.loadAllCodes();
+        }
+        return true;
+    }
+
+    function onTextPickerComplete(picker, result) {
+        if (result != null) {
+            switch (lastInputField) {
+                case :input_title:
+                    codeTitle = result;
+                    break;
+                case :input_text:
+                    codeText = result;
+                    break;
+                // case :input_type:
+                //     codeType = result;
+                //     break;
+            }
+        }
+        lastInputField = null;
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        showMenu();
+    }
+
+    function showMenu() {
+        var menu = new WatchUi.Menu();
+        menu.setTitle("Add Code");
+        menu.addItem("Title: " + (codeTitle == "" ? "<enter>" : codeTitle), :input_title);
+        menu.addItem("Code: " + (codeText == "" ? "<enter>" : codeText), :input_text);
+        menu.addItem("Save", :save_code);
+        WatchUi.pushView(menu, self, WatchUi.SLIDE_UP);
     }
 }
