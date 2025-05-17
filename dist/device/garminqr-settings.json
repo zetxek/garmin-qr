@@ -1,0 +1,81 @@
+{
+  "settings" : [ {
+    "key" : "codesList",
+    "valueType" : "array",
+    "entry" : [ {
+      "key" : "code_$index_type",
+      "valueType" : "string",
+      "configTitle" : "codeType",
+      "configPrompt" : null,
+      "configType" : "list",
+      "configError" : null,
+      "configHelpUrl" : null,
+      "configReadonly" : false,
+      "configRequired" : false,
+      "configOptions" : [ {
+        "display" : "QR",
+        "value" : 0
+      }, {
+        "display" : "barcode",
+        "value" : 1
+      } ],
+      "configMin" : null,
+      "configMax" : null,
+      "configMaxLength" : null
+    }, {
+      "key" : "code_$index_title",
+      "valueType" : "string",
+      "configTitle" : "codeTitle",
+      "configPrompt" : null,
+      "configType" : "alphaNumeric",
+      "configError" : null,
+      "configHelpUrl" : null,
+      "configReadonly" : false,
+      "configRequired" : false,
+      "configOptions" : null,
+      "configMin" : null,
+      "configMax" : null,
+      "configMaxLength" : null
+    }, {
+      "key" : "code_$index_text",
+      "valueType" : "string",
+      "configTitle" : "codeText",
+      "configPrompt" : null,
+      "configType" : "alphaNumeric",
+      "configError" : null,
+      "configHelpUrl" : null,
+      "configReadonly" : false,
+      "configRequired" : true,
+      "configOptions" : null,
+      "configMin" : null,
+      "configMax" : null,
+      "configMaxLength" : null
+    } ],
+    "configMax" : 4,
+    "configTitle" : "codesTitle",
+    "configPrompt" : null,
+    "configType" : "array",
+    "configError" : null,
+    "defaults" : [ {
+      "code_$index_title" : "",
+      "code_$index_text" : "",
+      "code_$index_type" : "0"
+    } ]
+  } ],
+  "supportsLiveValidation" : false,
+  "languages" : {
+    "valyrian" : {
+      "QR" : "QR",
+      "appVersion" : "0.0.11",
+      "AboutText" : "\nAbout the app\n\nAuthor: Adrián Moreno Peña\nVersion: 0.0.11\nCode: github.com/zetxek/garmin-qr\n",
+      "NoCodesSubText" : "Configure in Garmin IQ app settings",
+      "codeType" : "Code Type",
+      "NoCodesText" : "No codes configured",
+      "codeTitle" : "Title",
+      "codeText" : "Text",
+      "barcode" : "Barcode",
+      "codesTitle" : "Codes",
+      "AppName" : "QR + Barcode"
+    }
+  }
+}
