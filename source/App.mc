@@ -167,10 +167,10 @@ class AppView extends WatchUi.View {
         System.println("Starting download for text: " + text + " at index: " + index);
         var codeType = Storage.getValue("code_" + index + "_type");
         if (codeType == null) {
-            codeType = "qr";
+            codeType = "0";  // Default to QR code
         }
         var url;
-        if (codeType.equals("barcode")) {
+        if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
             url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text;
         } else {
             url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
@@ -423,9 +423,9 @@ class AppView extends WatchUi.View {
 
     public function downloadGlanceImage(text as Lang.String, index as Lang.Number) {
         var codeType = Storage.getValue("code_" + index + "_type");
-        if (codeType == null) { codeType = "qr"; }
+        if (codeType == null) { codeType = "0"; }  // Default to QR
         var url;
-        if (codeType.equals("barcode")) {
+        if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
             url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80";
         } else {
             url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text + "&size=80";
@@ -631,9 +631,9 @@ class GlanceView extends WatchUi.GlanceView {
 
     function downloadGlanceImage(text as Lang.String, index as Lang.Number) {
         var codeType = Storage.getValue("code_" + index + "_type");
-        if (codeType == null) { codeType = "qr"; }
+        if (codeType == null) { codeType = "0"; }  // Default to QR
         var url;
-        if (codeType.equals("barcode")) {
+        if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
             url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80";
         } else {
             url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text + "&size=80";
@@ -800,7 +800,7 @@ class AddCodeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
             // 1. Save to Storage for app internal use
             Storage.setValue("code_" + newIndex + "_text", self.parentDelegate.codeText);
             Storage.setValue("code_" + newIndex + "_title", self.parentDelegate.codeTitle);
-            Storage.setValue("code_" + newIndex + "_type", self.parentDelegate.codeType.equals("barcode") ? "1" : "0");
+            Storage.setValue("code_" + newIndex + "_type", self.parentDelegate.codeType);
             
             // 2. Save to Application.Properties for settings editor
             // Get or initialize the codesList array
@@ -825,7 +825,7 @@ class AddCodeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
             var codeEntry = {
                 "code_$index_text" => self.parentDelegate.codeText,
                 "code_$index_title" => self.parentDelegate.codeTitle,
-                "code_$index_type" => self.parentDelegate.codeType.equals("barcode") ? "1" : "0"
+                "code_$index_type" => self.parentDelegate.codeType  // Already "0" or "1"
             };
             
             // Update this specific index in the array
