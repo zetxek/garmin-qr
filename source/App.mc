@@ -391,9 +391,12 @@ class AppView extends WatchUi.View {
             var title = Storage.getValue("code_" + idx + "_title");
             var text = Storage.getValue("code_" + idx + "_text");
             var typeLabel = "N/A";
-            if (codeType == null || codeType.equals("qr")) {
+            
+            System.println("Code type for index " + idx + ": " + codeType);
+            
+            if (codeType == null || codeType.equals("0") || codeType.equals("qr")) {
                 typeLabel = "QR Code";
-            } else if (codeType.equals("barcode")) {
+            } else if (codeType.equals("1") || codeType.equals("barcode")) {
                 typeLabel = "Barcode";
             }
             
@@ -742,9 +745,9 @@ class TypeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
     function onSelect(item) {
         System.println("[TypeMenu2InputDelegate] onSelect: id=" + item.getId());
         if (item.getId() == :type_qr) {
-            self.parentDelegate.codeType = "qr";
+            self.parentDelegate.codeType = "0";  // Use "0" for QR consistently
         } else if (item.getId() == :type_barcode) {
-            self.parentDelegate.codeType = "barcode";
+            self.parentDelegate.codeType = "1";  // Use "1" for barcode consistently
         }
         WatchUi.popView(WatchUi.SLIDE_DOWN);
         self.parentDelegate.showMenu();
@@ -869,7 +872,7 @@ class AddCodeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
 class AddCodeMenuDelegate extends WatchUi.BehaviorDelegate {
     var codeTitle = "";
     var codeText = "";
-    var codeType = "qr";
+    var codeType = "0";  // Default to QR ("0")
     var parentView;
     var menu2; // Store reference to the menu
     var menu2Delegate;
@@ -883,7 +886,7 @@ class AddCodeMenuDelegate extends WatchUi.BehaviorDelegate {
     function showMenu() {
         System.println("[AddCodeMenuDelegate] showMenu: codeTitle=" + codeTitle + ", codeText=" + codeText + ", codeType=" + codeType);
         
-        var typeLabel = codeType.equals("barcode") ? "Barcode" : "QR Code";
+        var typeLabel = codeType.equals("1") ? "Barcode" : "QR Code";
         
         if (menu2 == null) {
             // First time showing the menu
