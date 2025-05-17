@@ -2,4 +2,9 @@
 <resources>
     <bitmap id="LauncherIcon" filename="qr.png"/>
     <bitmap id="DisplayImage1" filename="qr.png"/>
+    <bitmap id="add" filename="add.png"/>
+    <bitmap id="delete" filename="delete.png"/>
+    <bitmap id="edit" filename="edit.png"/>
+    <bitmap id="refresh" filename="refresh.png"/>
+    <bitmap id="remove" filename="remove.png"/>
 </resources> 

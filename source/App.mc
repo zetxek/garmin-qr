@@ -404,7 +404,7 @@ class AppView extends WatchUi.View {
         
         // Always show these options
         menu.addItem(new WatchUi.MenuItem("Add Code", null, :add_code, {}));
-        menu.addItem(new WatchUi.MenuItem("Refresh Codes", null, :refresh_codes, {}));
+        menu.addItem(new WatchUi.MenuItem("Refresh Codes", null, :refresh_codes, {:icon => Rez.Drawables.refresh}));
         menu.addItem(new WatchUi.MenuItem("About the app", null, :about_app, {}));
         
         WatchUi.pushView(menu, new CodeInfoMenu2InputDelegate(self), WatchUi.SLIDE_UP);
