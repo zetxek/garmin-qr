@@ -275,6 +275,13 @@ class AppView extends WatchUi.View {
             emptyState = false;
         }
         
+        // Check if currentIndex is valid after deletion
+        if (currentIndex >= images.size()) {
+            // Reset to a valid index
+            currentIndex = 0;
+            System.println("Reset currentIndex to 0 after deletion");
+        }
+        
         // Only proceed with drawing if not in empty state
         if (!emptyState) {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
@@ -941,12 +948,26 @@ class ConfirmDeleteDelegate extends WatchUi.Menu2InputDelegate {
                 System.println("Error deleting from Properties: " + e.getErrorMessage());
             }
             
+            // Save current index before reloading
+            var currentPosition = appView.currentIndex;
+            
             // Pop all menus and return to main view
             WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop confirmation dialog
             WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop the code info menu
             
             // Refresh codes on main screen
             appView.loadAllCodes();
+            
+            // If we deleted the last code, adjust the index
+            if (appView.images.size() == 0) {
+                appView.currentIndex = 0;
+                System.println("All codes deleted, reset to index 0");
+            } else if (currentPosition >= appView.images.size()) {
+                // We deleted the last code, move to the previous one
+                appView.currentIndex = appView.images.size() - 1;
+                System.println("Deleted last code, now showing index: " + appView.currentIndex);
+            }
+            
             WatchUi.requestUpdate();
         } else if (itemId == :no_delete) {
             // Just pop the confirmation dialog
