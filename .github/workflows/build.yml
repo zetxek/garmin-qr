@@ -13,7 +13,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/matco/connectiq-tester:v2.3.0
+      #image: ghcr.io/matco/connectiq-tester:v2.3.0
+      image: ghcr.io/zetxek/connectiq-tester:latest
     
     steps:
       - name: Checkout code
