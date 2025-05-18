@@ -21,12 +21,12 @@ jobs:
 
       - name: Build Debug
         run: |
-          monkeyc -o bin/garmin-qr.prg -m manifest.xml -y developer_key.der -d fenix7pro -w -f monkey.jungle
+          monkeyc -o bin/garmin-qr.prg -y developer_key.der -d fenix7pro -w -f monkey.jungle
 
       - name: Build Release
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
-          monkeyc -o bin/garmin-qr.prg -m manifest.xml -y developer_key.der -d fenix7pro -r -f monkey.jungle
+          monkeyc -o bin/garmin-qr.prg -y developer_key.der -d fenix7pro -r -f monkey.jungle
 
       - name: Upload Debug Build
         uses: actions/upload-artifact@v4
