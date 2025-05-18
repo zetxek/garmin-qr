@@ -12,33 +12,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/matco/connectiq-tester:v2.3.0
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '11'
-
-      - name: Download Connect IQ SDK
-        env:
-          CIQ_SDK_VERSION: 4.2.7
-        run: |
-          wget https://developer.garmin.com/downloads/connect-iq/sdks/connectiq-sdk-lin-${CIQ_SDK_VERSION}.zip
-          unzip connectiq-sdk-lin-${CIQ_SDK_VERSION}.zip
-          echo "CONNECTIQ_SDK_HOME=$(pwd)/connectiq-sdk-lin-${CIQ_SDK_VERSION}" >> $GITHUB_ENV
-
       - name: Build Debug
         run: |
-          $CONNECTIQ_SDK_HOME/bin/monkeyc -o bin/garmin-qr.prg -m manifest.xml -y developer_key.der -d fenix7pro -w -f monkey.jungle
+          monkeyc -o bin/garmin-qr.prg -m manifest.xml -y developer_key.der -d fenix7pro -w -f monkey.jungle
 
       - name: Build Release
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
-          $CONNECTIQ_SDK_HOME/bin/monkeyc -o bin/garmin-qr.prg -m manifest.xml -y developer_key.der -d fenix7pro -r -f monkey.jungle
+          monkeyc -o bin/garmin-qr.prg -m manifest.xml -y developer_key.der -d fenix7pro -r -f monkey.jungle
 
       - name: Upload Debug Build
         uses: actions/upload-artifact@v4
