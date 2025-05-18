@@ -1,0 +1,55 @@
+name: Build Garmin App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      #image: ghcr.io/matco/connectiq-tester:v2.3.0
+      image: ghcr.io/zetxek/connectiq-tester:latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup developer key
+        env:
+          DEVELOPER_KEY_BASE64: ${{ secrets.DEVELOPER_KEY_BASE64 }}
+        run: |
+          echo "$DEVELOPER_KEY_BASE64" | base64 -d > developer_key.der
+          # Verify the key was created
+          ls -la developer_key.der
+
+      - name: Build Debug
+        run: |
+          mkdir -p bin
+          monkeyc -o bin/garmin-qr.prg -y developer_key.der -d fenix7pro -w -f monkey.jungle
+
+      - name: Build Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p bin
+          monkeyc -o bin/garmin-qr.prg -y developer_key.der -d fenix7pro -r -f monkey.jungle
+
+      - name: Upload Debug Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-build
+          path: bin/garmin-qr.prg
+          if-no-files-found: error
+
+      - name: Upload Release Build
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build
+          path: bin/garmin-qr.prg
+          if-no-files-found: error 
