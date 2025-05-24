@@ -42,6 +42,13 @@ class App extends Application.AppBase {
         // Use the sync method to ensure Storage and Properties are in sync
         syncStorageAndProperties();
         
+        // Refresh codes in the current app view if it exists
+        if (AppView.current != null) {
+            AppView.current.loadAllCodes();
+            AppView.current.refreshMissingImages();
+            System.println("[onSettingsChanged] Refreshed codes in AppView");
+        }
+        
         WatchUi.requestUpdate();
     }
 
