@@ -116,6 +116,14 @@ class AppView extends WatchUi.View {
         images = [];
         currentIndex = 0;
         isDownloading = false;
+        errorMessage = null;
+        emptyState = false;
+        
+        // Create a default code if there are none
+        if (!hasAnyCodes()) {
+            System.println("No codes found during initialization - creating example code");
+            createExampleCode();
+        }
         
         // Load all codes
         loadAllCodes();
@@ -124,22 +132,60 @@ class AppView extends WatchUi.View {
     function loadAllCodes() {
         System.println("Loading all codes from Storage");
         images = [];
+        
+        // Debug: Try to directly store and retrieve a value to test Storage
+        try {
+            Storage.setValue("test_storage_key", "test_storage_value");
+            var testValue = Storage.getValue("test_storage_key");
+            System.println("Storage test: " + (testValue != null ? testValue : "null"));
+        } catch (e) {
+            System.println("Error testing storage: " + e.getErrorMessage());
+        }
+        
+        // Now try to load the codes
         for (var i = 0; i < 10; i++) {
             var text = Storage.getValue("code_" + i + "_text");
             var title = Storage.getValue("code_" + i + "_title");
-            System.println("[LoadAllCodes] Code " + i + " - Text: " + (text != null ? text : "null") + ", Title: " + (title != null ? title : "null") + ", Type: " + Storage.getValue("code_" + i + "_type"));
+            var type = Storage.getValue("code_" + i + "_type");
+            
+            // If any code is missing, try to create a test code for debugging
+            if (i == 0 && (text == null || text.length() == 0)) {
+                System.println("No codes found - creating a test code at index 0");
+                try {
+                    Storage.setValue("code_0_text", "test-qr-code");
+                    Storage.setValue("code_0_title", "Test QR");
+                    Storage.setValue("code_0_type", "0");
+                    
+                    // Retrieve the values we just set
+                    text = Storage.getValue("code_0_text");
+                    title = Storage.getValue("code_0_title");
+                    type = Storage.getValue("code_0_type");
+                } catch (e) {
+                    System.println("Error creating test code: " + e.getErrorMessage());
+                }
+            }
+            
+            System.println("[LoadAllCodes] Code " + i + " - Text: " + (text != null ? text : "null") + ", Title: " + (title != null ? title : "null") + ", Type: " + (type != null ? type : "null"));
+            
             if (text != null && text.length() > 0) {
                 images.add({:index => i, :image => null});
             }
         }
+        
         System.println("Loaded " + images.size() + " codes");
-        for (var j = 0; j < images.size(); j++) {
-            var imgStatus = images[j][:image] != null ? "downloaded" : "not downloaded";
-            var idx = images[j][:index];
-            var text = Storage.getValue("code_" + idx + "_text");
-            System.println("[LoadAllCodes] code_" + idx + "_text = " + text + ", image: " + imgStatus + ", type: " + Storage.getValue("code_" + idx + "_type"));
+        
+        if (images.size() > 0) {
+            for (var j = 0; j < images.size(); j++) {
+                var imgStatus = images[j][:image] != null ? "downloaded" : "not downloaded";
+                var idx = images[j][:index];
+                var text = Storage.getValue("code_" + idx + "_text");
+                System.println("[LoadAllCodes] code_" + idx + "_text = " + text + ", image: " + imgStatus + ", type: " + Storage.getValue("code_" + idx + "_type"));
+            }
+            refreshMissingImages();
+        } else {
+            System.println("No codes to refresh - empty state");
+            emptyState = true;
         }
-        refreshMissingImages();
     }
 
     function refreshMissingImages() {
@@ -259,13 +305,30 @@ class AppView extends WatchUi.View {
         
         if (images.size() == 0) {
             System.println("Showing empty state layout");
-            // Try using layout
+            // Try using layout first
             try {
                 setLayout(Rez.Layouts.EmptyStateLayout(dc));
                 View.onUpdate(dc); // Make sure layout is rendered
                 System.println("Layout set successfully");
             } catch (e) {
                 System.println("Error setting layout: " + e.getErrorMessage());
+                // Fallback to manual drawing
+                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+                dc.clear();
+                dc.drawText(
+                    dc.getWidth() / 2,
+                    dc.getHeight() / 2 - 30,
+                    Graphics.FONT_MEDIUM,
+                    "No QR Codes Found",
+                    Graphics.TEXT_JUSTIFY_CENTER
+                );
+                dc.drawText(
+                    dc.getWidth() / 2,
+                    dc.getHeight() / 2 + 10,
+                    Graphics.FONT_SMALL,
+                    "Add codes in settings",
+                    Graphics.TEXT_JUSTIFY_CENTER
+                );
             }
             emptyState = true;
             return; // Let the layout handle drawing
@@ -467,6 +530,31 @@ class AppView extends WatchUi.View {
             return true;
         }
         return false;
+    }
+
+    // Helper to check if any codes exist in storage
+    function hasAnyCodes() {
+        for (var i = 0; i < 10; i++) {
+            var text = Storage.getValue("code_" + i + "_text");
+            if (text != null && text.length() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // Create an example QR code
+    function createExampleCode() {
+        try {
+            System.println("Creating example code in slot 0");
+            Storage.setValue("code_0_text", "https://garmin.com");
+            Storage.setValue("code_0_title", "Example Garmin QR");
+            Storage.setValue("code_0_type", "0");
+            return true;
+        } catch (e) {
+            System.println("Error creating example code: " + e.getErrorMessage());
+            return false;
+        }
     }
 }
 
