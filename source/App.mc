@@ -68,27 +68,28 @@ class App extends Application.AppBase {
             if (isConnected()) {
                 System.println("[ConnectivityCheck] Connection available, checking for sync");
                 // Only perform sync if we have items and app is ready
-                if (pendingSyncQueue.size() > 0 && AppView.current != null) {
+                if (pendingSyncQueue != null && pendingSyncQueue.size() > 0 && AppView.current != null) {
                     performSyncIfNeeded();
                 }
             }
         } catch (e) {
             System.println("[ConnectivityCheck] Error during connectivity check: " + e.getErrorMessage());
+            // Reset queue if there's an error to prevent further crashes
+            pendingSyncQueue = [];
         }
     }
 
     function isConnected() as Lang.Boolean {
-        try {
-            // Check connectivity by testing device settings
-            var deviceSettings = System.getDeviceSettings();
-            if (deviceSettings != null && deviceSettings has :connectionAvailable) {
-                return deviceSettings.connectionAvailable;
-            }
-            return false;
-        } catch (e) {
-            System.println("[isConnected] Error checking connectivity: " + e.getErrorMessage());
-            return false;
-        }
+        // Simplified approach: Always return true and let the actual network request handle connectivity
+        // This ensures WiFi, phone, and all other connectivity types work
+        // The actual Communications.makeImageRequest will fail appropriately if no connectivity exists
+        
+        System.println("[isConnected] Assuming connectivity available - will be validated during actual request");
+        return true;
+        
+        // Note: The previous complex connectivity checking was causing issues with WiFi detection
+        // This approach is more reliable across different device types and simulators
+        // If a request fails due to no connectivity, it will be handled in responseCallback
     }
 
     function checkPendingSync() {
@@ -113,16 +114,24 @@ class App extends Application.AppBase {
 
     function performSyncIfNeeded() {
         try {
+            // Add null check and bounds validation
+            if (pendingSyncQueue == null) {
+                pendingSyncQueue = [];
+                System.println("[PerformSync] Sync queue was null, initialized to empty array");
+                return;
+            }
+            
             if (pendingSyncQueue.size() > 0 && isConnected() && AppView.current != null) {
                 System.println("[PerformSync] Starting sync of " + pendingSyncQueue.size() + " items");
                 
                 // Limit sync operations to prevent memory issues
-                var maxSyncItems = pendingSyncQueue.size() > 5 ? 5 : pendingSyncQueue.size();
+                var queueSize = pendingSyncQueue.size();
+                var maxSyncItems = queueSize > 5 ? 5 : queueSize;
                 var syncedCount = 0;
                 
-                // Process pending image downloads (limited batch)
-                for (var i = 0; i < maxSyncItems; i++) {
-                    if (i < pendingSyncQueue.size()) {
+                // Process pending image downloads (limited batch) with bounds checking
+                for (var i = 0; i < maxSyncItems && i < queueSize; i++) {
+                    try {
                         var syncItem = pendingSyncQueue[i];
                         if (syncItem != null) {
                             var text = syncItem.get("text");
@@ -135,16 +144,27 @@ class App extends Application.AppBase {
                                 syncedCount++;
                             }
                         }
+                    } catch (itemError) {
+                        System.println("[PerformSync] Error processing sync item " + i + ": " + itemError.getErrorMessage());
+                        // Continue with next item instead of crashing
                     }
                 }
                 
-                // Remove synced items from queue
+                // Remove synced items from queue with bounds checking
                 if (syncedCount > 0) {
                     var remainingQueue = [];
-                    for (var i = syncedCount; i < pendingSyncQueue.size(); i++) {
-                        remainingQueue.add(pendingSyncQueue[i]);
+                    try {
+                        for (var i = syncedCount; i < pendingSyncQueue.size(); i++) {
+                            if (i < pendingSyncQueue.size()) {
+                                remainingQueue.add(pendingSyncQueue[i]);
+                            }
+                        }
+                        pendingSyncQueue = remainingQueue;
+                    } catch (queueError) {
+                        System.println("[PerformSync] Error rebuilding queue: " + queueError.getErrorMessage());
+                        // Clear queue on error to prevent further issues
+                        pendingSyncQueue = [];
                     }
-                    pendingSyncQueue = remainingQueue;
                     
                     // Update storage with remaining items
                     try {
@@ -379,6 +399,10 @@ class AppView extends WatchUi.View {
     // Add a static reference to the current AppView
     public static var current as Null or AppView;
     var emptyState = false;
+    
+    // Add retry tracking to prevent infinite loops
+    var failedDownloads as Lang.Dictionary;
+    var lastDownloadAttempt as Lang.Number;
 
     function initialize() {
         View.initialize();
@@ -387,6 +411,10 @@ class AppView extends WatchUi.View {
         images = [];
         currentIndex = 0;
         isDownloading = false;
+        
+        // Initialize retry tracking
+        failedDownloads = {};
+        lastDownloadAttempt = 0;
         
         // Load all codes
         loadAllCodes();
@@ -450,14 +478,27 @@ class AppView extends WatchUi.View {
             return;
         }
         
-        // Check connectivity before attempting download
-        var app = Application.getApp();
-        if (!app.isConnected()) {
-            System.println("[downloadImage] No connectivity - adding to pending sync queue");
-            app.addToPendingSync(text, index, imagesIdx);
-            showError("Offline - will sync when connected");
+        // Check if this download has failed recently (prevent infinite loops)
+        var currentTime = System.getTimer();
+        var failureKey = "code_" + index;
+        
+        if (failedDownloads.hasKey(failureKey)) {
+            var lastFailure = failedDownloads.get(failureKey) as Lang.Number;
+            var timeSinceFailure = currentTime - lastFailure;
+            if (timeSinceFailure < 30000) {  // 30 second cooldown
+                System.println("[downloadImage] Recent failure for " + text + ", skipping (cooldown: " + (30000 - timeSinceFailure) / 1000 + "s)");
+                return;
+            }
+        }
+        
+        // Check if we're attempting downloads too frequently
+        var timeSinceLastAttempt = currentTime - lastDownloadAttempt;
+        if (timeSinceLastAttempt < 2000) {  // 2 second minimum between attempts
+            System.println("[downloadImage] Download attempt too soon, waiting");
             return;
         }
+        
+        lastDownloadAttempt = currentTime;
         
         isDownloading = true;
         downloadingImageIdx = imagesIdx;
@@ -508,6 +549,15 @@ class AppView extends WatchUi.View {
                 var bitmapResource = data as WatchUi.BitmapResource;
                 images[imagesIdx][:image] = bitmapResource;
                 
+                // Clear any failure tracking for this code since it succeeded
+                var idx = images[imagesIdx][:index];
+                var failureKey = "code_" + idx;
+                if (failedDownloads.hasKey(failureKey)) {
+                    failedDownloads.remove(failureKey);
+                    Storage.deleteValue("last_error_code_" + idx);
+                    System.println("[responseCallback] Cleared failure tracking for successful download");
+                }
+                
                 try {
                     System.println("[responseCallback] Saving image to storage at index: " + imagesIdx);
                     Storage.setValue("qr_image_" + imagesIdx, bitmapResource);
@@ -527,12 +577,51 @@ class AppView extends WatchUi.View {
                 }
             } else {
                 System.println("[responseCallback] Download failed with code: " + responseCode);
-                if (responseCode == -100) {
-                    showError("Network timeout");
-                } else if (responseCode == -101) {
-                    showError("Network error");
+                
+                // Track the failure to prevent infinite loops
+                var idx = images[imagesIdx][:index];
+                var failureKey = "code_" + idx;
+                failedDownloads.put(failureKey, System.getTimer());
+                
+                // Store the last error code for better status messaging
+                Storage.setValue("last_error_code_" + idx, responseCode);
+                
+                // Handle different types of failures
+                var app = Application.getApp();
+                if (responseCode == -104) {
+                    // Phone not connected - specific offline state
+                    var text = Storage.getValue("code_" + idx + "_text");
+                    if (text != null) {
+                        app.addToPendingSync(text, idx, imagesIdx);
+                        showError("Phone offline - will sync later");
+                        System.println("[responseCallback] Phone not connected, added to sync queue: " + text);
+                    } else {
+                        showError("Phone offline");
+                    }
+                } else if (responseCode == -100 || responseCode == -101 || responseCode == -102) {
+                    // Other network issues (timeout, network error, no connectivity)
+                    var text = Storage.getValue("code_" + idx + "_text");
+                    if (text != null) {
+                        app.addToPendingSync(text, idx, imagesIdx);
+                        showError("Network error - will retry");
+                        System.println("[responseCallback] Added failed download to sync queue: " + text);
+                    } else {
+                        showError("Network error");
+                    }
+                } else if (responseCode >= 400 && responseCode < 500) {
+                    // Client errors (4xx) - don't retry these
+                    showError("Invalid code data");
+                } else if (responseCode >= 500) {
+                    // Server errors (5xx) - can retry these
+                    var text = Storage.getValue("code_" + idx + "_text");
+                    if (text != null) {
+                        app.addToPendingSync(text, idx, imagesIdx);
+                        showError("Server error - will retry");
+                    } else {
+                        showError("Server error");
+                    }
                 } else {
-                    showError("Failed to generate code");
+                    showError("Error: " + responseCode);
                 }
             }
         } catch (e) {
@@ -588,13 +677,32 @@ class AppView extends WatchUi.View {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             dc.clear();
             
-            // Show connectivity status at top
+            // Show status at top (offline or syncing)
             var appInstance = Application.getApp();
-            if (!appInstance.isConnected()) {
+            
+            // Check if we have any recent "phone not connected" errors
+            var hasPhoneDisconnectedError = false;
+            for (var i = 0; i < images.size(); i++) {
+                var idx = images[i][:index];
+                var lastErrorCode = Storage.getValue("last_error_code_" + idx);
+                if (lastErrorCode != null && lastErrorCode.equals(-104)) {
+                    var failureKey = "code_" + idx;
+                    if (failedDownloads.hasKey(failureKey)) {
+                        var lastFailure = failedDownloads.get(failureKey) as Lang.Number;
+                        var timeSinceFailure = System.getTimer() - lastFailure;
+                        if (timeSinceFailure < 30000) {
+                            hasPhoneDisconnectedError = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (hasPhoneDisconnectedError) {
                 dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     dc.getWidth() / 2,
-                    5,
+                    8,
                     Graphics.FONT_XTINY,
                     "OFFLINE",
                     Graphics.TEXT_JUSTIFY_CENTER
@@ -603,7 +711,7 @@ class AppView extends WatchUi.View {
                 dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     dc.getWidth() / 2,
-                    5,
+                    8,
                     Graphics.FONT_XTINY,
                     "SYNCING...",
                     Graphics.TEXT_JUSTIFY_CENTER
@@ -624,24 +732,41 @@ class AppView extends WatchUi.View {
                 // If image is not downloaded, trigger download
                 var idx = images[currentIndex][:index];
                 var text = Storage.getValue("code_" + idx + "_text");
+                var statusText = "Loading image...";
+                var statusColor = Graphics.COLOR_WHITE;
+                
+                // Check if download is in cooldown and determine status
+                var failureKey = "code_" + idx;
+                if (failedDownloads.hasKey(failureKey)) {
+                    var lastFailure = failedDownloads.get(failureKey) as Lang.Number;
+                    var timeSinceFailure = System.getTimer() - lastFailure;
+                    if (timeSinceFailure < 30000) {
+                        var remainingCooldown = (30000 - timeSinceFailure) / 1000;
+                        // Check if this was a "phone not connected" error specifically
+                        var lastErrorCode = Storage.getValue("last_error_code_" + idx);
+                        if (lastErrorCode != null && lastErrorCode.equals(-104)) {
+                            statusText = "Offline\nPhone not connected";
+                            statusColor = Graphics.COLOR_YELLOW;
+                        } else {
+                            statusText = "Download failed\nRetry in " + remainingCooldown.toNumber() + "s";
+                            statusColor = Graphics.COLOR_YELLOW;
+                        }
+                    }
+                }
+                
                 if (!isDownloading && text != null && text.length() > 0) {
                     System.println("[onUpdate] Image not downloaded for code_" + idx + ", starting download");
                     downloadImage(text, currentIndex);
                 }
-                // Show loading or offline state
-                dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-                var appInstance2 = Application.getApp();
-                var statusText = "Loading image...";
-                if (!appInstance2.isConnected()) {
-                    statusText = "Offline - QR code pending";
-                    dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
-                }
+                
+                // Show loading or error state with better positioning
+                dc.setColor(statusColor, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     dc.getWidth() / 2,
-                    dc.getHeight() / 2,
-                    Graphics.FONT_TINY,
+                    dc.getHeight() / 2 - 10,
+                    Graphics.FONT_SMALL,
                     statusText,
-                    Graphics.TEXT_JUSTIFY_CENTER
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
                 );
             }
             
@@ -649,7 +774,7 @@ class AppView extends WatchUi.View {
                 dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     dc.getWidth() / 2,
-                    dc.getHeight() - 6,
+                    dc.getHeight() - 8,
                     Graphics.FONT_XTINY,
                     errorMessage,
                     Graphics.TEXT_JUSTIFY_CENTER
@@ -661,25 +786,54 @@ class AppView extends WatchUi.View {
     function drawImage(dc, image, index) {
         var screenWidth = dc.getWidth();
         var screenHeight = dc.getHeight();
-        var bottomTextHeight = 30;
-        var margin = 10;
         var bmp = image as WatchUi.BitmapResource;
         var bmpWidth = bmp.getWidth();
         var bmpHeight = bmp.getHeight();
-        var x = (screenWidth - bmpWidth) / 2;
-        var y = (screenHeight - bottomTextHeight - bmpHeight) / 2 + margin;
+        
+        // Calculate layout areas more carefully
+        var topStatusHeight = 30;  // More space for status at top
+        var bottomCounterHeight = 35;  // More space for "Code X of Y" at bottom
+        var titleHeight = 0;
+        
         var title = Storage.getValue("code_" + index + "_title");
+        if (title != null && title.length() > 0) {
+            titleHeight = 25;  // More space for title
+        }
+        
+        var availableHeight = screenHeight - topStatusHeight - bottomCounterHeight - titleHeight;
+        
+        // Scale QR code if needed to fit available space
+        var maxQRSize = availableHeight - 20;  // Leave some margin
+        var qrScale = 1.0;
+        if (bmpWidth > maxQRSize || bmpHeight > maxQRSize) {
+            var maxDimension = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
+            qrScale = maxQRSize / maxDimension;
+        }
+        
+        var finalQRWidth = bmpWidth * qrScale;
+        var finalQRHeight = bmpHeight * qrScale;
+        
+        // Position everything
+        var currentY = topStatusHeight;
+        
+        // Draw title if present
         if (title != null && title.length() > 0) {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
                 screenWidth / 2,
-                y - 50,
+                currentY,
                 Graphics.FONT_TINY,
                 title,
                 Graphics.TEXT_JUSTIFY_CENTER
             );
+            currentY += titleHeight;
         }
-        dc.drawBitmap(x, y, bmp);
+        
+        // Center QR code in remaining space
+        var qrX = (screenWidth - finalQRWidth) / 2;
+        var qrY = currentY + (availableHeight - finalQRHeight) / 2;
+        
+        dc.drawBitmap(qrX, qrY, bmp);
     }
 
     function onHide() {
@@ -746,11 +900,10 @@ class AppView extends WatchUi.View {
         menu.addItem(new WatchUi.MenuItem("Add Code", null, :add_code, {}));
         menu.addItem(new WatchUi.MenuItem("Refresh Codes", null, :refresh_codes, {:icon => Rez.Drawables.refresh}));
         
-        // Add sync option if there are pending items or if offline
+        // Add sync option if there are pending items
         var appInstance = Application.getApp();
-        if (appInstance.pendingSyncQueue.size() > 0 || !appInstance.isConnected()) {
-            var syncText = appInstance.isConnected() ? "Sync Now" : "Sync When Online";
-            menu.addItem(new WatchUi.MenuItem(syncText, null, :sync_now, {}));
+        if (appInstance.pendingSyncQueue.size() > 0) {
+            menu.addItem(new WatchUi.MenuItem("Sync Now", null, :sync_now, {}));
         }
         
         menu.addItem(new WatchUi.MenuItem("About the app", null, :about_app, {}));
@@ -823,13 +976,8 @@ class CodeInfoMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
             WatchUi.popView(WatchUi.SLIDE_DOWN);
         } else if (itemId == :sync_now) {
             var appInstance = Application.getApp();
-            if (appInstance.isConnected()) {
-                appInstance.performSyncIfNeeded();
-                appView.refreshMissingImages();
-            } else {
-                // Show message that sync will happen when connected
-                appView.showError("Will sync when connected");
-            }
+            appInstance.performSyncIfNeeded();
+            appView.refreshMissingImages();
             WatchUi.popView(WatchUi.SLIDE_DOWN);
         } else if (itemId == :about_app) {
             var aboutView = new AboutView();

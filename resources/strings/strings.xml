@@ -8,14 +8,14 @@
         <string id="barcode">Barcode</string>
     <string id="codeTitle">Title</string>
     <string id="codeText">Text</string>
-    <string id="appVersion">0.0.14</string>
+    <string id="appVersion">0.0.15</string>
     <string id="NoCodesText">No codes configured</string>
     <string id="NoCodesSubText">Configure in Garmin IQ settings or from the app</string>
     <string id="AboutText">
 About the app
 
 Author: Adrián Moreno Peña
-Version: 0.0.14
+Version: 0.0.15
 Code: github.com/zetxek/garmin-qr
 </string>
 </resources> 
