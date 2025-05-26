@@ -1387,7 +1387,7 @@ class AboutView extends WatchUi.View {
     }
     function onKey(keyEvent) {
         var key = keyEvent.getKey();
-        if (key == WatchUi.KEY_START) {
+        if (key == WatchUi.KEY_START || key == WatchUi.KEY_UP || key == WatchUi.KEY_DOWN) {
             showQR = !showQR;
             WatchUi.requestUpdate();
             return true;
