@@ -14,6 +14,7 @@ class App extends Application.AppBase {
     var lastSyncTime as Lang.Number or Null;
     var pendingSyncQueue as Lang.Array;
     var connectivityTimer as Null or Timer.Timer;
+    var lastConnectionState as Lang.Boolean or Null;
 
     function initialize() {
         AppBase.initialize();
@@ -52,10 +53,14 @@ class App extends Application.AppBase {
 
     function startConnectivityMonitoring() {
         try {
-            // Monitor connectivity every 30 seconds
+            // Initialize connection state
+            lastConnectionState = isConnected();
+            System.println("[startConnectivityMonitoring] Initial connection state: " + lastConnectionState);
+            
+            // Monitor connectivity more frequently for faster detection (every 5 seconds)
             connectivityTimer = new Timer.Timer();
-            connectivityTimer.start(method(:onConnectivityCheck) as Lang.Method, 30000, true);
-            System.println("[startConnectivityMonitoring] Started connectivity monitoring");
+            connectivityTimer.start(method(:onConnectivityCheck) as Lang.Method, 5000, true);
+            System.println("[startConnectivityMonitoring] Started connectivity monitoring (5s interval)");
         } catch (e) {
             System.println("[startConnectivityMonitoring] Error starting timer: " + e.getErrorMessage());
             // Continue without connectivity monitoring if timer fails
@@ -64,12 +69,40 @@ class App extends Application.AppBase {
 
     function onConnectivityCheck() {
         try {
-            // Check if we can make network requests and sync if needed
-            if (isConnected()) {
-                System.println("[ConnectivityCheck] Connection available, checking for sync");
+            var currentConnectionState = isConnected();
+            
+            // Check if connection state has changed
+            if (lastConnectionState != null && currentConnectionState != lastConnectionState) {
+                if (currentConnectionState) {
+                    System.println("[ConnectivityCheck] *** CONNECTION RESTORED *** - Phone reconnected");
+                    // Immediately trigger UI update to show connection restored
+                    WatchUi.requestUpdate();
+                    
+                    // Trigger sync if we have pending items
+                    if (pendingSyncQueue != null && pendingSyncQueue.size() > 0) {
+                        System.println("[ConnectivityCheck] Connection restored, triggering immediate sync");
+                        performSyncIfNeeded();
+                    }
+                } else {
+                    System.println("[ConnectivityCheck] *** CONNECTION LOST *** - Phone disconnected");
+                    // Immediately trigger UI update to show offline status
+                    WatchUi.requestUpdate();
+                }
+            }
+            
+            // Update last known state
+            lastConnectionState = currentConnectionState;
+            
+            // Regular sync check if connected
+            if (currentConnectionState) {
                 // Only perform sync if we have items and app is ready
-                if (pendingSyncQueue != null && pendingSyncQueue.size() > 0 && AppView.current != null) {
-                    performSyncIfNeeded();
+                if (pendingSyncQueue != null && pendingSyncQueue.size() > 0 && AppView.current != null && AppView.current.images != null) {
+                    // Additional safety check - ensure AppView is fully initialized
+                    if (AppView.current.images.size() > 0) {
+                        performSyncIfNeeded();
+                    } else {
+                        System.println("[ConnectivityCheck] AppView not fully loaded yet, deferring sync");
+                    }
                 }
             }
         } catch (e) {
@@ -80,16 +113,40 @@ class App extends Application.AppBase {
     }
 
     function isConnected() as Lang.Boolean {
-        // Simplified approach: Always return true and let the actual network request handle connectivity
-        // This ensures WiFi, phone, and all other connectivity types work
-        // The actual Communications.makeImageRequest will fail appropriately if no connectivity exists
-        
-        System.println("[isConnected] Assuming connectivity available - will be validated during actual request");
-        return true;
-        
-        // Note: The previous complex connectivity checking was causing issues with WiFi detection
-        // This approach is more reliable across different device types and simulators
-        // If a request fails due to no connectivity, it will be handled in responseCallback
+        try {
+            // Check device settings for phone connection status
+            var deviceSettings = System.getDeviceSettings();
+            
+            // Check if phone is connected via Bluetooth
+            var phoneConnected = deviceSettings.phoneConnected;
+            if (phoneConnected != null) {
+                if (phoneConnected) {
+                    System.println("[isConnected] Phone connected via Bluetooth: true");
+                    return true;
+                } else {
+                    System.println("[isConnected] Phone connected via Bluetooth: false");
+                    return false;
+                }
+            }
+            
+            // Fallback: check connection state through Communications module
+            var connectionInfo = Communications.getNetworkState();
+            if (connectionInfo != null) {
+                // NETWORK_STATE_CONNECTED is typically 1, but let's check for non-zero values
+                var hasConnection = (connectionInfo != 0);
+                System.println("[isConnected] Network state: " + connectionInfo + " (connected: " + hasConnection + ")");
+                return hasConnection;
+            }
+            
+            // Final fallback: if we can't determine connectivity, assume disconnected for safety
+            System.println("[isConnected] Unable to determine connectivity, assuming disconnected");
+            return false;
+            
+        } catch (e) {
+            System.println("[isConnected] Error checking connectivity: " + e.getErrorMessage());
+            // On error, assume disconnected to prevent failed downloads
+            return false;
+        }
     }
 
     function checkPendingSync() {
@@ -140,22 +197,36 @@ class App extends Application.AppBase {
                             if (text != null && storageIndex != null) {
                                 // Find the corresponding index in the images array
                                 var imagesIndex = -1;
-                                for (var j = 0; j < AppView.current.images.size(); j++) {
-                                    if (AppView.current.images[j][:index] == storageIndex) {
-                                        imagesIndex = j;
-                                        break;
+                                if (AppView.current.images != null && AppView.current.images.size() > 0) {
+                                    for (var j = 0; j < AppView.current.images.size(); j++) {
+                                        try {
+                                            if (j < AppView.current.images.size() && AppView.current.images[j] != null && AppView.current.images[j][:index] == storageIndex) {
+                                                imagesIndex = j;
+                                                break;
+                                            }
+                                        } catch (indexError) {
+                                            System.println("[PerformSync] Error accessing images[" + j + "]: " + indexError.getErrorMessage());
+                                            break;
+                                        }
                                     }
                                 }
                                 
-                                if (imagesIndex >= 0) {
-                                    System.println("[PerformSync] Syncing image for text: " + text + " (storage index: " + storageIndex + ", images index: " + imagesIndex + ")");
-                                    AppView.current.downloadImage(text, imagesIndex);
-                                    syncedCount++;
+                                if (imagesIndex >= 0 && imagesIndex < AppView.current.images.size()) {
+                                    // Before attempting download, check if we actually have a cached image
+                                    var cachedImage = Storage.getValue("qr_image_" + storageIndex);
+                                    if (cachedImage != null) {
+                                        System.println("[PerformSync] Found cached image for storage index: " + storageIndex + ", using it instead of downloading");
+                                        AppView.current.images[imagesIndex][:image] = cachedImage;
+                                        syncedCount++;
+                                        WatchUi.requestUpdate();
+                                    } else {
+                                        System.println("[PerformSync] No cached image found, attempting download for text: " + text + " (storage index: " + storageIndex + ", images index: " + imagesIndex + ")");
+                                        AppView.current.downloadImage(text, imagesIndex);
+                                        syncedCount++;
+                                    }
                                 } else {
-                                    System.println("[PerformSync] Could not find images index for storage index: " + storageIndex + ", reloading codes");
-                                    // The images array is out of sync, reload all codes
-                                    AppView.current.loadAllCodes();
-                                    // Skip this item for now, it will be retried later
+                                    System.println("[PerformSync] Could not find images index for storage index: " + storageIndex + " or AppView not ready, deferring");
+                                    // Don't reload codes during sync to avoid memory issues, just skip this item
                                 }
                             }
                         }
@@ -244,6 +315,16 @@ class App extends Application.AppBase {
             System.println("[AddToPendingSync] Error adding to sync queue: " + e.getErrorMessage());
             // On any error, clear the queue to prevent cascading issues
             pendingSyncQueue = [];
+        }
+    }
+
+    function checkConnectivityNow() {
+        // Manual connectivity check - useful when user interacts with app
+        try {
+            System.println("[checkConnectivityNow] Manual connectivity check triggered");
+            onConnectivityCheck();
+        } catch (e) {
+            System.println("[checkConnectivityNow] Error in manual connectivity check: " + e.getErrorMessage());
         }
     }
 
@@ -534,8 +615,29 @@ class AppView extends WatchUi.View {
             var title = Storage.getValue("code_" + i + "_title");
             System.println("[LoadAllCodes] Code " + i + " - Text: " + (text != null ? text : "null") + ", Title: " + (title != null ? title : "null") + ", Type: " + Storage.getValue("code_" + i + "_type"));
             if (text != null && text.length() > 0) {
-                // Try to load cached image first
+                // Try to load cached image first - be more thorough
                 var cachedImage = Storage.getValue("qr_image_" + i);
+                
+                // If no cached image found, check if it might be stored under a different key
+                if (cachedImage == null) {
+                    System.println("[LoadAllCodes] No cached image found for qr_image_" + i + ", checking storage keys");
+                    // Try to find any cached image for this text/type combination
+                    var currentType = Storage.getValue("code_" + i + "_type");
+                    var cachedText = Storage.getValue("qr_image_meta_text_" + i);
+                    var cachedType = Storage.getValue("qr_image_meta_type_" + i);
+                    
+                    // Check if metadata matches current text/type
+                    if (cachedText != null && cachedText.equals(text) && 
+                        ((currentType == null && cachedType == null) || 
+                         (currentType != null && currentType.equals(cachedType)))) {
+                        // Metadata matches, try again to get the image
+                        cachedImage = Storage.getValue("qr_image_" + i);
+                        if (cachedImage != null) {
+                            System.println("[LoadAllCodes] Found cached image after metadata check for code " + i);
+                        }
+                    }
+                }
+                
                 images.add({:index => i, :image => cachedImage});
                 
                 var imgStatus = cachedImage != null ? "cached" : "not cached";
@@ -554,6 +656,11 @@ class AppView extends WatchUi.View {
 
     function refreshMissingImages() {
         System.println("[refreshMissingImages] Refreshing missing images and checking for changes");
+        
+        // Check connectivity first - if offline, only use cached images
+        var appInstance = Application.getApp();
+        var isConnected = appInstance.isConnected();
+        
         for (var i = 0; i < images.size(); i++) {
             var idx = images[i][:index];
             var text = Storage.getValue("code_" + idx + "_text");
@@ -563,22 +670,40 @@ class AppView extends WatchUi.View {
             
             if (text != null && text.length() > 0) {
                 if (images[i][:image] == null) {
-                    // No image, download it
-                    downloadImage(text, i);
+                    // No image - check if we have a cached version
+                    var cachedImage = Storage.getValue("qr_image_" + idx);
+                    if (cachedImage != null) {
+                        System.println("[refreshMissingImages] Found cached image for code " + idx + ", using it");
+                        images[i][:image] = cachedImage;
+                    } else if (isConnected) {
+                        // No cached image and we're connected, download it
+                        System.println("[refreshMissingImages] No cached image and connected, downloading for code " + idx);
+                        downloadImage(text, i);
+                    } else {
+                        // No cached image and offline, add to sync queue for later
+                        System.println("[refreshMissingImages] No cached image and offline, adding to sync queue for code " + idx);
+                        appInstance.addToPendingSync(text, idx);
+                    }
                 } else {
                     // Image exists, check if text or type has changed
                     var cachedText = Storage.getValue("qr_image_meta_text_" + idx);
                     var cachedType = Storage.getValue("qr_image_meta_type_" + idx);
                     
                     if (text != cachedText || currentType != cachedType || cachedText == null) {
-                        // Text or type changed, or no metadata exists, clear cache and re-download
-                        System.println("[refreshMissingImages] Content changed for code " + idx + " (text: '" + cachedText + "' -> '" + text + "', type: '" + cachedType + "' -> '" + currentType + "'), re-downloading");
-                        images[i][:image] = null;
-                        Storage.deleteValue("qr_image_" + idx);
-                        Storage.deleteValue("qr_image_meta_text_" + idx);
-                        Storage.deleteValue("qr_image_meta_type_" + idx);
-                        Storage.deleteValue("qr_image_glance_0"); // Clear glance cache too
-                        downloadImage(text, i);
+                        if (isConnected) {
+                            // Text or type changed and we're connected, clear cache and re-download
+                            System.println("[refreshMissingImages] Content changed for code " + idx + " and connected (text: '" + cachedText + "' -> '" + text + "', type: '" + cachedType + "' -> '" + currentType + "'), re-downloading");
+                            images[i][:image] = null;
+                            Storage.deleteValue("qr_image_" + idx);
+                            Storage.deleteValue("qr_image_meta_text_" + idx);
+                            Storage.deleteValue("qr_image_meta_type_" + idx);
+                            Storage.deleteValue("qr_image_glance_0"); // Clear glance cache too
+                            downloadImage(text, i);
+                        } else {
+                            // Content changed but offline, keep cached image and add to sync queue
+                            System.println("[refreshMissingImages] Content changed for code " + idx + " but offline, keeping cached image and adding to sync queue");
+                            appInstance.addToPendingSync(text, idx);
+                        }
                     }
                 }
             }
@@ -599,6 +724,14 @@ class AppView extends WatchUi.View {
             System.println("[downloadImage] Using cached image for index: " + index);
             images[imagesIdx][:image] = cachedImage;
             WatchUi.requestUpdate();
+            return;
+        }
+        
+        // Check connectivity before attempting download
+        var appInstance = Application.getApp();
+        if (!appInstance.isConnected()) {
+            System.println("[downloadImage] No connection available and no cached image, adding to sync queue");
+            appInstance.addToPendingSync(text, index);
             return;
         }
         
@@ -768,6 +901,11 @@ class AppView extends WatchUi.View {
 
     function onShow() {
         System.println("onShow");
+        // Check connectivity when app becomes visible
+        var appInstance = Application.getApp();
+        if (appInstance != null) {
+            appInstance.checkConnectivityNow();
+        }
     }
 
     function onUpdate(dc) {
@@ -811,25 +949,11 @@ class AppView extends WatchUi.View {
             // Show status at top (offline or syncing)
             var appInstance = Application.getApp();
             
-            // Check if we have any recent "phone not connected" errors
-            var hasPhoneDisconnectedError = false;
-            for (var i = 0; i < images.size(); i++) {
-                var idx = images[i][:index];
-                var lastErrorCode = Storage.getValue("last_error_code_" + idx);
-                if (lastErrorCode != null && lastErrorCode.equals(-104)) {
-                    var failureKey = "code_" + idx;
-                    if (failedDownloads.hasKey(failureKey)) {
-                        var lastFailure = failedDownloads.get(failureKey) as Lang.Number;
-                        var timeSinceFailure = System.getTimer() - lastFailure;
-                        if (timeSinceFailure < 30000) {
-                            hasPhoneDisconnectedError = true;
-                            break;
-                        }
-                    }
-                }
-            }
+            // Check actual connectivity status first
+            var isConnected = appInstance.isConnected();
             
-            if (hasPhoneDisconnectedError) {
+            if (!isConnected) {
+                // Phone is not connected, show offline status
                 dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     dc.getWidth() / 2,
@@ -839,6 +963,7 @@ class AppView extends WatchUi.View {
                     Graphics.TEXT_JUSTIFY_CENTER
                 );
             } else if (appInstance.pendingSyncQueue.size() > 0) {
+                // Connected and have items to sync
                 dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
                 dc.drawText(
                     dc.getWidth() / 2,
@@ -886,8 +1011,30 @@ class AppView extends WatchUi.View {
                 }
                 
                 if (!isDownloading && text != null && text.length() > 0) {
-                    System.println("[onUpdate] Image not downloaded for code_" + idx + ", starting download");
-                    downloadImage(text, currentIndex);
+                    // Check if we should attempt download or if we're in cooldown
+                    var downloadKey = "code_" + idx;
+                    var shouldAttemptDownload = true;
+                    
+                    if (failedDownloads.hasKey(downloadKey)) {
+                        var lastFailure = failedDownloads.get(downloadKey) as Lang.Number;
+                        var timeSinceFailure = System.getTimer() - lastFailure;
+                        if (timeSinceFailure < 30000) {
+                            shouldAttemptDownload = false;
+                        }
+                    }
+                    
+                    if (shouldAttemptDownload) {
+                        System.println("[onUpdate] Image not downloaded for code_" + idx + ", checking cache and connection");
+                        // Try one more time to find cached image before downloading
+                        var cachedImage = Storage.getValue("qr_image_" + idx);
+                        if (cachedImage != null) {
+                            System.println("[onUpdate] Found cached image for code_" + idx + ", using it");
+                            images[currentIndex][:image] = cachedImage;
+                            WatchUi.requestUpdate();
+                        } else {
+                            downloadImage(text, currentIndex);
+                        }
+                    }
                 }
                 
                 // Show loading or error state with better positioning
@@ -1206,19 +1353,10 @@ class GlanceView extends WatchUi.GlanceView {
                     // Check if code exists but image is missing - defer sync to avoid startup memory pressure
                     var text = Storage.getValue("code_" + i + "_text");
                     if (text != null && text.length() > 0) {
-                        try {
-                            var appInstance = Application.getApp();
-                            if (appInstance.isConnected()) {
-                                System.println("[loadCachedImages] Found code without image, will download later: " + text);
-                                // Defer download to avoid memory pressure during startup
-                                appInstance.addToPendingSync(text, i);
-                            } else {
-                                System.println("[loadCachedImages] Code exists but offline, will sync later: " + text);
-                                appInstance.addToPendingSync(text, i);
-                            }
-                        } catch (e) {
-                            System.println("[loadCachedImages] Error handling missing image: " + e.getErrorMessage());
-                        }
+                        System.println("[loadCachedImages] Found code without image at index " + i + ": " + text);
+                        // Don't add to sync queue from GlanceView during startup to avoid race conditions
+                        // The main AppView will handle missing images when it loads
+                        System.println("[loadCachedImages] Deferring sync queue addition until AppView is ready");
                     }
                 }
             }
