@@ -12,7 +12,7 @@
                 <settingConfig id="code_$index_title" type="alphanumeric"/>
             </setting>
             <setting title="@Strings.codeText" type="string">
-                <settingConfig id="code_$index_text" type="alphanumeric" required="true"/>
+                <settingConfig id="code_$index_text" type="alphanumeric" required="true" maxLength="256"/>
             </setting>
 
             <defaults>
