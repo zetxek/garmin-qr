@@ -135,13 +135,28 @@ class App extends Application.AppBase {
                         var syncItem = pendingSyncQueue[i];
                         if (syncItem != null) {
                             var text = syncItem.get("text");
-                            var index = syncItem.get("index");
-                            var imagesIndex = syncItem.get("imagesIndex");
+                            var storageIndex = syncItem.get("index");
                             
-                            if (text != null && index != null) {
-                                System.println("[PerformSync] Syncing image for text: " + text);
-                                AppView.current.downloadImage(text, imagesIndex != null ? imagesIndex : 0);
-                                syncedCount++;
+                            if (text != null && storageIndex != null) {
+                                // Find the corresponding index in the images array
+                                var imagesIndex = -1;
+                                for (var j = 0; j < AppView.current.images.size(); j++) {
+                                    if (AppView.current.images[j][:index] == storageIndex) {
+                                        imagesIndex = j;
+                                        break;
+                                    }
+                                }
+                                
+                                if (imagesIndex >= 0) {
+                                    System.println("[PerformSync] Syncing image for text: " + text + " (storage index: " + storageIndex + ", images index: " + imagesIndex + ")");
+                                    AppView.current.downloadImage(text, imagesIndex);
+                                    syncedCount++;
+                                } else {
+                                    System.println("[PerformSync] Could not find images index for storage index: " + storageIndex + ", reloading codes");
+                                    // The images array is out of sync, reload all codes
+                                    AppView.current.loadAllCodes();
+                                    // Skip this item for now, it will be retried later
+                                }
                             }
                         }
                     } catch (itemError) {
@@ -190,7 +205,7 @@ class App extends Application.AppBase {
         }
     }
 
-    function addToPendingSync(text as Lang.String, index as Lang.Number, imagesIndex as Lang.Number) {
+    function addToPendingSync(text as Lang.String, index as Lang.Number) {
         try {
             // Very simple approach to avoid memory issues
             // Limit queue size strictly
@@ -215,8 +230,8 @@ class App extends Application.AppBase {
             if (!isDuplicate) {
                 var syncItem = {
                     "text" => text,
-                    "index" => index,
-                    "imagesIndex" => imagesIndex
+                    "index" => index
+                    // Remove imagesIndex - will be calculated at sync time
                 };
                 
                 pendingSyncQueue.add(syncItem);
@@ -250,8 +265,50 @@ class App extends Application.AppBase {
         System.println("[onSettingsChanged] Settings changed, updating codes...");
         
         try {
-            // Use the sync method to ensure Storage and Properties are in sync
-            syncStorageAndProperties();
+            // On settings change, Properties is the source of truth - sync FROM Properties TO Storage
+            var settings = Application.Properties.getValue("codesList") as Lang.Array<Lang.Dictionary>;
+            
+            // Clear all Storage entries first
+            for (var i = 0; i < 10; i++) {
+                Storage.deleteValue("code_" + i + "_text");
+                Storage.deleteValue("code_" + i + "_title");
+                Storage.deleteValue("code_" + i + "_type");
+                // Also clear cached images since codes may have changed
+                Storage.deleteValue("qr_image_" + i);
+                Storage.deleteValue("qr_image_meta_text_" + i);
+                Storage.deleteValue("qr_image_meta_type_" + i);
+            }
+            Storage.deleteValue("qr_image_glance_0");
+            Storage.deleteValue("qr_image_glance_meta_text_0");
+            Storage.deleteValue("qr_image_glance_meta_type_0");
+            
+            if (settings != null && settings.size() > 0) {
+                // Sync Properties -> Storage
+                var storageIndex = 0;
+                for (var i = 0; i < settings.size(); i++) {
+                    var code = settings[i];
+                    if (code != null && code.keys().size() > 0) {
+                        var text = code.get("code_$index_text") as Lang.String;
+                        var title = code.get("code_$index_title") as Lang.String;
+                        var type = code.get("code_$index_type") as Lang.String;
+                        
+                        if (text != null && text.length() > 0) {
+                            var timestamp = code.get("code_$index_timestamp");
+                            if (timestamp == null) {
+                                timestamp = System.getTimer(); // Add timestamp if missing
+                            }
+                            
+                            Storage.setValue("code_" + storageIndex + "_text", text);
+                            Storage.setValue("code_" + storageIndex + "_title", title);
+                            Storage.setValue("code_" + storageIndex + "_type", type);
+                            Storage.setValue("code_" + storageIndex + "_timestamp", timestamp);
+                            System.println("[onSettingsChanged] Synced code_" + storageIndex + " from Properties to Storage");
+                            storageIndex++;
+                        }
+                    }
+                }
+            }
+            System.println("[onSettingsChanged] Settings sync complete");
             
             // Refresh codes in the current app view if it exists
             if (AppView.current != null) {
@@ -267,22 +324,15 @@ class App extends Application.AppBase {
     }
 
     function syncStorageAndProperties() {
-        System.println("[syncStorageAndProperties] Syncing Storage and Properties...");
+        System.println("[syncStorageAndProperties] Syncing Storage and Properties with timestamps...");
         
         var settings = Application.Properties.getValue("codesList") as Lang.Array<Lang.Dictionary>;
+        var currentTime = System.getTimer();
         
         if (settings != null && settings.size() > 0) {
-            // Properties has data - use it as source of truth
-            System.println("[syncStorageAndProperties] Properties has data, syncing to Storage");
+            // Properties has data - compare timestamps to determine sync direction
+            System.println("[syncStorageAndProperties] Properties has data, checking timestamps");
             
-            // Clear all Storage entries first
-            for (var i = 0; i < 10; i++) {
-                Storage.deleteValue("code_" + i + "_text");
-                Storage.deleteValue("code_" + i + "_title");
-                Storage.deleteValue("code_" + i + "_type");
-            }
-            
-            // Clean up the Properties array and sync valid entries to Storage
             var cleanCodesList = [];
             var storageIndex = 0;
             
@@ -292,27 +342,75 @@ class App extends Application.AppBase {
                     var text = code.get("code_$index_text") as Lang.String;
                     var title = code.get("code_$index_title") as Lang.String;
                     var type = code.get("code_$index_type") as Lang.String;
+                    var propsTimestamp = code.get("code_$index_timestamp");
                     
                     if (text != null && text.length() > 0) {
-                        // Add to clean array
-                        cleanCodesList.add(code);
+                        // Check if Storage has this code and compare timestamps
+                        var storageText = Storage.getValue("code_" + storageIndex + "_text");
+                        var storageTimestamp = Storage.getValue("code_" + storageIndex + "_timestamp");
                         
-                        // Save to Storage with compacted index
-                        Storage.setValue("code_" + storageIndex + "_text", text);
-                        Storage.setValue("code_" + storageIndex + "_title", title);
-                        Storage.setValue("code_" + storageIndex + "_type", type);
-                        System.println("[syncStorageAndProperties] Synced code_" + storageIndex + " from Properties to Storage");
+                        var usePropertiesVersion = true;
+                        
+                        if (storageText != null && storageTimestamp != null && propsTimestamp != null) {
+                            // Both have timestamps, use the newer one
+                            var storageTime = storageTimestamp as Lang.Number;
+                            var propsTime = propsTimestamp as Lang.Number;
+                            if (storageTime > propsTime) {
+                                usePropertiesVersion = false;
+                                System.println("[syncStorageAndProperties] Storage version newer for code_" + storageIndex);
+                            }
+                        }
+                        
+                        if (usePropertiesVersion) {
+                            // Use Properties version
+                            var codeEntry = {
+                                "code_$index_text" => text,
+                                "code_$index_title" => title,
+                                "code_$index_type" => type != null ? type : "0",
+                                "code_$index_timestamp" => propsTimestamp != null ? propsTimestamp : currentTime
+                            };
+                            cleanCodesList.add(codeEntry);
+                            
+                            // Save to Storage
+                            Storage.setValue("code_" + storageIndex + "_text", text);
+                            Storage.setValue("code_" + storageIndex + "_title", title);
+                            Storage.setValue("code_" + storageIndex + "_type", type);
+                            Storage.setValue("code_" + storageIndex + "_timestamp", codeEntry.get("code_$index_timestamp"));
+                            System.println("[syncStorageAndProperties] Used Properties version for code_" + storageIndex);
+                        } else {
+                            // Use Storage version
+                            var storageTitle = Storage.getValue("code_" + storageIndex + "_title");
+                            var storageType = Storage.getValue("code_" + storageIndex + "_type");
+                            
+                            var codeEntry = {
+                                "code_$index_text" => storageText,
+                                "code_$index_title" => storageTitle,
+                                "code_$index_type" => storageType != null ? storageType : "0",
+                                "code_$index_timestamp" => storageTimestamp
+                            };
+                            cleanCodesList.add(codeEntry);
+                            System.println("[syncStorageAndProperties] Used Storage version for code_" + storageIndex);
+                        }
+                        
                         storageIndex++;
                     }
                 }
             }
             
+            // Clean up any remaining storage entries
+            for (var i = storageIndex; i < 10; i++) {
+                Storage.deleteValue("code_" + i + "_text");
+                Storage.deleteValue("code_" + i + "_title");
+                Storage.deleteValue("code_" + i + "_type");
+                Storage.deleteValue("code_" + i + "_timestamp");
+            }
+            
             // Update Properties with cleaned array
             try {
                 Application.Properties.setValue("codesList", cleanCodesList);
-                System.println("[syncStorageAndProperties] Cleaned Properties array, removed " + (settings.size() - cleanCodesList.size()) + " empty entries");
+                System.println("[syncStorageAndProperties] Updated Properties with " + cleanCodesList.size() + " codes");
             } catch (e) {
-                System.println("[syncStorageAndProperties] Error updating cleaned Properties: " + e.getErrorMessage());
+                System.println("[syncStorageAndProperties] Error updating Properties: " + e.getErrorMessage());
             }
         } else {
             // Properties is empty - check if Storage has data to sync back
@@ -325,6 +423,7 @@ class App extends Application.AppBase {
                 var text = Storage.getValue("code_" + i + "_text");
                 var title = Storage.getValue("code_" + i + "_title");
                 var type = Storage.getValue("code_" + i + "_type");
+                var timestamp = Storage.getValue("code_" + i + "_timestamp");
                 
                 if (text != null && text.length() > 0) {
                     hasStorageData = true;
@@ -333,9 +432,16 @@ class App extends Application.AppBase {
                     var codeEntry = {
                         "code_$index_text" => text,
                         "code_$index_title" => title,
-                        "code_$index_type" => type != null ? type : "0"
+                        "code_$index_type" => type != null ? type : "0",
+                        "code_$index_timestamp" => timestamp != null ? timestamp : currentTime
                     };
                     codesList.add(codeEntry);
+                    
+                    // Update Storage timestamp if missing
+                    if (timestamp == null) {
+                        Storage.setValue("code_" + i + "_timestamp", currentTime);
+                    }
+                    
                     System.println("[syncStorageAndProperties] Synced code_" + i + " from Storage to Properties");
                 }
             }
@@ -447,15 +553,33 @@ class AppView extends WatchUi.View {
     }
 
     function refreshMissingImages() {
-        System.println("[refreshMissingImages] Refreshing missing images");
+        System.println("[refreshMissingImages] Refreshing missing images and checking for changes");
         for (var i = 0; i < images.size(); i++) {
             var idx = images[i][:index];
             var text = Storage.getValue("code_" + idx + "_text");
+            var currentType = Storage.getValue("code_" + idx + "_type");
             var imgStatus = images[i][:image] != null ? "downloaded" : "not downloaded";
-            System.println("[refreshMissingImages] code_" + idx + "_text = " + text + ", image: " + imgStatus);
-            if (images[i][:image] == null) {
-                if (text != null && text.length() > 0) {
+            System.println("[refreshMissingImages] code_" + idx + "_text = " + text + ", image: " + imgStatus + ", type: " + currentType);
+            
+            if (text != null && text.length() > 0) {
+                if (images[i][:image] == null) {
+                    // No image, download it
                     downloadImage(text, i);
+                } else {
+                    // Image exists, check if text or type has changed
+                    var cachedText = Storage.getValue("qr_image_meta_text_" + idx);
+                    var cachedType = Storage.getValue("qr_image_meta_type_" + idx);
+                    
+                    if (text != cachedText || currentType != cachedType || cachedText == null) {
+                        // Text or type changed, or no metadata exists, clear cache and re-download
+                        System.println("[refreshMissingImages] Content changed for code " + idx + " (text: '" + cachedText + "' -> '" + text + "', type: '" + cachedType + "' -> '" + currentType + "'), re-downloading");
+                        images[i][:image] = null;
+                        Storage.deleteValue("qr_image_" + idx);
+                        Storage.deleteValue("qr_image_meta_text_" + idx);
+                        Storage.deleteValue("qr_image_meta_type_" + idx);
+                        Storage.deleteValue("qr_image_glance_0"); // Clear glance cache too
+                        downloadImage(text, i);
+                    }
                 }
             }
         }
@@ -509,7 +633,7 @@ class AppView extends WatchUi.View {
         }
         var url;
         if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text;
+            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&shape=rectangle";
         } else {
             url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
         }
@@ -531,11 +655,6 @@ class AppView extends WatchUi.View {
         var imagesIdx = downloadingImageIdx;
         System.println("=== responseCallback start. Response code: " + responseCode);
         isDownloading = false;
-        if (responseCode == 200 && data != null) {
-            images[imagesIdx][:image] = data as WatchUi.BitmapResource;
-            WatchUi.requestUpdate();
-            AppView.downloadGlanceImage(Storage.getValue("code_" + imagesIdx + "_text"), imagesIdx);
-        }
         
         try {
             if (responseCode == 200) {
@@ -549,8 +668,10 @@ class AppView extends WatchUi.View {
                 var bitmapResource = data as WatchUi.BitmapResource;
                 images[imagesIdx][:image] = bitmapResource;
                 
-                // Clear any failure tracking for this code since it succeeded
+                // Get the storage index (fix: use storage index, not images array index)
                 var idx = images[imagesIdx][:index];
+                
+                // Clear any failure tracking for this code since it succeeded
                 var failureKey = "code_" + idx;
                 if (failedDownloads.hasKey(failureKey)) {
                     failedDownloads.remove(failureKey);
@@ -558,10 +679,18 @@ class AppView extends WatchUi.View {
                     System.println("[responseCallback] Cleared failure tracking for successful download");
                 }
                 
+                // Get the current text and type that were used for this download
+                var currentText = Storage.getValue("code_" + idx + "_text");
+                var currentType = Storage.getValue("code_" + idx + "_type");
+                
                 try {
-                    System.println("[responseCallback] Saving image to storage at index: " + imagesIdx);
-                    Storage.setValue("qr_image_" + imagesIdx, bitmapResource);
-                    System.println("[responseCallback] Updated code at index: " + imagesIdx);
+                    System.println("[responseCallback] Saving image and metadata to storage at index: " + idx);
+                    // Store image with correct storage index
+                    Storage.setValue("qr_image_" + idx, bitmapResource);
+                    // Store metadata to track what was used to generate this image
+                    Storage.setValue("qr_image_meta_text_" + idx, currentText);
+                    Storage.setValue("qr_image_meta_type_" + idx, currentType);
+                    System.println("[responseCallback] Updated code at index: " + idx);
                 } catch(e) {
                     System.println("[responseCallback] Error in storage operations: " + e.getErrorMessage());
                     showError("Storage error: " + e.getErrorMessage());
@@ -571,6 +700,8 @@ class AppView extends WatchUi.View {
                 try {
                     System.println("[responseCallback] Requesting UI update");
                     WatchUi.requestUpdate();
+                    // Download glance image with correct storage index
+                    AppView.downloadGlanceImage(currentText, idx);
                     System.println("[responseCallback] Image downloaded and processed successfully");
                 } catch(e) {
                     System.println("[responseCallback] Error requesting update: " + e.getErrorMessage());
@@ -592,7 +723,7 @@ class AppView extends WatchUi.View {
                     // Phone not connected - specific offline state
                     var text = Storage.getValue("code_" + idx + "_text");
                     if (text != null) {
-                        app.addToPendingSync(text, idx, imagesIdx);
+                        app.addToPendingSync(text, idx);
                         showError("Phone offline - will sync later");
                         System.println("[responseCallback] Phone not connected, added to sync queue: " + text);
                     } else {
@@ -602,7 +733,7 @@ class AppView extends WatchUi.View {
                     // Other network issues (timeout, network error, no connectivity)
                     var text = Storage.getValue("code_" + idx + "_text");
                     if (text != null) {
-                        app.addToPendingSync(text, idx, imagesIdx);
+                        app.addToPendingSync(text, idx);
                         showError("Network error - will retry");
                         System.println("[responseCallback] Added failed download to sync queue: " + text);
                     } else {
@@ -615,7 +746,7 @@ class AppView extends WatchUi.View {
                     // Server errors (5xx) - can retry these
                     var text = Storage.getValue("code_" + idx + "_text");
                     if (text != null) {
-                        app.addToPendingSync(text, idx, imagesIdx);
+                        app.addToPendingSync(text, idx);
                         showError("Server error - will retry");
                     } else {
                         showError("Server error");
@@ -790,6 +921,10 @@ class AppView extends WatchUi.View {
         var bmpWidth = bmp.getWidth();
         var bmpHeight = bmp.getHeight();
         
+        // Check if this is a barcode or QR code
+        var codeType = Storage.getValue("code_" + index + "_type");
+        var isBarcode = (codeType != null && codeType.equals("1"));
+        
         // Calculate layout areas more carefully
         var topStatusHeight = 30;  // More space for status at top
         var bottomCounterHeight = 35;  // More space for "Code X of Y" at bottom
@@ -801,17 +936,41 @@ class AppView extends WatchUi.View {
         }
         
         var availableHeight = screenHeight - topStatusHeight - bottomCounterHeight - titleHeight;
+        var availableWidth = screenWidth - 20;  // 10px margin each side
         
-        // Scale QR code if needed to fit available space
-        var maxQRSize = availableHeight - 20;  // Leave some margin
-        var qrScale = 1.0;
-        if (bmpWidth > maxQRSize || bmpHeight > maxQRSize) {
-            var maxDimension = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
-            qrScale = maxQRSize / maxDimension;
+        // Calculate scaling based on code type
+        var finalWidth, finalHeight, codeX, codeY;
+        
+        if (isBarcode) {
+            // For barcodes: use full width, maintain aspect ratio
+            var scaleX = availableWidth / bmpWidth;
+            var scaleY = (availableHeight - 20) / bmpHeight;  // Leave some margin
+            var scale = scaleX < scaleY ? scaleX : scaleY;  // Use smaller scale to maintain aspect ratio
+            
+            finalWidth = bmpWidth * scale;
+            finalHeight = bmpHeight * scale;
+            
+            // Center horizontally, but prefer full width
+            if (finalWidth < availableWidth) {
+                finalWidth = availableWidth;
+                scale = finalWidth / bmpWidth;
+                finalHeight = bmpHeight * scale;
+            }
+            
+            codeX = (screenWidth - finalWidth) / 2;
+        } else {
+            // For QR codes: keep existing behavior (square, centered)
+            var maxQRSize = availableHeight - 20;  // Leave some margin
+            var qrScale = 1.0;
+            if (bmpWidth > maxQRSize || bmpHeight > maxQRSize) {
+                var maxDimension = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
+                qrScale = maxQRSize / maxDimension;
+            }
+            
+            finalWidth = bmpWidth * qrScale;
+            finalHeight = bmpHeight * qrScale;
+            codeX = (screenWidth - finalWidth) / 2;
         }
-        
-        var finalQRWidth = bmpWidth * qrScale;
-        var finalQRHeight = bmpHeight * qrScale;
         
         // Position everything
         var currentY = topStatusHeight;
@@ -829,11 +988,16 @@ class AppView extends WatchUi.View {
             currentY += titleHeight;
         }
         
-        // Center QR code in remaining space
-        var qrX = (screenWidth - finalQRWidth) / 2;
-        var qrY = currentY + (availableHeight - finalQRHeight) / 2;
+        // Center code vertically in remaining space
+        codeY = currentY + (availableHeight - finalHeight) / 2;
         
-        dc.drawBitmap(qrX, qrY, bmp);
+        if (isBarcode) {
+            // For barcodes, use scaled drawing to achieve full width
+            dc.drawScaledBitmap(codeX, codeY, finalWidth, finalHeight, bmp);
+        } else {
+            // For QR codes, use regular bitmap drawing
+            dc.drawBitmap(codeX, codeY, bmp);
+        }
     }
 
     function onHide() {
@@ -916,7 +1080,7 @@ class AppView extends WatchUi.View {
         if (codeType == null) { codeType = "0"; }  // Default to QR
         var url;
         if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80";
+            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80&shape=rectangle";
         } else {
             url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text + "&size=80";
         }
@@ -932,6 +1096,11 @@ class AppView extends WatchUi.View {
     public static function glanceResponseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
         if (responseCode == 200 && data != null) {
             Storage.setValue("qr_image_glance_0", data as WatchUi.BitmapResource);
+            // Store metadata for glance image as well
+            var text = Storage.getValue("code_0_text");
+            var type = Storage.getValue("code_0_type");
+            Storage.setValue("qr_image_glance_meta_text_0", text);
+            Storage.setValue("qr_image_glance_meta_type_0", type);
         }
     }
 
@@ -1042,15 +1211,31 @@ class GlanceView extends WatchUi.GlanceView {
                             if (appInstance.isConnected()) {
                                 System.println("[loadCachedImages] Found code without image, will download later: " + text);
                                 // Defer download to avoid memory pressure during startup
-                                appInstance.addToPendingSync(text, i, 0);
+                                appInstance.addToPendingSync(text, i);
                             } else {
                                 System.println("[loadCachedImages] Code exists but offline, will sync later: " + text);
-                                appInstance.addToPendingSync(text, i, 0);
+                                appInstance.addToPendingSync(text, i);
                             }
                         } catch (e) {
                             System.println("[loadCachedImages] Error handling missing image: " + e.getErrorMessage());
                         }
                     }
+                }
+            }
+            
+            // Check if glance image needs to be refreshed (for code 0)
+            var glanceImage = Storage.getValue("qr_image_glance_0");
+            if (glanceImage != null) {
+                var currentText = Storage.getValue("code_0_text");
+                var currentType = Storage.getValue("code_0_type");
+                var cachedText = Storage.getValue("qr_image_glance_meta_text_0");
+                var cachedType = Storage.getValue("qr_image_glance_meta_type_0");
+                
+                if (currentText != null && (currentText != cachedText || currentType != cachedType || cachedText == null)) {
+                    System.println("[loadCachedImages] Glance content changed, clearing cache");
+                    Storage.deleteValue("qr_image_glance_0");
+                    Storage.deleteValue("qr_image_glance_meta_text_0");
+                    Storage.deleteValue("qr_image_glance_meta_type_0");
                 }
             }
         } catch (e) {
@@ -1149,7 +1334,7 @@ class GlanceView extends WatchUi.GlanceView {
         if (codeType == null) { codeType = "0"; }  // Default to QR
         var url;
         if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80";
+            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80&shape=rectangle";
         } else {
             url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text + "&size=80";
         }
@@ -1165,6 +1350,11 @@ class GlanceView extends WatchUi.GlanceView {
     function glanceResponseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
         if (responseCode == 200 && data != null) {
             Storage.setValue("qr_image_glance_0", data as WatchUi.BitmapResource);
+            // Store metadata for glance image as well
+            var text = Storage.getValue("code_0_text");
+            var type = Storage.getValue("code_0_type");
+            Storage.setValue("qr_image_glance_meta_text_0", text);
+            Storage.setValue("qr_image_glance_meta_type_0", type);
         }
     }
 }
@@ -1197,7 +1387,7 @@ class AboutView extends WatchUi.View {
     }
     function onKey(keyEvent) {
         var key = keyEvent.getKey();
-        if (key == WatchUi.KEY_START) {
+        if (key == WatchUi.KEY_START || key == WatchUi.KEY_UP || key == WatchUi.KEY_DOWN) {
             showQR = !showQR;
             WatchUi.requestUpdate();
             return true;
@@ -1312,10 +1502,13 @@ class AddCodeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
                 }
             }
             
+            var currentTime = System.getTimer();
+            
             // 1. Save to Storage for app internal use
             Storage.setValue("code_" + newIndex + "_text", self.parentDelegate.codeText);
             Storage.setValue("code_" + newIndex + "_title", self.parentDelegate.codeTitle);
             Storage.setValue("code_" + newIndex + "_type", self.parentDelegate.codeType);
+            Storage.setValue("code_" + newIndex + "_timestamp", currentTime);
             
             // 2. Save to Application.Properties for settings editor
             // Get or initialize the codesList array
@@ -1340,7 +1533,8 @@ class AddCodeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
             var codeEntry = {
                 "code_$index_text" => self.parentDelegate.codeText,
                 "code_$index_title" => self.parentDelegate.codeTitle,
-                "code_$index_type" => self.parentDelegate.codeType  // Already "0" or "1"
+                "code_$index_type" => self.parentDelegate.codeType,  // Already "0" or "1"
+                "code_$index_timestamp" => currentTime
             };
             
             // Update this specific index in the array
