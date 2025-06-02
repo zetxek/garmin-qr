@@ -1,5 +1,5 @@
 <properties>
-    <property id="appVersion" type="string">0.0.17</property>
+    <property id="appVersion" type="string">0.0.18</property>
     <property id="codesList" type="array"></property>
 
 </properties>

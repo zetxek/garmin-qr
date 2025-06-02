@@ -766,15 +766,31 @@ class AppView extends WatchUi.View {
         }
         var url;
         if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&shape=rectangle";
+            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&shape=rectangle";
         } else {
-            url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text;
+            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text;
         }
         System.println("[DownloadImage]URL: " + url);
         var params = null;
+        
+        // Dynamic image size based on screen dimensions for better quality on larger screens
+        var screenWidth = System.getDeviceSettings().screenWidth;
+        var screenHeight = System.getDeviceSettings().screenHeight;
+        var maxDimension = screenWidth > screenHeight ? screenWidth : screenHeight;
+        
+        // Scale image request size based on screen size, with reasonable limits
+        var imageSize = 200;  // Default size
+        if (maxDimension >= 454) {      // Large screens (Fenix 8, Epix 2 Pro, etc.)
+            imageSize = 400;
+        } else if (maxDimension >= 280) { // Medium screens (Fenix 7, Venu series)
+            imageSize = 300;
+        } else if (maxDimension >= 240) { // Standard screens (Fenix 6, etc.)
+            imageSize = 250;
+        }
+        
         var options = {
-            :maxWidth => 200,
-            :maxHeight => 200
+            :maxWidth => imageSize,
+            :maxHeight => imageSize
         };
         Communications.makeImageRequest(
             url,
@@ -1072,50 +1088,74 @@ class AppView extends WatchUi.View {
         var codeType = Storage.getValue("code_" + index + "_type");
         var isBarcode = (codeType != null && codeType.equals("1"));
         
-        // Calculate layout areas more carefully
-        var topStatusHeight = 30;  // More space for status at top
-        var bottomCounterHeight = 35;  // More space for "Code X of Y" at bottom
+        // Calculate layout areas with better scaling for different screen sizes
+        var topStatusHeight = screenHeight * 0.12;  // 12% of screen height for status
+        var bottomCounterHeight = screenHeight * 0.15;  // 15% of screen height for counter
         var titleHeight = 0;
         
         var title = Storage.getValue("code_" + index + "_title");
         if (title != null && title.length() > 0) {
-            titleHeight = 25;  // More space for title
+            titleHeight = screenHeight * 0.1;  // 10% of screen height for title
         }
         
         var availableHeight = screenHeight - topStatusHeight - bottomCounterHeight - titleHeight;
-        var availableWidth = screenWidth - 20;  // 10px margin each side
+        var availableWidth = screenWidth - (screenWidth * 0.1);  // 5% margin each side
         
-        // Calculate scaling based on code type
+        // Calculate scaling based on code type with improved logic
         var finalWidth, finalHeight, codeX, codeY;
+        var scale = 1.0;
         
         if (isBarcode) {
-            // For barcodes: use full width, maintain aspect ratio
+            // For barcodes: prefer width, maintain aspect ratio
             var scaleX = availableWidth / bmpWidth;
-            var scaleY = (availableHeight - 20) / bmpHeight;  // Leave some margin
-            var scale = scaleX < scaleY ? scaleX : scaleY;  // Use smaller scale to maintain aspect ratio
+            var scaleY = (availableHeight * 0.8) / bmpHeight;  // Use 80% of available height for margin
+            scale = scaleX < scaleY ? scaleX : scaleY;
             
             finalWidth = bmpWidth * scale;
             finalHeight = bmpHeight * scale;
             
-            // Center horizontally, but prefer full width
-            if (finalWidth < availableWidth) {
-                finalWidth = availableWidth;
-                scale = finalWidth / bmpWidth;
+            // Ensure minimum size for readability
+            var minBarcodeWidth = screenWidth * 0.7;  // At least 70% of screen width
+            if (finalWidth < minBarcodeWidth) {
+                scale = minBarcodeWidth / bmpWidth;
+                finalWidth = minBarcodeWidth;
                 finalHeight = bmpHeight * scale;
+                
+                // Check if height still fits
+                if (finalHeight > availableHeight * 0.8) {
+                    scale = (availableHeight * 0.8) / bmpHeight;
+                    finalWidth = bmpWidth * scale;
+                    finalHeight = bmpHeight * scale;
+                }
             }
             
             codeX = (screenWidth - finalWidth) / 2;
         } else {
-            // For QR codes: keep existing behavior (square, centered)
-            var maxQRSize = availableHeight - 20;  // Leave some margin
-            var qrScale = 1.0;
-            if (bmpWidth > maxQRSize || bmpHeight > maxQRSize) {
-                var maxDimension = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
-                qrScale = maxQRSize / maxDimension;
+            // For QR codes: improved scaling that works better on larger screens
+            var maxQRSize = availableHeight * 0.85;  // Use 85% of available height
+            var maxQRWidth = availableWidth * 0.85;   // Use 85% of available width
+            
+            // Use the smaller of height or width constraint to maintain square aspect ratio
+            var maxDimension = maxQRSize < maxQRWidth ? maxQRSize : maxQRWidth;
+            
+            if (bmpWidth > maxDimension || bmpHeight > maxDimension) {
+                var largestDimension = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
+                scale = maxDimension / largestDimension;
+            } else {
+                // On larger screens, scale up QR codes for better visibility
+                var targetSize = maxDimension;
+                var currentSize = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
+                scale = targetSize / currentSize;
+                
+                // Cap the maximum scale to avoid pixelation
+                var maxScale = 4.0;
+                if (scale > maxScale) {
+                    scale = maxScale;
+                }
             }
             
-            finalWidth = bmpWidth * qrScale;
-            finalHeight = bmpHeight * qrScale;
+            finalWidth = bmpWidth * scale;
+            finalHeight = bmpHeight * scale;
             codeX = (screenWidth - finalWidth) / 2;
         }
         
@@ -1127,10 +1167,10 @@ class AppView extends WatchUi.View {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(
                 screenWidth / 2,
-                currentY,
+                currentY + (titleHeight / 2),
                 Graphics.FONT_TINY,
                 title,
-                Graphics.TEXT_JUSTIFY_CENTER
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
             );
             currentY += titleHeight;
         }
@@ -1138,13 +1178,8 @@ class AppView extends WatchUi.View {
         // Center code vertically in remaining space
         codeY = currentY + (availableHeight - finalHeight) / 2;
         
-        if (isBarcode) {
-            // For barcodes, use scaled drawing to achieve full width
-            dc.drawScaledBitmap(codeX, codeY, finalWidth, finalHeight, bmp);
-        } else {
-            // For QR codes, use regular bitmap drawing
-            dc.drawBitmap(codeX, codeY, bmp);
-        }
+        // Use scaled drawing for both barcodes and QR codes for consistency
+        dc.drawScaledBitmap(codeX, codeY, finalWidth, finalHeight, bmp);
     }
 
     function onHide() {
@@ -1225,13 +1260,27 @@ class AppView extends WatchUi.View {
     public function downloadGlanceImage(text as Lang.String, index as Lang.Number) {
         var codeType = Storage.getValue("code_" + index + "_type");
         if (codeType == null) { codeType = "0"; }  // Default to QR
+        
+        // Dynamic glance image size based on screen dimensions
+        var screenWidth = System.getDeviceSettings().screenWidth;
+        var screenHeight = System.getDeviceSettings().screenHeight;
+        var maxDimension = screenWidth > screenHeight ? screenWidth : screenHeight;
+        
+        // Scale glance image request size based on screen size
+        var glanceImageSize = 80;  // Default size
+        if (maxDimension >= 454) {      // Large screens
+            glanceImageSize = 120;
+        } else if (maxDimension >= 280) { // Medium screens
+            glanceImageSize = 100;
+        }
+        
         var url;
         if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80&shape=rectangle";
+            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&size=" + glanceImageSize + "&shape=rectangle";
         } else {
-            url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text + "&size=80";
+            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text + "&size=" + glanceImageSize;
         }
-        var options = { :maxWidth => 80, :maxHeight => 80 };
+        var options = { :maxWidth => glanceImageSize, :maxHeight => glanceImageSize };
         Communications.makeImageRequest(
             url,
             null,
@@ -1401,21 +1450,64 @@ class GlanceView extends WatchUi.GlanceView {
                     var screenWidth = dc.getWidth();
                     var screenHeight = dc.getHeight();
 
-                    // Calculate scale factor to fit QR code within screen
-                    var maxSize = min(screenWidth, screenHeight) - 20; // 10px margin each side
-                    var scale = 1.0;
-                    if (bmpWidth > maxSize || bmpHeight > maxSize) {
-                        scale = min(maxSize / bmpWidth, maxSize / bmpHeight);
+                    // Improved layout for glance view on larger screens
+                    var marginPercent = 0.08;  // 8% margin
+                    var margin = screenWidth * marginPercent;
+                    
+                    // Check if this is a barcode by looking at aspect ratio
+                    var isBarcode = (bmpWidth > bmpHeight * 1.5);  // Wide aspect ratio suggests barcode
+                    
+                    var drawWidth, drawHeight, x, y, scale;
+                    
+                    if (isBarcode) {
+                        // For barcodes in glance: use more width, less height
+                        var maxWidth = screenWidth * 0.4;  // 40% of screen width for barcode
+                        var maxHeight = screenHeight * 0.6;  // 60% of screen height
+                        
+                        var scaleX = maxWidth / bmpWidth;
+                        var scaleY = maxHeight / bmpHeight;
+                        scale = scaleX < scaleY ? scaleX : scaleY;
+                        
+                        drawWidth = bmpWidth * scale;
+                        drawHeight = bmpHeight * scale;
+                        
+                        // Position barcode on left side
+                        x = margin;
+                        y = (screenHeight - drawHeight) / 2;
+                    } else {
+                        // For QR codes: use better scaling for larger screens
+                        var maxSize = min(screenWidth * 0.45, screenHeight * 0.8);  // Better proportions
+                        scale = 1.0;
+                        
+                        if (bmpWidth > maxSize || bmpHeight > maxSize) {
+                            var maxDimension = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
+                            scale = maxSize / maxDimension;
+                        } else {
+                            // Scale up small QR codes on larger screens for better visibility
+                            var targetSize = maxSize;
+                            var currentSize = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
+                            scale = targetSize / currentSize;
+                            
+                            // Cap maximum scale to prevent pixelation
+                            if (scale > 3.0) {
+                                scale = 3.0;
+                            }
+                        }
+                        
+                        drawWidth = bmpWidth * scale;
+                        drawHeight = bmpHeight * scale;
+                        
+                        // Center QR code on left side
+                        x = margin;
+                        y = (screenHeight - drawHeight) / 2;
                     }
-                    var drawWidth = bmpWidth * scale;
-                    var drawHeight = bmpHeight * scale;
-                    var x = (screenWidth - drawWidth) / 2;
-                    var y = (screenHeight - drawHeight) / 2;
-                    dc.drawBitmap(x, y, bmp);
 
-                    // Get the title and text
-                    var title = Storage.getValue("code0_title");
-                    var text = Storage.getValue("code0_text");
+                    // Use scaled drawing for better quality
+                    dc.drawScaledBitmap(x, y, drawWidth, drawHeight, bmp);
+
+                    // Get the title and text with improved text handling
+                    var title = Storage.getValue("code_0_title");
+                    var text = Storage.getValue("code_0_text");
                     var displayText = "";
                     if (text != null) {
                         displayText = text;
@@ -1423,17 +1515,22 @@ class GlanceView extends WatchUi.GlanceView {
                     if (title != null && title.length() > 0) {
                         displayText = title + " (" + displayText + ")";
                     }
+                    
+                    // Position text better for larger screens
                     dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-                    var textX = x + drawWidth + 10;
+                    var textX = x + drawWidth + (margin / 2);  // Half margin between image and text
                     var textY = screenHeight / 2;
-                    var maxWidth = dc.getWidth() - textX - 5;
+                    var maxWidth = screenWidth - textX - margin;
+                    
+                    // Better text wrapping for larger screens
                     var textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
-                    if (textWidth > maxWidth) {
-                        var maxChars = displayText.length() * maxWidth / textWidth;
+                    if (textWidth > maxWidth && maxWidth > 30) {  // Only truncate if we have reasonable space
+                        var maxChars = (displayText.length() * maxWidth / textWidth).toNumber();
                         if (maxChars > 3) {
-                            displayText = displayText.substring(0, maxChars.toNumber() - 3) + "...";
+                            displayText = displayText.substring(0, maxChars - 3) + "...";
                         }
                     }
+                    
                     dc.drawText(
                         textX,
                         textY,
@@ -1470,13 +1567,27 @@ class GlanceView extends WatchUi.GlanceView {
     function downloadGlanceImage(text as Lang.String, index as Lang.Number) {
         var codeType = Storage.getValue("code_" + index + "_type");
         if (codeType == null) { codeType = "0"; }  // Default to QR
+        
+        // Dynamic glance image size based on screen dimensions
+        var screenWidth = System.getDeviceSettings().screenWidth;
+        var screenHeight = System.getDeviceSettings().screenHeight;
+        var maxDimension = screenWidth > screenHeight ? screenWidth : screenHeight;
+        
+        // Scale glance image request size based on screen size
+        var glanceImageSize = 80;  // Default size
+        if (maxDimension >= 454) {      // Large screens
+            glanceImageSize = 120;
+        } else if (maxDimension >= 280) { // Medium screens
+            glanceImageSize = 100;
+        }
+        
         var url;
         if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-generator-329626796314.europe-west4.run.app/barcode?text=" + text + "&size=80&shape=rectangle";
+            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&size=" + glanceImageSize + "&shape=rectangle";
         } else {
-            url = "https://qr-generator-329626796314.europe-west4.run.app/qr?text=" + text + "&size=80";
+            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text + "&size=" + glanceImageSize;
         }
-        var options = { :maxWidth => 80, :maxHeight => 80 };
+        var options = { :maxWidth => glanceImageSize, :maxHeight => glanceImageSize };
         Communications.makeImageRequest(
             url,
             null,
