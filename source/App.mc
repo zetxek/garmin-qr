@@ -15,12 +15,22 @@ class App extends Application.AppBase {
     var pendingSyncQueue as Lang.Array;
     var connectivityTimer as Null or Timer.Timer;
     var lastConnectionState as Lang.Boolean or Null;
+    var keepScreenOn as Lang.Boolean = false;
 
     function initialize() {
         AppBase.initialize();
         lastSyncTime = Storage.getValue("lastSyncTime");
         pendingSyncQueue = [];
         
+        // Load keepScreenOn setting
+        var keepScreenOnValue = Application.Properties.getValue("keepScreenOn");
+        if (keepScreenOnValue instanceof Lang.Boolean) {
+            keepScreenOn = keepScreenOnValue;
+        } else {
+            keepScreenOn = false; // Default if not set or invalid type
+        }
+        System.println("[initialize] keepScreenOn setting loaded: " + keepScreenOn);
+
         // Defer connectivity monitoring to avoid startup memory pressure
         // Will be started in onStart after initial sync
     }
@@ -345,6 +355,15 @@ class App extends Application.AppBase {
     function onSettingsChanged() {
         System.println("[onSettingsChanged] Settings changed, updating codes...");
         
+        // Update keepScreenOn setting
+        var keepScreenOnValue = Application.Properties.getValue("keepScreenOn");
+        if (keepScreenOnValue instanceof Lang.Boolean) {
+            keepScreenOn = keepScreenOnValue;
+        } else {
+            keepScreenOn = false; // Default if not set or invalid type
+        }
+        System.println("[onSettingsChanged] keepScreenOn setting updated: " + keepScreenOn);
+
         try {
             // On settings change, Properties is the source of truth - sync FROM Properties TO Storage
             var settings = Application.Properties.getValue("codesList") as Lang.Array<Lang.Dictionary>;
@@ -396,6 +415,8 @@ class App extends Application.AppBase {
                 AppView.current.loadAllCodes();
                 AppView.current.refreshMissingImages();
                 System.println("[onSettingsChanged] Refreshed codes in AppView");
+                // Notify AppView about the screen timeout setting change
+                AppView.current.applyScreenTimeoutSetting();
             }
             
             WatchUi.requestUpdate();
@@ -915,13 +936,27 @@ class AppView extends WatchUi.View {
         // We'll set the layout in onUpdate based on state
     }
 
+    function applyScreenTimeoutSetting() {
+        var app = Application.getApp();
+        if (app has :keepScreenOn) { // Check if the property exists in the app object
+            var shouldKeepScreenOn = app.keepScreenOn;
+            System.println("[AppView.applyScreenTimeoutSetting] Setting Attention.setEnabled to: " + shouldKeepScreenOn);
+            Attention.setEnabled(shouldKeepScreenOn);
+        } else {
+            System.println("[AppView.applyScreenTimeoutSetting] keepScreenOn property not found in App. Defaulting to Attention.setEnabled(false).");
+            Attention.setEnabled(false); // Default to false if property is missing for safety
+        }
+    }
+
     function onShow() {
-        System.println("onShow");
+        System.println("[AppView.onShow] View is being shown.");
         // Check connectivity when app becomes visible
         var appInstance = Application.getApp();
         if (appInstance != null) {
             appInstance.checkConnectivityNow();
         }
+        // Apply screen timeout setting when view is shown
+        applyScreenTimeoutSetting();
     }
 
     function onUpdate(dc) {
@@ -1183,6 +1218,9 @@ class AppView extends WatchUi.View {
     }
 
     function onHide() {
+        System.println("[AppView.onHide] View is being hidden. Forcing Attention.setEnabled(false).");
+        // Always disable attention mode when the view is hidden to conserve battery
+        Attention.setEnabled(false);
     }
 
     function onKey(keyEvent) {

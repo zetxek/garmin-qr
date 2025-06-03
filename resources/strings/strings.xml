@@ -18,4 +18,7 @@ Author: Adrián Moreno Peña
 Version: 0.0.18
 Code: github.com/zetxek/garmin-qr
 </string>
+    <string id="keepScreenOnTitle">Keep Screen On While Showing Code</string>
+    <string id="keepScreenOnEnabled">Enabled</string>
+    <string id="keepScreenOnDisabled">Disabled</string>
 </resources> 
