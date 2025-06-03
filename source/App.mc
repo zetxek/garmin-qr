@@ -941,10 +941,23 @@ class AppView extends WatchUi.View {
         if (app has :keepScreenOn) { // Check if the property exists in the app object
             var shouldKeepScreenOn = app.keepScreenOn;
             System.println("[AppView.applyScreenTimeoutSetting] Setting Attention.setEnabled to: " + shouldKeepScreenOn);
-            Attention.setEnabled(shouldKeepScreenOn);
+            setAttentionMode(shouldKeepScreenOn);
         } else {
             System.println("[AppView.applyScreenTimeoutSetting] keepScreenOn property not found in App. Defaulting to Attention.setEnabled(false).");
-            Attention.setEnabled(false); // Default to false if property is missing for safety
+            setAttentionMode(false); // Default to false if property is missing for safety
+        }
+    }
+
+    function setAttentionMode(enabled as Lang.Boolean) {
+        try {
+            if (Toybox.Attention has :setEnabled) {
+            Attention.setEnabled(enabled);
+            System.println("[setAttentionMode] Attention.setEnabled set to: " + enabled);
+            } else {
+            System.println("[setAttentionMode] Attention.setEnabled not available on this device");
+            }
+        } catch (e) {
+            System.println("[setAttentionMode] Error setting attention mode: " + e.getErrorMessage());
         }
     }
 
@@ -1220,7 +1233,7 @@ class AppView extends WatchUi.View {
     function onHide() {
         System.println("[AppView.onHide] View is being hidden. Forcing Attention.setEnabled(false).");
         // Always disable attention mode when the view is hidden to conserve battery
-        Attention.setEnabled(false);
+        setAttentionMode(false);
     }
 
     function onKey(keyEvent) {
