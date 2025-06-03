@@ -597,6 +597,100 @@ class SettingsDelegate extends WatchUi.BehaviorDelegate {
     }
 }
 
+// App Settings view class for in-app settings management
+class AppSettingsView extends WatchUi.View {
+    function initialize() {
+        View.initialize();
+    }
+
+    function onLayout(dc) {
+        setLayout(Rez.Layouts.SettingsLayout(dc));
+    }
+
+    function onShow() {
+        // Show settings menu when view is shown
+        showSettingsMenu();
+    }
+
+    function onUpdate(dc) {
+        View.onUpdate(dc);
+    }
+
+    function onHide() {
+    }
+
+    function showSettingsMenu() {
+        var menu = new WatchUi.Menu2({:title => "Settings"});
+        
+        // Get current keepScreenOn setting
+        var app = Application.getApp();
+        var currentSetting = app.keepScreenOn;
+        var statusText = currentSetting ? "Enabled" : "Disabled";
+        
+        menu.addItem(new WatchUi.MenuItem("Keep Screen On", statusText, :toggle_keep_screen_on, {}));
+        
+        WatchUi.pushView(menu, new AppSettingsMenuDelegate(), WatchUi.SLIDE_UP);
+    }
+}
+
+// App Settings delegate class
+class AppSettingsDelegate extends WatchUi.BehaviorDelegate {
+    var view;
+    
+    function initialize(view) {
+        BehaviorDelegate.initialize();
+        self.view = view;
+    }
+
+    function onSelect() {
+        return true;
+    }
+}
+
+// App Settings Menu delegate class
+class AppSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
+    function initialize() {
+        Menu2InputDelegate.initialize();
+    }
+
+    function onSelect(item) {
+        var itemId = item.getId();
+        if (itemId == :toggle_keep_screen_on) {
+            // Toggle the keepScreenOn setting
+            var app = Application.getApp();
+            var newSetting = !app.keepScreenOn;
+            
+            // Update the app's setting
+            app.keepScreenOn = newSetting;
+            
+            // Save to Properties
+            Application.Properties.setValue("keepScreenOn", newSetting);
+            
+            // Apply the setting immediately if we're in the main view
+            if (AppView.current != null) {
+                AppView.current.applyScreenTimeoutSetting();
+            }
+            
+            System.println("[AppSettings] keepScreenOn toggled to: " + newSetting);
+            
+            // Pop back to app menu - pop both the settings menu and AppSettingsView
+            WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop the settings menu
+            WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop the AppSettingsView
+            
+            return;
+        }
+        return;
+    }
+
+    function onBack() {
+        System.println("[AppSettingsMenuDelegate] Back button pressed, returning to app menu");
+        // Handle back button - pop both the settings menu and the AppSettingsView 
+        // to return to the main app menu (the one with "About the app")
+        WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop the settings menu
+        WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop the AppSettingsView
+    }
+}
+
 class AppView extends WatchUi.View {
     var images as Lang.Array<Lang.Dictionary>;
     var currentIndex as Lang.Number;
@@ -1303,6 +1397,7 @@ class AppView extends WatchUi.View {
             menu.addItem(new WatchUi.MenuItem("Sync Now", null, :sync_now, {}));
         }
         
+        menu.addItem(new WatchUi.MenuItem("Settings", null, :app_settings, {}));
         menu.addItem(new WatchUi.MenuItem("About the app", null, :about_app, {}));
         
         WatchUi.pushView(menu, new CodeInfoMenu2InputDelegate(self), WatchUi.SLIDE_UP);
@@ -1398,6 +1493,9 @@ class CodeInfoMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
         } else if (itemId == :about_app) {
             var aboutView = new AboutView();
             WatchUi.pushView(aboutView, new AboutViewDelegate(aboutView), WatchUi.SLIDE_UP);
+        } else if (itemId == :app_settings) {
+            var settingsView = new AppSettingsView();
+            WatchUi.pushView(settingsView, new AppSettingsDelegate(settingsView), WatchUi.SLIDE_UP);
         } else if (itemId == :add_code) {
             var delegate = new AddCodeMenuDelegate(self.appView);
             delegate.showMenu();
@@ -1553,7 +1651,6 @@ class GlanceView extends WatchUi.GlanceView {
                         y = (screenHeight - drawHeight) / 2;
                     }
 
-                    // Use scaled drawing for better quality
                     dc.drawScaledBitmap(x, y, drawWidth, drawHeight, bmp);
 
                     // Get the title and text with improved text handling
@@ -1683,7 +1780,6 @@ class AboutView extends WatchUi.View {
     function onTap(tapEvent) {
         showQR = !showQR;
         WatchUi.requestUpdate();
-        return true;
     }
     function onKey(keyEvent) {
         var key = keyEvent.getKey();
