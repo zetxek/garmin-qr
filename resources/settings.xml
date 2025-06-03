@@ -23,5 +23,8 @@
                 </entry>
             </defaults>
         </setting>
+        <setting propertyKey="@Properties.keepScreenOn" title="@Strings.keepScreenOnTitle">
+            <settingConfig type="boolean" />
+        </setting>
     </settings>
 </resources>

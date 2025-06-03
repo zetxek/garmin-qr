@@ -8,14 +8,17 @@
         <string id="barcode">Barcode</string>
     <string id="codeTitle">Title</string>
     <string id="codeText">Text</string>
-    <string id="appVersion">0.0.18</string>
+    <string id="appVersion">0.0.19</string>
     <string id="NoCodesText">No codes configured</string>
     <string id="NoCodesSubText">Configure in Garmin IQ settings or from the app</string>
     <string id="AboutText">
 About the app
 
 Author: Adrián Moreno Peña
-Version: 0.0.18
+Version: 0.0.19
 Code: github.com/zetxek/garmin-qr
 </string>
+    <string id="keepScreenOnTitle">Keep Screen On While Showing Code</string>
+    <string id="keepScreenOnEnabled">Enabled</string>
+    <string id="keepScreenOnDisabled">Disabled</string>
 </resources> 
