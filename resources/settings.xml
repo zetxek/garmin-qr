@@ -23,12 +23,16 @@
                 </entry>
             </defaults>
         </setting>
-        <setting propertyKey="@Properties.keepScreenOn" title="@Strings.keepScreenOnTitle" type="boolean">
-            <settingConfig type="boolean">
-                <trueValue>@Strings.keepScreenOnEnabled</trueValue>
-                <falseValue>@Strings.keepScreenOnDisabled</falseValue>
+        <setting propertyKey="@Properties.keepScreenOn" title="@Strings.keepScreenOnTitle">
+            <settingConfig type="list">
+                <listEntry value="true">@Strings.keepScreenOnEnabled</listEntry>
+                <listEntry value="false">@Strings.keepScreenOnDisabled</listEntry>
             </settingConfig>
-            <defaultValue>false</defaultValue>
+            <defaults>
+                <entry>
+                    <default>false</default>
+                </entry>
+            </defaults>
         </setting>
     </settings>
 </resources>
