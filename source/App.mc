@@ -1576,22 +1576,23 @@ class GlanceView extends WatchUi.GlanceView {
                     var drawWidth, drawHeight, x, y;
                     
                     if (isBarcode) {
-                        // For barcodes: use full width, center vertically
-                        var maxWidth = screenWidth;
-                        var maxHeight = screenHeight * 0.7;
+                        // For barcodes: use most of the width with margins
+                        var margin = screenWidth * 0.05;  // 5% margin on each side
+                        drawWidth = screenWidth - (margin * 2);  // Use width minus margins
+                        drawHeight = screenHeight * 0.7;  // Use 70% of screen height
                         
-                        var scaleX = maxWidth / bmpWidth;
-                        var scaleY = maxHeight / bmpHeight;
-                        var scale = scaleX < scaleY ? scaleX : scaleY;
+                        // Make sure height doesn't exceed bitmap proportions too much
+                        var aspectRatio = bmpWidth / bmpHeight;
+                        var calculatedHeight = drawWidth / aspectRatio;
+                        if (calculatedHeight < drawHeight) {
+                            drawHeight = calculatedHeight;
+                        }
                         
-                        drawWidth = bmpWidth * scale;
-                        drawHeight = bmpHeight * scale;
-                        
-                        x = (screenWidth - drawWidth) / 2;
+                        x = margin;  // Add left margin
                         y = (screenHeight - drawHeight) / 2;
                         
                         dc.drawScaledBitmap(x, y, drawWidth, drawHeight, bmp);
-                        System.println("[GlanceView.onUpdate] Drew barcode at " + x + "," + y + " size " + drawWidth + "x" + drawHeight);
+                        System.println("[GlanceView.onUpdate] Drew full-width barcode at " + x + "," + y + " size " + drawWidth + "x" + drawHeight);
                     } else {
                         // For QR codes: smaller size, with text on the side
                         var maxSize = screenWidth * 0.4;
@@ -1687,21 +1688,29 @@ class GlanceView extends WatchUi.GlanceView {
         var screenHeight = System.getDeviceSettings().screenHeight;
         var maxDimension = screenWidth > screenHeight ? screenWidth : screenHeight;
         
-        // Scale glance image request size based on screen size
-        var glanceImageSize = 80;  // Default size
-        if (maxDimension >= 454) {      // Large screens
-            glanceImageSize = 120;
-        } else if (maxDimension >= 280) { // Medium screens
-            glanceImageSize = 100;
+        var url;
+        var options;
+        
+        if (codeType.equals("1")) {  // Barcode
+            // For barcodes in glance view: request full-width image
+            var barcodeWidth = screenWidth;
+            var barcodeHeight = screenHeight * 0.7;  // 70% of screen height
+            
+            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&size=" + barcodeWidth + "&shape=rectangle";
+            options = { :maxWidth => barcodeWidth, :maxHeight => barcodeHeight };
+        } else {
+            // For QR codes: keep square aspect ratio
+            var glanceImageSize = 80;  // Default size
+            if (maxDimension >= 454) {      // Large screens
+                glanceImageSize = 120;
+            } else if (maxDimension >= 280) { // Medium screens
+                glanceImageSize = 100;
+            }
+            
+            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text + "&size=" + glanceImageSize;
+            options = { :maxWidth => glanceImageSize, :maxHeight => glanceImageSize };
         }
         
-        var url;
-        if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&size=" + glanceImageSize + "&shape=rectangle";
-        } else {
-            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text + "&size=" + glanceImageSize;
-        }
-        var options = { :maxWidth => glanceImageSize, :maxHeight => glanceImageSize };
         Communications.makeImageRequest(
             url,
             null,
