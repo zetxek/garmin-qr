@@ -1583,15 +1583,35 @@ class GlanceView extends WatchUi.GlanceView {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
 
         var hasAnyCodes = false;
+        // Check Storage for any configured codes, not just cached images
         for (var i = 0; i < 10; i++) {
-            if (images[i] != null) {
+            var text = Storage.getValue("code_" + i + "_text");
+            if (text != null && text.length() > 0) {
                 hasAnyCodes = true;
                 break;
             }
         }
 
         if (hasAnyCodes) {
-            var bmp = Storage.getValue("qr_image_glance_0");
+            // Find the first available code instead of hardcoding index 0
+            var firstCodeIndex = -1;
+            for (var i = 0; i < 10; i++) {
+                var text = Storage.getValue("code_" + i + "_text");
+                if (text != null && text.length() > 0) {
+                    firstCodeIndex = i;
+                    break;
+                }
+            }
+            
+            var bmp = null;
+            if (firstCodeIndex >= 0) {
+                bmp = Storage.getValue("qr_image_glance_0");  // Always use glance_0 cache for first code
+                // If no glance image but there's a regular image, use that
+                if (bmp == null) {
+                    bmp = Storage.getValue("qr_image_" + firstCodeIndex);
+                }
+            }
+            
             if (bmp != null) {
                 try {
                     var bmpWidth = bmp.getWidth();
@@ -1654,8 +1674,8 @@ class GlanceView extends WatchUi.GlanceView {
                     dc.drawScaledBitmap(x, y, drawWidth, drawHeight, bmp);
 
                     // Get the title and text with improved text handling
-                    var title = Storage.getValue("code_0_title");
-                    var text = Storage.getValue("code_0_text");
+                    var title = Storage.getValue("code_" + firstCodeIndex + "_title");
+                    var text = Storage.getValue("code_" + firstCodeIndex + "_text");
                     var displayText = "";
                     if (text != null) {
                         displayText = text;
