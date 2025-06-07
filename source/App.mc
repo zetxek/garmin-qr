@@ -19,7 +19,12 @@ class App extends Application.AppBase {
 
     function initialize() {
         AppBase.initialize();
-        lastSyncTime = Storage.getValue("lastSyncTime");
+        var storedSyncTime = Storage.getValue("lastSyncTime");
+        if (storedSyncTime instanceof Lang.Number) {
+            lastSyncTime = storedSyncTime;
+        } else {
+            lastSyncTime = null;
+        }
         pendingSyncQueue = [];
         
         // Load keepScreenOn setting
@@ -130,22 +135,8 @@ class App extends Application.AppBase {
             // Check if phone is connected via Bluetooth
             var phoneConnected = deviceSettings.phoneConnected;
             if (phoneConnected != null) {
-                if (phoneConnected) {
-                    System.println("[isConnected] Phone connected via Bluetooth: true");
-                    return true;
-                } else {
-                    System.println("[isConnected] Phone connected via Bluetooth: false");
-                    return false;
-                }
-            }
-            
-            // Fallback: check connection state through Communications module
-            var connectionInfo = Communications.getNetworkState();
-            if (connectionInfo != null) {
-                // NETWORK_STATE_CONNECTED is typically 1, but let's check for non-zero values
-                var hasConnection = (connectionInfo != 0);
-                System.println("[isConnected] Network state: " + connectionInfo + " (connected: " + hasConnection + ")");
-                return hasConnection;
+                System.println("[isConnected] Phone connected via Bluetooth: " + phoneConnected);
+                return phoneConnected;
             }
             
             // Final fallback: if we can't determine connectivity, assume disconnected for safety
@@ -797,7 +788,9 @@ class AppView extends WatchUi.View {
                     } else {
                         // No cached image and offline, add to sync queue for later
                         System.println("[refreshMissingImages] No cached image and offline, adding to sync queue for code " + idx);
-                        appInstance.addToPendingSync(text, idx);
+                        if (text instanceof Lang.String) {
+                            appInstance.addToPendingSync(text as Lang.String, idx);
+                        }
                     }
                 } else {
                     // Image exists, check if text or type has changed
@@ -817,7 +810,9 @@ class AppView extends WatchUi.View {
                         } else {
                             // Content changed but offline, keep cached image and add to sync queue
                             System.println("[refreshMissingImages] Content changed for code " + idx + " but offline, keeping cached image and adding to sync queue");
-                            appInstance.addToPendingSync(text, idx);
+                            if (text instanceof Lang.String) {
+                                appInstance.addToPendingSync(text as Lang.String, idx);
+                            }
                         }
                     }
                 }
@@ -915,7 +910,7 @@ class AppView extends WatchUi.View {
         );
     }
 
-    function responseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
+    function responseCallback(responseCode as Lang.Number, data as Null or WatchUi.BitmapResource) as Void {
         var imagesIdx = downloadingImageIdx;
         System.println("=== responseCallback start. Response code: " + responseCode);
         isDownloading = false;
@@ -965,7 +960,9 @@ class AppView extends WatchUi.View {
                     System.println("[responseCallback] Requesting UI update");
                     WatchUi.requestUpdate();
                     // Download glance image with correct storage index
-                    AppView.downloadGlanceImage(currentText, idx);
+                    if (currentText instanceof Lang.String) {
+                        AppView.downloadGlanceImage(currentText as Lang.String, idx);
+                    }
                     System.println("[responseCallback] Image downloaded and processed successfully");
                 } catch(e) {
                     System.println("[responseCallback] Error requesting update: " + e.getErrorMessage());
@@ -986,8 +983,8 @@ class AppView extends WatchUi.View {
                 if (responseCode == -104) {
                     // Phone not connected - specific offline state
                     var text = Storage.getValue("code_" + idx + "_text");
-                    if (text != null) {
-                        app.addToPendingSync(text, idx);
+                    if (text != null && text instanceof Lang.String) {
+                        app.addToPendingSync(text as Lang.String, idx);
                         showError("Phone offline - will sync later");
                         System.println("[responseCallback] Phone not connected, added to sync queue: " + text);
                     } else {
@@ -996,8 +993,8 @@ class AppView extends WatchUi.View {
                 } else if (responseCode == -100 || responseCode == -101 || responseCode == -102) {
                     // Other network issues (timeout, network error, no connectivity)
                     var text = Storage.getValue("code_" + idx + "_text");
-                    if (text != null) {
-                        app.addToPendingSync(text, idx);
+                    if (text != null && text instanceof Lang.String) {
+                        app.addToPendingSync(text as Lang.String, idx);
                         showError("Network error - will retry");
                         System.println("[responseCallback] Added failed download to sync queue: " + text);
                     } else {
@@ -1009,8 +1006,8 @@ class AppView extends WatchUi.View {
                 } else if (responseCode >= 500) {
                     // Server errors (5xx) - can retry these
                     var text = Storage.getValue("code_" + idx + "_text");
-                    if (text != null) {
-                        app.addToPendingSync(text, idx);
+                    if (text != null && text instanceof Lang.String) {
+                        app.addToPendingSync(text as Lang.String, idx);
                         showError("Server error - will retry");
                     } else {
                         showError("Server error");
@@ -1044,11 +1041,13 @@ class AppView extends WatchUi.View {
 
     function setAttentionMode(enabled as Lang.Boolean) {
         try {
-            if (Toybox.Attention has :setEnabled) {
-            Attention.setEnabled(enabled);
-            System.println("[setAttentionMode] Attention.setEnabled set to: " + enabled);
+            // Try WatchUi.requestUpdate to keep screen active
+            if (enabled) {
+                // Keep requesting updates to maintain screen activity
+                WatchUi.requestUpdate();
+                System.println("[setAttentionMode] Screen timeout disabled via requestUpdate");
             } else {
-            System.println("[setAttentionMode] Attention.setEnabled not available on this device");
+                System.println("[setAttentionMode] Screen timeout enabled (normal behavior)");
             }
         } catch (e) {
             System.println("[setAttentionMode] Error setting attention mode: " + e.getErrorMessage());
@@ -1435,7 +1434,7 @@ class AppView extends WatchUi.View {
         );
     }
 
-    public static function glanceResponseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
+    public static function glanceResponseCallback(responseCode as Lang.Number, data as Null or WatchUi.BitmapResource) as Void {
         if (responseCode == 200 && data != null) {
             Storage.setValue("qr_image_glance_0", data as WatchUi.BitmapResource);
             // Store metadata for glance image as well
@@ -1531,163 +1530,119 @@ class AppDelegate extends WatchUi.BehaviorDelegate {
 
 (:glance)
 class GlanceView extends WatchUi.GlanceView {
-    var images as Lang.Array<Null or WatchUi.BitmapResource>;
 
     function initialize() {
         GlanceView.initialize();
-        images = new [10];
-        loadCachedImages();
-    }
-
-    function loadCachedImages() {
-        System.println("[loadCachedImages] Loading cached images for glance");
-        try {
-            for (var i = 0; i < 10; i++) {
-                var cachedImage = Storage.getValue("qr_image_" + i);
-                if (cachedImage != null) {
-                    images[i] = cachedImage as WatchUi.BitmapResource;
-                    System.println("[loadCachedImages] Loaded cached image for index: " + i);
-                } else {
-                    // Check if code exists but image is missing - defer sync to avoid startup memory pressure
-                    var text = Storage.getValue("code_" + i + "_text");
-                    if (text != null && text.length() > 0) {
-                        System.println("[loadCachedImages] Found code without image at index " + i + ": " + text);
-                        // Don't add to sync queue from GlanceView during startup to avoid race conditions
-                        // The main AppView will handle missing images when it loads
-                        System.println("[loadCachedImages] Deferring sync queue addition until AppView is ready");
-                    }
-                }
-            }
-            
-            // Check if glance image needs to be refreshed (for code 0)
-            var glanceImage = Storage.getValue("qr_image_glance_0");
-            if (glanceImage != null) {
-                var currentText = Storage.getValue("code_0_text");
-                var currentType = Storage.getValue("code_0_type");
-                var cachedText = Storage.getValue("qr_image_glance_meta_text_0");
-                var cachedType = Storage.getValue("qr_image_glance_meta_type_0");
-                
-                if (currentText != null && (currentText != cachedText || currentType != cachedType || cachedText == null)) {
-                    System.println("[loadCachedImages] Glance content changed, clearing cache");
-                    Storage.deleteValue("qr_image_glance_0");
-                    Storage.deleteValue("qr_image_glance_meta_text_0");
-                    Storage.deleteValue("qr_image_glance_meta_type_0");
-                }
-            }
-        } catch (e) {
-            System.println("Error loading cached images for glance: " + e.getErrorMessage());
-        }
     }
 
     function onUpdate(dc) {
+        System.println("[GlanceView.onUpdate] Starting glance update");
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.clear();
 
-        var hasAnyCodes = false;
+        // Find the first available code
+        var firstCodeIndex = -1;
         for (var i = 0; i < 10; i++) {
-            if (images[i] != null) {
-                hasAnyCodes = true;
+            var text = Storage.getValue("code_" + i + "_text");
+            if (text != null && text.length() > 0) {
+                firstCodeIndex = i;
+                System.println("[GlanceView.onUpdate] Found first code at index " + i + ": " + text.substring(0, 20) + "...");
                 break;
             }
         }
 
-        if (hasAnyCodes) {
-            var bmp = Storage.getValue("qr_image_glance_0");
+        if (firstCodeIndex >= 0) {
+            // Try to get an image for the first code
+            var bmp = Storage.getValue("qr_image_glance_0");  // Try glance-specific image first
+            if (bmp == null) {
+                bmp = Storage.getValue("qr_image_" + firstCodeIndex);  // Fallback to regular image
+                System.println("[GlanceView.onUpdate] Using regular image for code " + firstCodeIndex);
+            } else {
+                System.println("[GlanceView.onUpdate] Using glance image for code " + firstCodeIndex);
+            }
+            
             if (bmp != null) {
+                System.println("[GlanceView.onUpdate] Drawing image for code " + firstCodeIndex);
                 try {
-                    var bmpWidth = bmp.getWidth();
-                    var bmpHeight = bmp.getHeight();
                     var screenWidth = dc.getWidth();
                     var screenHeight = dc.getHeight();
+                    var bmpWidth = bmp.getWidth();
+                    var bmpHeight = bmp.getHeight();
 
-                    // Improved layout for glance view on larger screens
-                    var marginPercent = 0.08;  // 8% margin
-                    var margin = screenWidth * marginPercent;
+                    // Check if this is a barcode
+                    var codeType = Storage.getValue("code_" + firstCodeIndex + "_type");
+                    var isBarcode = (codeType != null && codeType.equals("1")) || (bmpWidth > bmpHeight * 1.5);
                     
-                    // Check if this is a barcode by looking at aspect ratio
-                    var isBarcode = (bmpWidth > bmpHeight * 1.5);  // Wide aspect ratio suggests barcode
-                    
-                    var drawWidth, drawHeight, x, y, scale;
+                    var drawWidth, drawHeight, x, y;
                     
                     if (isBarcode) {
-                        // For barcodes in glance: use more width, less height
-                        var maxWidth = screenWidth * 0.4;  // 40% of screen width for barcode
-                        var maxHeight = screenHeight * 0.6;  // 60% of screen height
+                        // For barcodes: use most of the width with margins
+                        var margin = screenWidth * 0.05;  // 5% margin on each side
+                        drawWidth = screenWidth - (margin * 2);  // Use width minus margins
+                        drawHeight = screenHeight * 0.7;  // Use 70% of screen height
                         
-                        var scaleX = maxWidth / bmpWidth;
-                        var scaleY = maxHeight / bmpHeight;
-                        scale = scaleX < scaleY ? scaleX : scaleY;
+                        // Make sure height doesn't exceed bitmap proportions too much
+                        var aspectRatio = bmpWidth / bmpHeight;
+                        var calculatedHeight = drawWidth / aspectRatio;
+                        if (calculatedHeight < drawHeight) {
+                            drawHeight = calculatedHeight;
+                        }
                         
-                        drawWidth = bmpWidth * scale;
-                        drawHeight = bmpHeight * scale;
-                        
-                        // Position barcode on left side
-                        x = margin;
+                        x = margin;  // Add left margin
                         y = (screenHeight - drawHeight) / 2;
+                        
+                        dc.drawScaledBitmap(x, y, drawWidth, drawHeight, bmp);
+                        System.println("[GlanceView.onUpdate] Drew full-width barcode at " + x + "," + y + " size " + drawWidth + "x" + drawHeight);
                     } else {
-                        // For QR codes: use better scaling for larger screens
-                        var maxSize = min(screenWidth * 0.45, screenHeight * 0.8);  // Better proportions
-                        scale = 1.0;
-                        
-                        if (bmpWidth > maxSize || bmpHeight > maxSize) {
-                            var maxDimension = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
-                            scale = maxSize / maxDimension;
-                        } else {
-                            // Scale up small QR codes on larger screens for better visibility
-                            var targetSize = maxSize;
-                            var currentSize = bmpWidth > bmpHeight ? bmpWidth : bmpHeight;
-                            scale = targetSize / currentSize;
-                            
-                            // Cap maximum scale to prevent pixelation
-                            if (scale > 3.0) {
-                                scale = 3.0;
-                            }
+                        // For QR codes: smaller size, with text on the side
+                        var maxSize = screenWidth * 0.4;
+                        if (maxSize > screenHeight * 0.7) {
+                            maxSize = screenHeight * 0.7;
                         }
                         
+                        var scale = maxSize / (bmpWidth > bmpHeight ? bmpWidth : bmpHeight);
                         drawWidth = bmpWidth * scale;
                         drawHeight = bmpHeight * scale;
                         
-                        // Center QR code on left side
-                        x = margin;
+                        x = 10;  // Small margin from left
                         y = (screenHeight - drawHeight) / 2;
-                    }
-
-                    dc.drawScaledBitmap(x, y, drawWidth, drawHeight, bmp);
-
-                    // Get the title and text with improved text handling
-                    var title = Storage.getValue("code_0_title");
-                    var text = Storage.getValue("code_0_text");
-                    var displayText = "";
-                    if (text != null) {
-                        displayText = text;
-                    }
-                    if (title != null && title.length() > 0) {
-                        displayText = title + " (" + displayText + ")";
-                    }
-                    
-                    // Position text better for larger screens
-                    dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-                    var textX = x + drawWidth + (margin / 2);  // Half margin between image and text
-                    var textY = screenHeight / 2;
-                    var maxWidth = screenWidth - textX - margin;
-                    
-                    // Better text wrapping for larger screens
-                    var textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
-                    if (textWidth > maxWidth && maxWidth > 30) {  // Only truncate if we have reasonable space
-                        var maxChars = (displayText.length() * maxWidth / textWidth).toNumber();
-                        if (maxChars > 3) {
-                            displayText = displayText.substring(0, maxChars - 3) + "...";
+                        
+                        dc.drawScaledBitmap(x, y, drawWidth, drawHeight, bmp);
+                        System.println("[GlanceView.onUpdate] Drew QR code at " + x + "," + y + " size " + drawWidth + "x" + drawHeight);
+                        
+                        // Draw text next to QR code
+                        var title = Storage.getValue("code_" + firstCodeIndex + "_title");
+                        var text = Storage.getValue("code_" + firstCodeIndex + "_text");
+                        var displayText = text != null ? text : "";
+                        if (title != null && title.length() > 0) {
+                            displayText = title;
+                        }
+                        
+                        if (displayText.length() > 0) {
+                            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+                            var textX = x + drawWidth + 10;
+                            var textY = screenHeight / 2;
+                            var maxTextWidth = screenWidth - textX - 5;
+                            
+                            // Truncate text based on available width
+                            var textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
+                            while (textWidth > maxTextWidth && displayText.length() > 3) {
+                                displayText = displayText.substring(0, displayText.length() - 4) + "...";
+                                textWidth = dc.getTextWidthInPixels(displayText, Graphics.FONT_XTINY);
+                            }
+                            
+                            dc.drawText(
+                                textX,
+                                textY,
+                                Graphics.FONT_XTINY,
+                                displayText,
+                                Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
+                            );
+                            System.println("[GlanceView.onUpdate] Drew text: " + displayText);
                         }
                     }
-                    
-                    dc.drawText(
-                        textX,
-                        textY,
-                        Graphics.FONT_XTINY,
-                        displayText,
-                        Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
-                    );
                 } catch (e) {
-                    System.println("Error drawing glance: " + e.getErrorMessage());
+                    System.println("[GlanceView.onUpdate] Error drawing: " + e.getErrorMessage());
                     dc.drawText(
                         dc.getWidth() / 2,
                         dc.getHeight() / 2,
@@ -1696,8 +1651,18 @@ class GlanceView extends WatchUi.GlanceView {
                         Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
                     );
                 }
+            } else {
+                System.println("[GlanceView.onUpdate] No image available for code " + firstCodeIndex);
+                dc.drawText(
+                    dc.getWidth() / 2,
+                    dc.getHeight() / 2,
+                    Graphics.FONT_TINY,
+                    "Loading code...",
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+                );
             }
         } else {
+            System.println("[GlanceView.onUpdate] No codes configured");
             dc.drawText(
                 dc.getWidth() / 2,
                 dc.getHeight() / 2,
@@ -1706,6 +1671,8 @@ class GlanceView extends WatchUi.GlanceView {
                 Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
             );
         }
+        
+        System.println("[GlanceView.onUpdate] Glance update complete");
     }
 
     function min(a, b) {
@@ -1721,21 +1688,29 @@ class GlanceView extends WatchUi.GlanceView {
         var screenHeight = System.getDeviceSettings().screenHeight;
         var maxDimension = screenWidth > screenHeight ? screenWidth : screenHeight;
         
-        // Scale glance image request size based on screen size
-        var glanceImageSize = 80;  // Default size
-        if (maxDimension >= 454) {      // Large screens
-            glanceImageSize = 120;
-        } else if (maxDimension >= 280) { // Medium screens
-            glanceImageSize = 100;
+        var url;
+        var options;
+        
+        if (codeType.equals("1")) {  // Barcode
+            // For barcodes in glance view: request full-width image
+            var barcodeWidth = screenWidth;
+            var barcodeHeight = screenHeight * 0.7;  // 70% of screen height
+            
+            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&size=" + barcodeWidth + "&shape=rectangle";
+            options = { :maxWidth => barcodeWidth, :maxHeight => barcodeHeight };
+        } else {
+            // For QR codes: keep square aspect ratio
+            var glanceImageSize = 80;  // Default size
+            if (maxDimension >= 454) {      // Large screens
+                glanceImageSize = 120;
+            } else if (maxDimension >= 280) { // Medium screens
+                glanceImageSize = 100;
+            }
+            
+            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text + "&size=" + glanceImageSize;
+            options = { :maxWidth => glanceImageSize, :maxHeight => glanceImageSize };
         }
         
-        var url;
-        if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&size=" + glanceImageSize + "&shape=rectangle";
-        } else {
-            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text + "&size=" + glanceImageSize;
-        }
-        var options = { :maxWidth => glanceImageSize, :maxHeight => glanceImageSize };
         Communications.makeImageRequest(
             url,
             null,
@@ -1744,7 +1719,7 @@ class GlanceView extends WatchUi.GlanceView {
         );
     }
 
-    function glanceResponseCallback(responseCode as Lang.Number, data as Null or Graphics.BitmapResource) as Void {
+    function glanceResponseCallback(responseCode as Lang.Number, data as Null or WatchUi.BitmapResource) as Void {
         if (responseCode == 200 && data != null) {
             Storage.setValue("qr_image_glance_0", data as WatchUi.BitmapResource);
             // Store metadata for glance image as well
@@ -2031,7 +2006,8 @@ class ConfirmDeleteDelegate extends WatchUi.Menu2InputDelegate {
         var itemId = item.getId();
         if (itemId == :yes_delete) {
             // Get the index of the code to delete
-            var idx = appView.images[appView.currentIndex][:index];
+            var currentImageData = appView.images[appView.currentIndex];
+            var idx = currentImageData.get(:index);
             System.println("Deleting code at index: " + idx);
             
             // 1. Delete from Storage
