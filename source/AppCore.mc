@@ -128,11 +128,11 @@ class App extends Application.AppBase {
             if (phoneConnected != null) {
                 System.println("[isConnected] Phone connected via Bluetooth: " + phoneConnected);
                 return phoneConnected;
+            } else {
+                // Final fallback: if we can't determine connectivity, assume disconnected for safety
+                System.println("[isConnected] Unable to determine connectivity, assuming disconnected");
+                return false;
             }
-            
-            // Final fallback: if we can't determine connectivity, assume disconnected for safety
-            System.println("[isConnected] Unable to determine connectivity, assuming disconnected");
-            return false;
             
         } catch (e) {
             System.println("[isConnected] Error checking connectivity: " + e.getErrorMessage());

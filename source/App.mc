@@ -1058,52 +1058,54 @@ class ConfirmDeleteDelegate extends WatchUi.Menu2InputDelegate {
         var itemId = item.getId();
         if (itemId == :yes_delete) {
             // Get the index of the code to delete
-            var currentImageData = appView.images[appView.currentIndex];
-            var idx = currentImageData.get(:index);
-            System.println("Deleting code at index: " + idx);
+            if (appView.currentIndex >= 0 && appView.currentIndex < appView.images.size()) {
+                var imagesArray = appView.images as Lang.Array<Lang.Dictionary>;
+                var currentImageData = imagesArray[appView.currentIndex] as Lang.Dictionary;
+                var idx = currentImageData.get(:index) as Lang.Number; // Added cast for idx
+                System.println("Deleting code at index: " + idx);
             
-            // 1. Delete from Storage
-            Storage.deleteValue("code_" + idx + "_text");
-            Storage.deleteValue("code_" + idx + "_title");
-            Storage.deleteValue("code_" + idx + "_type");
+                // 1. Delete from Storage
+                Storage.deleteValue("code_" + idx + "_text");
+                Storage.deleteValue("code_" + idx + "_title");
+                Storage.deleteValue("code_" + idx + "_type");
             
-            // 2. Delete from Application.Properties
-            try {
-                var codesList = Application.Properties.getValue("codesList") as Lang.Array;
-                if (codesList != null && idx < codesList.size()) {
-                    // Set to null instead of empty dictionary
-                    codesList[idx] = null;
-                    Application.Properties.setValue("codesList", codesList);
-                    System.println("Deleted code from Application.Properties");
+                // 2. Delete from Application.Properties
+                try {
+                    var codesList = Application.Properties.getValue("codesList") as Lang.Array<Lang.Dictionary?>; // Specify Dictionary can be null
+                    if (idx < codesList.size()) { // Removed redundant null check for codesList
+                        codesList[idx] = null;
+                        Application.Properties.setValue("codesList", codesList);
+                        System.println("Deleted code from Application.Properties");
+                    }
+                } catch (e instanceof Lang.Exception) { // More specific catch
+                    System.println("Error deleting from Properties: " + e.getErrorMessage());
                 }
-            } catch (e) {
-                System.println("Error deleting from Properties: " + e.getErrorMessage());
-            }
             
-            // Save current index before reloading
-            var currentPosition = appView.currentIndex;
+                // Save current index before reloading
+                var currentPosition = appView.currentIndex;
 
-            // Sync storage and properties
-            Application.getApp().syncStorageAndProperties();
+                // Sync storage and properties
+                Application.getApp().syncStorageAndProperties();
             
-            // Pop all menus and return to main view
-            WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop confirmation dialog
-            WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop the code info menu
+                // Pop all menus and return to main view
+                WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop confirmation dialog
+                WatchUi.popView(WatchUi.SLIDE_DOWN); // Pop the code info menu
             
-            // Refresh codes on main screen
-            appView.loadAllCodes();
+                // Refresh codes on main screen
+                appView.loadAllCodes();
             
-            // If we deleted the last code, adjust the index
-            if (appView.images.size() == 0) {
-                appView.currentIndex = 0;
-                System.println("All codes deleted, reset to index 0");
-            } else if (currentPosition >= appView.images.size()) {
-                // We deleted the last code, move to the previous one
-                appView.currentIndex = appView.images.size() - 1;
-                System.println("Deleted last code, now showing index: " + appView.currentIndex);
-            }
+                // If we deleted the last code, adjust the index
+                if (appView.images.size() == 0) {
+                    appView.currentIndex = 0;
+                    System.println("All codes deleted, reset to index 0");
+                } else if (currentPosition >= appView.images.size()) {
+                    // We deleted the last code, move to the previous one
+                    appView.currentIndex = appView.images.size() - 1;
+                    System.println("Deleted last code, now showing index: " + appView.currentIndex);
+                }
             
-            WatchUi.requestUpdate();
+                WatchUi.requestUpdate();
+            } // Added closing brace for the if condition
         } else if (itemId == :no_delete) {
             // Just pop the confirmation dialog
             WatchUi.popView(WatchUi.SLIDE_DOWN);
