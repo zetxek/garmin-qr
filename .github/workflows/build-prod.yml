@@ -85,11 +85,45 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
-      - name: Commit changes
+
+      - name: Create release branch and commit changes
         run: |
+          # Install git in the container
+          apt-get update && apt-get install -y git
+          
+          # Configure git
           git config --local user.name "GitHub Actions"
           git config --local user.email "github-actions@github.com"
-          git add .
-          git commit -m "Update version to $VERSION"
-          git push origin HEAD:${{ github.ref_name }} || echo "No changes to commit"
+          
+          # Create and switch to release branch
+          BRANCH_NAME="release/${{ env.VERSION }}"
+          git checkout -b "$BRANCH_NAME"
+          
+          # Add and commit changes
+          git add resources/drawables/properties.xml resources/strings/strings.xml dist/garmin-qr.iq
+          git commit -m "Update version to ${{ env.VERSION }} for release"
+          
+          # Push the branch
+          git push origin "$BRANCH_NAME"
+          
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Create Pull Request
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: release/${{ env.VERSION }}
+          destination_branch: main
+          pr_title: "Release ${{ env.VERSION }}"
+          pr_body: |
+            ## Release ${{ env.VERSION }}
+            
+            This PR contains version updates for the release ${{ env.VERSION }}.
+            
+            ### Changes:
+            - Updated version in `resources/drawables/properties.xml`
+            - Updated version in `resources/strings/strings.xml`
+            
+            ### Artifacts:
+            - Built IQ file: `dist/garmin-qr.iq`
+            - Release created with tag: ${{ env.VERSION }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
