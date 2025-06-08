@@ -81,13 +81,14 @@ class GlanceView extends WatchUi.GlanceView {
                             displayText = codeText.length() > maxChars ? codeText.substring(0, maxChars - 3) + "..." : codeText;
                         }
                         
+                        var textGap = 5.0; 
                         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
                         dc.drawText(
-                            textX + (remainingWidth / 2),  // Center in remaining space
+                            textX + textGap,  // Start text immediately after image
                             screenHeight / 2,  // Center vertically
                             Graphics.FONT_TINY,
                             displayText,
-                            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+                            Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
                         );
                         System.println("[GlanceView.onUpdate] Drew text: " + displayText);
                     }
