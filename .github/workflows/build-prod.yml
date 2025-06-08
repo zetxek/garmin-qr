@@ -91,20 +91,29 @@ jobs:
           # Install git in the container
           apt-get update && apt-get install -y git
           
-          # Configure git
-          git config --local user.name "GitHub Actions"
-          git config --local user.email "github-actions@github.com"
+          # Ensure we're in the workspace directory
+          cd $GITHUB_WORKSPACE
+          
+          # Initialize git repository context if needed
+          git status || git init
+          
+          # Configure git globally since we're in a container
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@github.com"
+          
+          # Set up remote if it doesn't exist
+          git remote get-url origin || git remote add origin https://github.com/${{ github.repository }}.git
           
           # Create and switch to release branch
           BRANCH_NAME="release/${{ env.VERSION }}"
           git checkout -b "$BRANCH_NAME"
           
           # Add and commit changes
-          git add resources/drawables/properties.xml resources/strings/strings.xml dist/garmin-qr.iq
-          git commit -m "Update version to ${{ env.VERSION }} for release"
+          git add resources/drawables/properties.xml resources/strings/strings.xml
+          git commit -m "Update version to ${{ env.VERSION }} for release" || echo "No changes to commit"
           
           # Push the branch
-          git push origin "$BRANCH_NAME"
+          git push -u origin "$BRANCH_NAME"
           
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
