@@ -52,22 +52,21 @@ jobs:
         #  -y /Users/adrianmorenopena/Documents/garmin-sdk/developer_key 
         #  -e -r -w
         run: |
-          mkdir -p bin
-          monkeyc -o bin/garmin-qr.iq -f monkey.jungle -y developer_key.der -e -r -w
+          monkeyc -o dist/garmin-qr.iq -f monkey.jungle -y developer_key.der -e -r -w
 
       - name: Upload Release Build
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: release-build
-          path: bin/garmin-qr.iq
+          path: dist/garmin-qr.iq
           if-no-files-found: error
 
       - name: Create new project release
         if: github.event_name == 'push' || github.event_name == 'tag'
         uses: softprops/action-gh-release@v2
         with:
-          files: bin/garmin-qr.iq
+          files: dist/garmin-qr.iq
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
