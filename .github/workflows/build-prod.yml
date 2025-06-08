@@ -1,0 +1,80 @@
+name: Build Prod
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  
+  # Manual trigger, pass the tag name as input
+  # Example: v1.0.0
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release'
+        required: true
+        default: 'v0.0.0'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      #image: ghcr.io/matco/connectiq-tester:v2.3.0
+      image: ghcr.io/zetxek/connectiq-tester:latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup developer key
+        env:
+          DEVELOPER_KEY_BASE64: ${{ secrets.DEVELOPER_KEY_BASE64 }}
+        run: |
+          echo "$DEVELOPER_KEY_BASE64" | base64 -d > developer_key.der
+          # Verify the key was created
+          ls -la developer_key.der
+
+      - name: Setup tag name as version
+        run: |
+          echo "VERSION=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+          echo "VERSION: $VERSION"
+          sed -i.bak "s/0.0.0/$VERSION/g" resources/drawables/properties.xml
+          sed -i.bak "s/0.0.0/$VERSION/g" resources/strings/strings.xml
+
+      - name: Build Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        # Command by vscode:
+        # java -Xms1g 
+        #  -Dfile.encoding=UTF-8 
+        #  -Dapple.awt.UIElement=true 
+        #  -jar /Users/adrianmorenopena/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-8.1.1-2025-03-27-66dae750f/bin/monkeybrains.jar 
+        #  -o /Users/adrianmorenopena/Projects/garmin-qr/dist/store/garmin-qr.iq 
+        #  -f /Users/adrianmorenopena/Projects/garmin-qr/monkey.jungle 
+        #  -y /Users/adrianmorenopena/Documents/garmin-sdk/developer_key 
+        #  -e -r -w
+        run: |
+          mkdir -p bin
+          monkeyc -o bin/garmin-qr.iq -f monkey.jungle -y developer_key.der -e -r -w
+
+      - name: Upload Release Build
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build
+          path: bin/garmin-qr.iq
+          if-no-files-found: error
+
+      - name: Create new project release
+        if: github.event_name == 'push' || github.event_name == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: bin/garmin-qr.iq
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+      - name: Commit changes
+        run: |
+          git config --local user.name "GitHub Actions"
+          git config --local user.email "github-actions@github.com"
+          git add .
+          git commit -m "Update version to $VERSION"
+          git push origin HEAD:${{ github.ref_name }} || echo "No changes to commit"
