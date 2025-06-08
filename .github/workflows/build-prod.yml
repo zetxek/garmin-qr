@@ -17,6 +17,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
     container:
       #image: ghcr.io/matco/connectiq-tester:v2.3.0
       image: ghcr.io/zetxek/connectiq-tester:latest
@@ -77,6 +80,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/garmin-qr.iq
+          name: IQ Release ${{ env.VERSION }}
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
