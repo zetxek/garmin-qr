@@ -35,12 +35,18 @@ jobs:
 
       - name: Setup tag name as version
         run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "GitHub REF: $GITHUB_REF"
+          echo "GitHub REF NAME: ${{ github.ref_name }}"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "VERSION=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+            VERSION="${{ github.event.inputs.tag_name }}"
+            echo "Using workflow_dispatch input: $VERSION"
           else
-            echo "VERSION=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+            VERSION="${GITHUB_REF#refs/tags/}"
+            echo "Extracted from ref: $VERSION"
           fi
-          echo "VERSION: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Final VERSION: $VERSION"
           sed -i.bak "s/0.0.0/$VERSION/g" resources/drawables/properties.xml
           sed -i.bak "s/0.0.0/$VERSION/g" resources/strings/strings.xml
 
