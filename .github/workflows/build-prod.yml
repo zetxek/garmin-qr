@@ -35,7 +35,11 @@ jobs:
 
       - name: Setup tag name as version
         run: |
-          echo "VERSION=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+          fi
           echo "VERSION: $VERSION"
           sed -i.bak "s/0.0.0/$VERSION/g" resources/drawables/properties.xml
           sed -i.bak "s/0.0.0/$VERSION/g" resources/strings/strings.xml
