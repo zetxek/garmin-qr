@@ -88,69 +88,75 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create release branch and commit changes
-        run: |
-          # Ensure we're in the workspace directory
-          cd $GITHUB_WORKSPACE
-          
-          # Fix git ownership issues in container
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-          git config --global init.defaultBranch main
-          
-          # Configure git globally since we're in a container
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "github-actions@github.com"          
-          
-          # Fetch the current state
-          git fetch origin
-          
-          # Create branch from the tag or current commit
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            # For manual dispatch, create from main branch
-            git checkout -b "release/${{ env.VERSION }}" origin/main
-          else
-            # For tag push, create from the tag itself
-            git checkout -b "release/${{ env.VERSION }}" "${{ env.VERSION }}"
-          fi
-          
-          # Add and commit changes (only the version files, not workflow)
-          git add resources/drawables/properties.xml resources/strings/strings.xml
-          
-          # Check if there are actually changes to commit
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update version to ${{ env.VERSION }} for release"
-            
-            # Push the branch
-            git push -u origin "release/${{ env.VERSION }}"
-            
-            echo "BRANCH_NAME=release/${{ env.VERSION }}" >> $GITHUB_ENV
-            echo "CHANGES_COMMITTED=true" >> $GITHUB_ENV
-          fi
+      ## TODO: use PAT to create a release branch and PR
+      
+      # # Create a release branch with version updates and submit a PR to main
+      # - name: Create release branch and commit changes
+      #   run: |
+      #     # Ensure we're in the workspace directory
+      #     cd $GITHUB_WORKSPACE
+      #     
+      #     # Fix git ownership issues in container - required when running in Docker
+      #     git config --global --add safe.directory $GITHUB_WORKSPACE
+      #     git config --global init.defaultBranch main
+      #     
+      #     # Configure git globally since we're in a container
+      #     git config --global user.name "GitHub Actions"
+      #     git config --global user.email "github-actions@github.com"          
+      #     
+      #     # Fetch the current state from remote
+      #     git fetch origin
+      #     
+      #     # Create branch from the tag or current commit depending on trigger type
+      #     if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+      #   # For manual dispatch, create from main branch
+      #   git checkout -b "release/${{ env.VERSION }}" origin/main
+      #     else
+      #   # For tag push, create from the tag itself
+      #   git checkout -b "release/${{ env.VERSION }}" "${{ env.VERSION }}"
+      #     fi
+      #     
+      #     # Add only the version files to staging (exclude workflow files)
+      #     git add resources/drawables/properties.xml resources/strings/strings.xml
+      #     
+      #     # Check if there are actually changes to commit before proceeding
+      #     if git diff --cached --quiet; then
+      #   echo "No changes to commit"
+      #     else
+      #   # Commit the version changes
+      #   git commit -m "Update version to ${{ env.VERSION }} for release"
+      #   
+      #   # Push the new release branch to remote
+      #   git push -u origin "release/${{ env.VERSION }}"
+      #   
+      #   # Set environment variables for the next step
+      #   echo "BRANCH_NAME=release/${{ env.VERSION }}" >> $GITHUB_ENV
+      #   echo "CHANGES_COMMITTED=true" >> $GITHUB_ENV
+      #     fi
 
-      - name: Create Pull Request
-        if: env.CHANGES_COMMITTED == 'true'
-        run: |
-          
-          # Create PR using GitHub CLI
-          gh pr create \
-            --title "Release ${{ env.VERSION }}" \
-            --body "## Release ${{ env.VERSION }}
+      # # Create a Pull Request to merge version updates back to main branch
+      # - name: Create Pull Request
+      #   if: env.CHANGES_COMMITTED == 'true'
+      #   run: |
+      #     
+      #     # Create PR using GitHub CLI with detailed information
+      #     gh pr create \
+      #   --title "Release ${{ env.VERSION }}" \
+      #   --body "## Release ${{ env.VERSION }}
 
-          This PR contains version updates for the Garmin ConnectIQ app release ${{ env.VERSION }}.
+      #     This PR contains version updates for the Garmin ConnectIQ app release ${{ env.VERSION }}.
 
-          ### Changes:
-          - Updated version in \`resources/drawables/properties.xml\`
-          - Updated version in \`resources/strings/strings.xml\`
+      #     ### Changes:
+      #     - Updated version in \`resources/drawables/properties.xml\`
+      #     - Updated version in \`resources/strings/strings.xml\`
 
-          ### Artifacts:
-          - Built IQ file: \`dist/garmin-qr.iq\`
-          - Release created with tag: ${{ env.VERSION }}
+      #     ### Artifacts:
+      #     - Built IQ file: \`dist/garmin-qr.iq\`
+      #     - Release created with tag: ${{ env.VERSION }}
 
-          ### ConnectIQ Build:
-          This release was built using Garmin ConnectIQ SDK with \`monkeyc\` compiler for distribution to Garmin devices." \
-            --base main \
-            --head "release/${{ env.VERSION }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     ### ConnectIQ Build:
+      #     This release was built using Garmin ConnectIQ SDK with \`monkeyc\` compiler for distribution to Garmin devices." \
+      #   --base main \
+      #   --head "release/${{ env.VERSION }}"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
