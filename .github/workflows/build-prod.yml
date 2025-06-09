@@ -101,7 +101,15 @@ jobs:
           
           # Fetch the current state
           git fetch origin
-          git checkout -b "release/${{ env.VERSION }}" "origin/${{ github.ref_name }}"
+          
+          # Create branch from the tag or current commit
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # For manual dispatch, create from main branch
+            git checkout -b "release/${{ env.VERSION }}" origin/main
+          else
+            # For tag push, create from the tag itself
+            git checkout -b "release/${{ env.VERSION }}" "${{ env.VERSION }}"
+          fi
           
           # Add and commit changes
           git add resources/drawables/properties.xml resources/strings/strings.xml
