@@ -124,26 +124,33 @@ jobs:
             
             # Push the branch
             git push -u origin "release/${{ env.VERSION }}"
+            
+            echo "BRANCH_NAME=release/${{ env.VERSION }}" >> $GITHUB_ENV
+            echo "CHANGES_COMMITTED=true" >> $GITHUB_ENV
           fi
-          
-          echo "BRANCH_NAME=release/${{ env.VERSION }}" >> $GITHUB_ENV
 
       - name: Create Pull Request
-        uses: repo-sync/pull-request@v2
-        with:
-          source_branch: release/${{ env.VERSION }}
-          destination_branch: main
-          pr_title: "Release ${{ env.VERSION }}"
-          pr_body: |
-            ## Release ${{ env.VERSION }}
-            
-            This PR contains version updates for the release ${{ env.VERSION }}.
-            
-            ### Changes:
-            - Updated version in `resources/drawables/properties.xml`
-            - Updated version in `resources/strings/strings.xml`
-            
-            ### Artifacts:
-            - Built IQ file: `dist/garmin-qr.iq`
-            - Release created with tag: ${{ env.VERSION }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: env.CHANGES_COMMITTED == 'true'
+        run: |
+          
+          # Create PR using GitHub CLI
+          gh pr create \
+            --title "Release ${{ env.VERSION }}" \
+            --body "## Release ${{ env.VERSION }}
+
+          This PR contains version updates for the Garmin ConnectIQ app release ${{ env.VERSION }}.
+
+          ### Changes:
+          - Updated version in \`resources/drawables/properties.xml\`
+          - Updated version in \`resources/strings/strings.xml\`
+
+          ### Artifacts:
+          - Built IQ file: \`dist/garmin-qr.iq\`
+          - Release created with tag: ${{ env.VERSION }}
+
+          ### ConnectIQ Build:
+          This release was built using Garmin ConnectIQ SDK with \`monkeyc\` compiler for distribution to Garmin devices." \
+            --base main \
+            --head "release/${{ env.VERSION }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
