@@ -20,6 +20,8 @@ jobs:
     permissions:
       contents: write
       packages: read
+      pull-requests: write
+      actions: write
     container:
       #image: ghcr.io/matco/connectiq-tester:v2.3.0
       image: ghcr.io/zetxek/connectiq-tester:v2.4.0-git
@@ -111,12 +113,18 @@ jobs:
             git checkout -b "release/${{ env.VERSION }}" "${{ env.VERSION }}"
           fi
           
-          # Add and commit changes
+          # Add and commit changes (only the version files, not workflow)
           git add resources/drawables/properties.xml resources/strings/strings.xml
-          git commit -m "Update version to ${{ env.VERSION }} for release" || echo "No changes to commit"
           
-          # Push the branch
-          git push -u origin "release/${{ env.VERSION }}"
+          # Check if there are actually changes to commit
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update version to ${{ env.VERSION }} for release"
+            
+            # Push the branch
+            git push -u origin "release/${{ env.VERSION }}"
+          fi
           
           echo "BRANCH_NAME=release/${{ env.VERSION }}" >> $GITHUB_ENV
 
