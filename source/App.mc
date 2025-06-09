@@ -1744,6 +1744,17 @@ class AboutView extends WatchUi.View {
         View.onUpdate(dc);
         var aboutText = findDrawableById("AboutText");
         var githubQR = findDrawableById("GithubQR");
+        
+        // Set the about text with dynamic version from properties
+        if (aboutText != null) {
+            var appVersion = Application.Properties.getValue("appVersion");
+            if (appVersion == null) {
+                appVersion = "Unknown";
+            }
+            var dynamicAboutText = "About the app\n\nAuthor: Adrián Moreno Peña\nVersion: " + appVersion + "\nCode: github.com/zetxek/garmin-qr";
+            (aboutText as WatchUi.Text).setText(dynamicAboutText);
+        }
+        
         if (showQR) {
             if (aboutText != null) { aboutText.setVisible(false); }
             if (githubQR != null) { githubQR.setVisible(true); }
