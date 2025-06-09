@@ -1,0 +1,162 @@
+name: Build Prod
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  
+  # Manual trigger, pass the tag name as input
+  # Example: v1.0.0
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release'
+        required: true
+        default: 'v0.0.0'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+      pull-requests: write
+      actions: write
+    container:
+      #image: ghcr.io/matco/connectiq-tester:v2.3.0
+      image: ghcr.io/zetxek/connectiq-tester:v2.4.0-git
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup developer key
+        env:
+          DEVELOPER_KEY_BASE64: ${{ secrets.DEVELOPER_KEY_BASE64 }}
+        run: |
+          echo "$DEVELOPER_KEY_BASE64" | base64 -d > developer_key.der
+          # Verify the key was created
+          ls -la developer_key.der
+
+      - name: Setup tag name as version
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "GitHub REF: $GITHUB_REF"
+          echo "GitHub REF NAME: ${{ github.ref_name }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.tag_name }}"
+            echo "Using workflow_dispatch input: $VERSION"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+            echo "Extracted from ref: $VERSION"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Final VERSION: $VERSION"
+          sed -i.bak "s/0.0.0/$VERSION/g" resources/drawables/properties.xml
+          sed -i.bak "s/0.0.0/$VERSION/g" resources/strings/strings.xml
+
+      - name: Build Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        # Command by vscode:
+        # java -Xms1g 
+        #  -Dfile.encoding=UTF-8 
+        #  -Dapple.awt.UIElement=true 
+        #  -jar /Users/adrianmorenopena/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-8.1.1-2025-03-27-66dae750f/bin/monkeybrains.jar 
+        #  -o /Users/adrianmorenopena/Projects/garmin-qr/dist/store/garmin-qr.iq 
+        #  -f /Users/adrianmorenopena/Projects/garmin-qr/monkey.jungle 
+        #  -y /Users/adrianmorenopena/Documents/garmin-sdk/developer_key 
+        #  -e -r -w
+        run: |
+          monkeyc -o dist/garmin-qr.iq -f monkey.jungle -y developer_key.der -e -r -w
+
+      - name: Upload Release Build
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build
+          path: dist/garmin-qr.iq
+          if-no-files-found: error
+
+      - name: Create new project release
+        if: github.event_name == 'push' || github.event_name == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/garmin-qr.iq
+          name: IQ Release ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      ## TODO: use PAT to create a release branch and PR
+      
+      # # Create a release branch with version updates and submit a PR to main
+      # - name: Create release branch and commit changes
+      #   run: |
+      #     # Ensure we're in the workspace directory
+      #     cd $GITHUB_WORKSPACE
+      #     
+      #     # Fix git ownership issues in container - required when running in Docker
+      #     git config --global --add safe.directory $GITHUB_WORKSPACE
+      #     git config --global init.defaultBranch main
+      #     
+      #     # Configure git globally since we're in a container
+      #     git config --global user.name "GitHub Actions"
+      #     git config --global user.email "github-actions@github.com"          
+      #     
+      #     # Fetch the current state from remote
+      #     git fetch origin
+      #     
+      #     # Create branch from the tag or current commit depending on trigger type
+      #     if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+      #   # For manual dispatch, create from main branch
+      #   git checkout -b "release/${{ env.VERSION }}" origin/main
+      #     else
+      #   # For tag push, create from the tag itself
+      #   git checkout -b "release/${{ env.VERSION }}" "${{ env.VERSION }}"
+      #     fi
+      #     
+      #     # Add only the version files to staging (exclude workflow files)
+      #     git add resources/drawables/properties.xml resources/strings/strings.xml
+      #     
+      #     # Check if there are actually changes to commit before proceeding
+      #     if git diff --cached --quiet; then
+      #   echo "No changes to commit"
+      #     else
+      #   # Commit the version changes
+      #   git commit -m "Update version to ${{ env.VERSION }} for release"
+      #   
+      #   # Push the new release branch to remote
+      #   git push -u origin "release/${{ env.VERSION }}"
+      #   
+      #   # Set environment variables for the next step
+      #   echo "BRANCH_NAME=release/${{ env.VERSION }}" >> $GITHUB_ENV
+      #   echo "CHANGES_COMMITTED=true" >> $GITHUB_ENV
+      #     fi
+
+      # # Create a Pull Request to merge version updates back to main branch
+      # - name: Create Pull Request
+      #   if: env.CHANGES_COMMITTED == 'true'
+      #   run: |
+      #     
+      #     # Create PR using GitHub CLI with detailed information
+      #     gh pr create \
+      #   --title "Release ${{ env.VERSION }}" \
+      #   --body "## Release ${{ env.VERSION }}
+
+      #     This PR contains version updates for the Garmin ConnectIQ app release ${{ env.VERSION }}.
+
+      #     ### Changes:
+      #     - Updated version in \`resources/drawables/properties.xml\`
+      #     - Updated version in \`resources/strings/strings.xml\`
+
+      #     ### Artifacts:
+      #     - Built IQ file: \`dist/garmin-qr.iq\`
+      #     - Release created with tag: ${{ env.VERSION }}
+
+      #     ### ConnectIQ Build:
+      #     This release was built using Garmin ConnectIQ SDK with \`monkeyc\` compiler for distribution to Garmin devices." \
+      #   --base main \
+      #   --head "release/${{ env.VERSION }}"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
