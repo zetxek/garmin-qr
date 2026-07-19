@@ -9,6 +9,48 @@ using Toybox.Application.Storage;
 using Toybox.Attention;
 
 (:app)
+// Percent-encode a URL query value (Monkey C has no built-in encoder).
+// Encodes reserved/delimiter characters and non-ASCII as UTF-8 percent-encoded bytes.
+// Pass ONLY the user text value, never a full URL.
+function percentEncode(value as Lang.Object or Null) as Lang.String {
+    if (value == null) {
+        return "";
+    }
+    var s = value.toString();
+    if (s.length() == 0) {
+        return "";
+    }
+    // toUtf8Array() returns the UTF-8 byte sequence (Lang.Array<Lang.Number>), available since SDK 3.1.0.
+    var bytes = s.toUtf8Array();
+    var hexDigits = "0123456789ABCDEF";
+    // Printable ASCII table (code points 32..126) used to map an unreserved byte back to a char.
+    var printableAscii = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+    var result = "";
+    var n = bytes.size();
+    for (var i = 0; i < n; i++) {
+        var b = bytes[i] as Lang.Number;
+        // Unreserved per RFC 3986: A-Z a-z 0-9 - _ . ~
+        var isUnreserved = false;
+        if ((b >= 65 && b <= 90) ||       // A-Z
+            (b >= 97 && b <= 122) ||      // a-z
+            (b >= 48 && b <= 57)) {       // 0-9
+            isUnreserved = true;
+        } else if (b == 45 || b == 95 || b == 46 || b == 126) {  // - _ . ~
+            isUnreserved = true;
+        }
+
+        if (isUnreserved) {
+            // b is in [32, 126]; look up its character in the printable ASCII table.
+            result = result + printableAscii.substring(b - 32, b - 31);
+        } else {
+            result = result + "%" +
+                hexDigits.substring((b >> 4) & 0x0F, ((b >> 4) & 0x0F) + 1) +
+                hexDigits.substring(b & 0x0F, (b & 0x0F) + 1);
+        }
+    }
+    return result;
+}
+
 class App extends Application.AppBase {
     // Add connectivity and sync tracking
     var lastSyncTime as Lang.Number or Null;
@@ -384,14 +426,19 @@ class App extends Application.AppBase {
                         var type = code.get("code_$index_type") as Lang.String;
                         
                         if (text != null && text.length() > 0) {
+                            // Tolerate legacy Properties entries that may still carry a
+                            // code_$index_timestamp key — read it for Storage bookkeeping but
+                            // never write it back into Properties (see syncStorageAndProperties).
                             var timestamp = code.get("code_$index_timestamp");
                             if (timestamp == null) {
                                 timestamp = System.getTimer(); // Add timestamp if missing
                             }
                             
+                            var titleResolved = (title != null) ? title : "";
+                            var typeResolved = (type != null) ? type : "0";
                             Storage.setValue("code_" + storageIndex + "_text", text);
-                            Storage.setValue("code_" + storageIndex + "_title", title);
-                            Storage.setValue("code_" + storageIndex + "_type", type);
+                            Storage.setValue("code_" + storageIndex + "_title", titleResolved);
+                            Storage.setValue("code_" + storageIndex + "_type", typeResolved);
                             Storage.setValue("code_" + storageIndex + "_timestamp", timestamp);
                             System.println("[onSettingsChanged] Synced code_" + storageIndex + " from Properties to Storage");
                             storageIndex++;
@@ -455,20 +502,23 @@ class App extends Application.AppBase {
                         }
                         
                         if (usePropertiesVersion) {
-                            // Use Properties version
+                            // Use Properties version. NEVER write code_$index_timestamp into
+                            // Properties dictionaries (it violates the settings.xml schema and
+                            // breaks the Connect IQ mobile settings editor). Timestamps live in
+                            // Application.Storage only.
+                            var propsTimestampResolved = (propsTimestamp != null) ? propsTimestamp : currentTime;
                             var codeEntry = {
                                 "code_$index_text" => text,
-                                "code_$index_title" => title,
-                                "code_$index_type" => type != null ? type : "0",
-                                "code_$index_timestamp" => propsTimestamp != null ? propsTimestamp : currentTime
+                                "code_$index_title" => (title != null) ? title : "",
+                                "code_$index_type" => (type != null) ? type : "0"
                             };
                             cleanCodesList.add(codeEntry);
                             
-                            // Save to Storage
+                            // Save to Storage (Storage keeps the timestamp bookkeeping)
                             Storage.setValue("code_" + storageIndex + "_text", text);
-                            Storage.setValue("code_" + storageIndex + "_title", title);
-                            Storage.setValue("code_" + storageIndex + "_type", type);
-                            Storage.setValue("code_" + storageIndex + "_timestamp", codeEntry.get("code_$index_timestamp"));
+                            Storage.setValue("code_" + storageIndex + "_title", (title != null) ? title : "");
+                            Storage.setValue("code_" + storageIndex + "_type", (type != null) ? type : "0");
+                            Storage.setValue("code_" + storageIndex + "_timestamp", propsTimestampResolved);
                             System.println("[syncStorageAndProperties] Used Properties version for code_" + storageIndex);
                         } else {
                             // Use Storage version
@@ -477,9 +527,8 @@ class App extends Application.AppBase {
                             
                             var codeEntry = {
                                 "code_$index_text" => storageText,
-                                "code_$index_title" => storageTitle,
-                                "code_$index_type" => storageType != null ? storageType : "0",
-                                "code_$index_timestamp" => storageTimestamp
+                                "code_$index_title" => (storageTitle != null) ? storageTitle : "",
+                                "code_$index_type" => (storageType != null) ? storageType : "0"
                             };
                             cleanCodesList.add(codeEntry);
                             System.println("[syncStorageAndProperties] Used Storage version for code_" + storageIndex);
@@ -521,16 +570,16 @@ class App extends Application.AppBase {
                 if (text != null && text.length() > 0) {
                     hasStorageData = true;
                     
-                    // Create entry in Properties format
+                    // Create entry in Properties format — EXACTLY the three schema keys,
+                    // all non-null Lang.String values. No timestamp key (that stays in Storage).
                     var codeEntry = {
                         "code_$index_text" => text,
-                        "code_$index_title" => title,
-                        "code_$index_type" => type != null ? type : "0",
-                        "code_$index_timestamp" => timestamp != null ? timestamp : currentTime
+                        "code_$index_title" => (title != null) ? title : "",
+                        "code_$index_type" => (type != null) ? type : "0"
                     };
                     codesList.add(codeEntry);
                     
-                    // Update Storage timestamp if missing
+                    // Update Storage timestamp if missing (Storage is the timestamp bookkeeper)
                     if (timestamp == null) {
                         Storage.setValue("code_" + i + "_timestamp", currentTime);
                     }
@@ -876,9 +925,9 @@ class AppView extends WatchUi.View {
         }
         var url;
         if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&shape=rectangle";
+            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + percentEncode(text) + "&shape=rectangle";
         } else {
-            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text;
+            url = "https://qr-gen.adrianmoreno.info/qr?text=" + percentEncode(text);
         }
         System.println("[DownloadImage]URL: " + url);
         var params = null;
@@ -1421,9 +1470,9 @@ class AppView extends WatchUi.View {
         
         var url;
         if (codeType.equals("1")) {  // Check for "1" instead of "barcode"
-            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&size=" + glanceImageSize + "&shape=rectangle";
+            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + percentEncode(text) + "&size=" + glanceImageSize + "&shape=rectangle";
         } else {
-            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text + "&size=" + glanceImageSize;
+            url = "https://qr-gen.adrianmoreno.info/qr?text=" + percentEncode(text) + "&size=" + glanceImageSize;
         }
         var options = { :maxWidth => glanceImageSize, :maxHeight => glanceImageSize };
         Communications.makeImageRequest(
@@ -1696,7 +1745,7 @@ class GlanceView extends WatchUi.GlanceView {
             var barcodeWidth = screenWidth;
             var barcodeHeight = screenHeight * 0.7;  // 70% of screen height
             
-            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + text + "&size=" + barcodeWidth + "&shape=rectangle";
+            url = "https://qr-gen.adrianmoreno.info/barcode?text=" + percentEncode(text) + "&size=" + barcodeWidth + "&shape=rectangle";
             options = { :maxWidth => barcodeWidth, :maxHeight => barcodeHeight };
         } else {
             // For QR codes: keep square aspect ratio
@@ -1707,7 +1756,7 @@ class GlanceView extends WatchUi.GlanceView {
                 glanceImageSize = 100;
             }
             
-            url = "https://qr-gen.adrianmoreno.info/qr?text=" + text + "&size=" + glanceImageSize;
+            url = "https://qr-gen.adrianmoreno.info/qr?text=" + percentEncode(text) + "&size=" + glanceImageSize;
             options = { :maxWidth => glanceImageSize, :maxHeight => glanceImageSize };
         }
         
@@ -1911,12 +1960,17 @@ class AddCodeMenu2InputDelegate extends WatchUi.Menu2InputDelegate {
             }
             
             // Create a dictionary with the correct format for settings.xml
-            // IMPORTANT: The keys must exactly match the format in settings.xml
+            // IMPORTANT: The keys must exactly match the format in settings.xml —
+            // EXACTLY three keys, all non-null Lang.String values. No timestamp key
+            // (timestamps live in Application.Storage only, to avoid breaking the
+            // Connect IQ mobile settings editor — see GitHub issue #30).
+            var codeTextValue = self.parentDelegate.codeText;
+            var codeTitleValue = self.parentDelegate.codeTitle;
+            var codeTypeValue = self.parentDelegate.codeType;
             var codeEntry = {
-                "code_$index_text" => self.parentDelegate.codeText,
-                "code_$index_title" => self.parentDelegate.codeTitle,
-                "code_$index_type" => self.parentDelegate.codeType,  // Already "0" or "1"
-                "code_$index_timestamp" => currentTime
+                "code_$index_text" => (codeTextValue != null) ? codeTextValue : "",
+                "code_$index_title" => (codeTitleValue != null) ? codeTitleValue : "",
+                "code_$index_type" => (codeTypeValue != null) ? codeTypeValue : "0"
             };
             
             // Update this specific index in the array
