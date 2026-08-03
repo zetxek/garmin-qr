@@ -59,8 +59,10 @@ build "$OUT_DIR/integration.prg" monkey-integration.jungle --unit-test
 wait_for_simulator() {
     local deadline=$(( $(date +%s) + ${SIMULATOR_START_TIMEOUT:-90} ))
     while [ "$(date +%s)" -lt "$deadline" ]; do
+        # The probe runs in a subshell, so no descriptor leaks into this one. Do not "tidy up"
+        # with `exec 3<&- 2>/dev/null` here: `exec` with no command applies the redirection to
+        # the shell itself, which silently discards stderr for the rest of the script.
         if (exec 3<>/dev/tcp/127.0.0.1/1234) 2>/dev/null; then
-            exec 3<&- 2>/dev/null
             echo "==> Simulator ready"
             return 0
         fi
