@@ -53,6 +53,23 @@ echo "==> Building app and integration fixtures for $DEVICE"
 build "$OUT_DIR/app.prg" monkey.jungle
 build "$OUT_DIR/integration.prg" monkey-integration.jungle --unit-test
 
+# The simulator listens on 1234 once it is ready to accept a push. Waiting for the port beats a
+# fixed sleep: too short and `monkeydo` blocks forever waiting for a simulator that is not up,
+# which is how the CI job came to sit for 25 minutes.
+wait_for_simulator() {
+    local deadline=$(( $(date +%s) + ${SIMULATOR_START_TIMEOUT:-90} ))
+    while [ "$(date +%s)" -lt "$deadline" ]; do
+        if (exec 3<>/dev/tcp/127.0.0.1/1234) 2>/dev/null; then
+            exec 3<&- 2>/dev/null
+            echo "==> Simulator ready"
+            return 0
+        fi
+        sleep 2
+    done
+    echo "==> Simulator did not become ready on port 1234" >&2
+    return 1
+}
+
 if [ -z "${DISPLAY:-}" ] && command -v Xvfb >/dev/null 2>&1; then
     export DISPLAY=:99
     Xvfb :99 -screen 0 1280x1024x24 >/dev/null 2>&1 &
@@ -64,18 +81,22 @@ if ! pgrep -f "ConnectIQ.app/Contents/MacOS/simulator" >/dev/null 2>&1 \
     echo "==> Starting simulator"
     SIMULATOR="$(command -v connectiq || echo "$SDK_BIN/connectiq")"
     "$SIMULATOR" >/dev/null 2>&1 &
-    sleep 12
 fi
+wait_for_simulator || exit 1
 
 run_fixture() {  # run_fixture <test name>
     local name="$1"
     local output
+    local log="$OUT_DIR/integration-$name.log"
+    # See run-tests.sh: a command substitution would outlive `timeout` because monkeydo's JVM
+    # keeps the pipe open.
     if command -v timeout >/dev/null 2>&1; then
-        output="$(timeout --foreground "${TEST_TIMEOUT:-300}" \
-            "$SDK_BIN/monkeydo" "$OUT_DIR/integration.prg" "$DEVICE" -t "$name" 2>&1)"
+        timeout -k 10 "${TEST_TIMEOUT:-600}" \
+            "$SDK_BIN/monkeydo" "$OUT_DIR/integration.prg" "$DEVICE" -t "$name" >"$log" 2>&1
     else
-        output="$("$SDK_BIN/monkeydo" "$OUT_DIR/integration.prg" "$DEVICE" -t "$name" 2>&1)"
+        "$SDK_BIN/monkeydo" "$OUT_DIR/integration.prg" "$DEVICE" -t "$name" >"$log" 2>&1
     fi
+    output="$(cat "$log")"
     echo "$output" | sed -n '/Executing test/,$p'
     if echo "$output" | grep -qE '^PASSED \(passed=[0-9]+, failed=0, errors=0\)'; then
         return 0
