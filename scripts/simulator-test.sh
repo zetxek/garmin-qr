@@ -70,7 +70,12 @@ fi
 run_fixture() {  # run_fixture <test name>
     local name="$1"
     local output
-    output="$("$SDK_BIN/monkeydo" "$OUT_DIR/integration.prg" "$DEVICE" -t "$name" 2>&1)"
+    if command -v timeout >/dev/null 2>&1; then
+        output="$(timeout --foreground "${TEST_TIMEOUT:-300}" \
+            "$SDK_BIN/monkeydo" "$OUT_DIR/integration.prg" "$DEVICE" -t "$name" 2>&1)"
+    else
+        output="$("$SDK_BIN/monkeydo" "$OUT_DIR/integration.prg" "$DEVICE" -t "$name" 2>&1)"
+    fi
     echo "$output" | sed -n '/Executing test/,$p'
     if echo "$output" | grep -qE '^PASSED \(passed=[0-9]+, failed=0, errors=0\)'; then
         return 0

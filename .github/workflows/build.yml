@@ -16,8 +16,13 @@ jobs:
   build:
     name: Build ${{ matrix.device }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     container:
       image: ghcr.io/zetxek/connectiq-tester:latest
+    # The container's default shell is dash, which has no `set -o pipefail`.
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -84,8 +89,12 @@ jobs:
   test:
     name: Unit tests
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     container:
       image: ghcr.io/zetxek/connectiq-tester:latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout code

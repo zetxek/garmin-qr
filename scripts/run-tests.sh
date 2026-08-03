@@ -53,9 +53,24 @@ if ! pgrep -f "ConnectIQ.app/Contents/MacOS/simulator" >/dev/null 2>&1 \
     sleep 12
 fi
 
+# `monkeydo` blocks forever if the simulator never becomes ready, which turns a broken CI
+# environment into a job that hangs for hours instead of failing. `timeout` is not present on
+# macOS by default, so it is used only when available.
+TEST_TIMEOUT="${TEST_TIMEOUT:-300}"
 echo "==> Running tests on $DEVICE"
-OUTPUT="$("$SDK_BIN/monkeydo" "$OUT_DIR/test.prg" "$DEVICE" -t 2>&1)"
+if command -v timeout >/dev/null 2>&1; then
+    OUTPUT="$(timeout --foreground "$TEST_TIMEOUT" "$SDK_BIN/monkeydo" "$OUT_DIR/test.prg" "$DEVICE" -t 2>&1)"
+    STATUS=$?
+else
+    OUTPUT="$("$SDK_BIN/monkeydo" "$OUT_DIR/test.prg" "$DEVICE" -t 2>&1)"
+    STATUS=$?
+fi
 echo "$OUTPUT"
+
+if [ "$STATUS" -eq 124 ]; then
+    echo "==> Timed out after ${TEST_TIMEOUT}s waiting for the simulator" >&2
+    exit 1
+fi
 
 # monkeydo exits 1 whatever happens, so the summary line is the source of truth.
 if echo "$OUTPUT" | grep -qE '^PASSED \(passed=[0-9]+, failed=0, errors=0\)'; then
