@@ -16,10 +16,14 @@ class Connectivity {
     static var instance as Connectivity? = null;
 
     static function get() as Connectivity {
-        if (instance == null) {
-            instance = new Connectivity();
+        // Returned via a local: `return instance;` leaves the type checker with
+        // PolyType<Null or Connectivity>, which is an error at -l 3.
+        var existing = instance;
+        if (existing == null) {
+            existing = new Connectivity();
+            instance = existing;
         }
-        return instance;
+        return existing;
     }
 
     //! Best-effort phone reachability.

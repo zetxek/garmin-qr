@@ -92,7 +92,10 @@ fi
 if ! pgrep -f "ConnectIQ.app/Contents/MacOS/simulator" >/dev/null 2>&1 \
    && ! pgrep -x simulator >/dev/null 2>&1; then
     echo "==> Starting simulator"
-    SIMULATOR="$(command -v connectiq || echo "$SDK_BIN/connectiq")"
+    # Prefer the `simulator` binary over the `connectiq` wrapper: the wrapper starts and
+    # listens on a hosted CI runner, but monkeydo never gets a response from it. The
+    # connectiq-tester image's own runner launches `simulator` directly for the same reason.
+    SIMULATOR="$(command -v simulator || command -v connectiq || echo "$SDK_BIN/connectiq")"
     "$SIMULATOR" >"${OUT_DIR}/simulator.log" 2>&1 &
 fi
 LOG="$OUT_DIR/test-output.txt"

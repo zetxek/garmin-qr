@@ -35,10 +35,14 @@ class ImageService {
     static var instance as ImageService? = null;
 
     static function get() as ImageService {
-        if (instance == null) {
-            instance = new ImageService();
+        // Returned via a local: `return instance;` leaves the type checker with
+        // PolyType<Null or ImageService>, which is an error at -l 3.
+        var existing = instance;
+        if (existing == null) {
+            existing = new ImageService();
+            instance = existing;
         }
-        return instance;
+        return existing;
     }
 
     // ------------------------------------------------------------ URL building

@@ -173,7 +173,7 @@ function publishedListIsCompactedWithoutNullHoles(logger as Test.Logger) as Bool
     var raw = Application.Properties.getValue(CodeStore.PROP_CODES) as Array;
     Test.assertEqualMessage(raw.size(), 2, "the deleted entry is removed, not nulled");
     for (var i = 0; i < raw.size(); i++) {
-        Test.assertMessage(raw[i] instanceof Dictionary, "no null entries");
+        Test.assertMessage(raw[i] instanceof Dictionary ? true : false, "no null entries");
     }
     return true;
 }
