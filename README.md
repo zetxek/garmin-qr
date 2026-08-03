@@ -103,10 +103,24 @@ Two kinds of test live there:
 ```
 
 Seeds two codes, runs the real app so it downloads them over HTTP, then verifies what was
-cached. This is the only layer that touches the network, and it needs a simulator whose phone
-data channel actually carries traffic — a headless simulator answers `-101` to everything. It
-is a manual pre-release check, not part of CI. Its fixtures live in `integration/` and are
-compiled only by `monkey-integration.jungle`.
+cached. This is the only layer that touches the network, so it is a manual pre-release check
+rather than part of CI. Its fixtures live in `integration/` and are compiled only by
+`monkey-integration.jungle`.
+
+**The simulator will not carry app traffic until you sign it in to Garmin Connect.** Until you
+do, it puts up a "Your Garmin Connect credentials are required" prompt for every outbound
+request and the app sees `-101`. If the check fails with "the download never completed", run
+the diagnostic and look at `lastError`:
+
+```bash
+monkeydo bin/integration.prg fenix7pro -t integrationDump
+```
+
+To inspect the screen without any network at all, seed codes that already have cached images:
+
+```bash
+monkeydo bin/integration.prg fenix7pro -t integrationSeedRendered
+```
 
 ### Project Structure
 

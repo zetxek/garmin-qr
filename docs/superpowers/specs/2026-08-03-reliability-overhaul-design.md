@@ -277,14 +277,28 @@ The fixtures live in `integration/`, which only `monkey-integration.jungle` comp
 never run as part of the unit suite. Note the SDK's default `base.sourcePath` is `.\**.mc`,
 which sweeps in every `.mc` file in the repository; `monkey.jungle` now pins it to `source`.
 
-This layer is **not** in CI. It needs a simulator whose phone data channel actually carries
-traffic; a headless simulator returns `-101` for every request, and the original code behaves
-identically there, so a CI failure would say nothing about the app. It is a manual check to run
-before a release:
+This layer is **not** in CI, because it needs a simulator that is signed in to Garmin Connect.
+The simulator proxies app traffic through that account: until you sign in it shows a "Your
+Garmin Connect credentials are required" prompt for every outbound request and the app sees
+`-101`. The original code behaves identically there, so a CI failure would say nothing about
+the app. It is a manual check to run before a release:
 
 ```
 ./scripts/simulator-test.sh fenix7pro
 ```
+
+### What the GUI pass confirmed
+
+Driving the running app in the simulator, with codes seeded via `integrationSeedRendered`:
+
+- the code screen draws the title, a centred code and `Code 1 of 2`;
+- the down button moves to `Code 2 of 2` (issue #6 was codes not switching);
+- the Code Info menu reports the right type and title;
+- the glance draws its image and label in 12.6kB of the 59.8kB glance budget, which is the
+  measurement behind C11;
+- **restarting with every image cached produced no request at all** — the Connect login prompt
+  never appeared. That is C1 fixed, visible end to end: previously every launch discarded the
+  cache and re-fetched every code.
 
 ## CI
 
