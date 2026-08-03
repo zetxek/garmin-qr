@@ -84,7 +84,21 @@ glance compiles cleanly and only shows up as a blank widget on a watch.
 
 Compiles the `(:test)` functions under `source/tests/`, runs them in the Connect IQ simulator
 and reports the result. `monkeydo` exits 1 whether tests pass or fail, so the script reads its
-summary line rather than the exit code. CI runs the same script.
+summary line rather than the exit code.
+
+The same script runs in the CI container image, which is the most reliable way to reproduce a
+CI result locally:
+
+```bash
+docker run --rm --entrypoint bash -v "$PWD:/src" -w /src \
+  -e DEVELOPER_KEY=developer_key.der ghcr.io/zetxek/connectiq-tester:latest \
+  -c './scripts/run-tests.sh fenix7pro'
+```
+
+CI runs this job too, but as **advisory only**: on GitHub's hosted runners the simulator starts
+and listens, yet `monkeydo` never receives a response and produces no output. The same image
+and script pass on a developer machine, so a red check there would say nothing about the code.
+The device-matrix builds are the gate.
 
 Two kinds of test live there:
 
