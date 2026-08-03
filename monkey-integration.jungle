@@ -1,0 +1,4 @@
+# Adds the simulator integration fixtures in integration/ on top of the normal sources.
+# Used only by scripts/simulator-test.sh, so the fixtures never run in the unit suite.
+project.manifest = manifest.xml
+base.sourcePath = source;integration

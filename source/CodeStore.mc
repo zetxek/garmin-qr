@@ -148,6 +148,7 @@ module CodeStore {
         Storage.deleteValue(titleKey(slot));
         Storage.deleteValue(typeKey(slot));
         Storage.deleteValue("code_" + slot + "_timestamp"); // written by releases <= 0.0.22
+        Storage.deleteValue("img_error_" + slot);
         clearImage(slot);
     }
 

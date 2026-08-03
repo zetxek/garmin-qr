@@ -82,9 +82,31 @@ glance compiles cleanly and only shows up as a blank widget on a watch.
 ./scripts/run-tests.sh fenix7pro
 ```
 
-The script compiles the `(:test)` functions under `source/tests/`, runs them in the Connect IQ
-simulator and reports the result. `monkeydo` exits 1 whether tests pass or fail, so the script
-reads its summary line rather than the exit code. CI runs the same script.
+Compiles the `(:test)` functions under `source/tests/`, runs them in the Connect IQ simulator
+and reports the result. `monkeydo` exits 1 whether tests pass or fail, so the script reads its
+summary line rather than the exit code. CI runs the same script.
+
+Two kinds of test live there:
+
+- **Unit tests** for the pure logic — URL encoding, code-type normalisation, cache validity,
+  slot lifecycle, the settings round-trip, queue backoff.
+- **App-flow tests** (`AppFlowTest.mc`) that boot the real `AppView` and drive the real
+  download queue. Only the radio call is stubbed, via the `ImageService.transmit()` seam, so
+  queueing, dispatch order, callback routing and caching are all production code. Tests must
+  not use the real radio: in the simulator `makeImageRequest` calls back *synchronously* with
+  `-101` when the phone data channel is unavailable.
+
+### End-to-end check against the live service
+
+```bash
+./scripts/simulator-test.sh fenix7pro
+```
+
+Seeds two codes, runs the real app so it downloads them over HTTP, then verifies what was
+cached. This is the only layer that touches the network, and it needs a simulator whose phone
+data channel actually carries traffic — a headless simulator answers `-101` to everything. It
+is a manual pre-release check, not part of CI. Its fixtures live in `integration/` and are
+compiled only by `monkey-integration.jungle`.
 
 ### Project Structure
 

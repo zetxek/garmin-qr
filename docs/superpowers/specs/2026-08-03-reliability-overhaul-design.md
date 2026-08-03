@@ -236,49 +236,64 @@ stopped after two minutes, and wrapped in try/catch for `BacklightOnTooLongExcep
 
 ## Testing
 
-Connect IQ `(:test)` functions run in the simulator via `monkeyc --unit-test` + `monkeydo -t`;
-they are excluded from normal builds. Coverage targets the pure logic where the defects were:
+Three layers, all runnable locally and in CI.
 
-- URL encoding: `&`, spaces, `+`, `#`, `%`, unicode; QR vs barcode endpoint selection.
-- Type normalisation: `"0"`, `"1"`, `0`, `1`, `null`, garbage.
-- Cache validity: matching metadata, changed text, changed type, missing metadata — the
-  regression test for C1, which fails against `!=`.
-- Slot lifecycle: save, allocate, delete clears the image, slot reuse does not resurrect the old
-  image (C7).
-- Properties round-trip: only declared keys, compacted, no nulls (C5).
-- Queue behaviour: dedupe, one in flight, drain on completion, watchdog release, backoff, 4xx is
-  permanent (C2, C3).
+### 1. Unit tests — `source/tests/`
+
+Connect IQ `(:test)` functions, run in the simulator by `monkeyc --unit-test` + `monkeydo -t`,
+and excluded from normal builds. They cover the pure logic where the defects were: URL
+encoding, type normalisation, cache validity, slot lifecycle, the Properties round-trip, and
+the queue's dedupe/backoff/permanent-failure rules.
+
+### 2. App-flow tests — `source/tests/AppFlowTest.mc`
+
+These boot the real `AppView` in the simulator and drive the real `ImageService`. Only the
+radio call is replaced: `ImageService.transmit()` is a one-line seam that `FakeImageService`
+overrides to record URLs instead of sending them. Everything either side of it — queueing,
+dispatch order, callback routing, caching, recovery — is production code.
+
+The seam is necessary, not just convenient. In the simulator `makeImageRequest` calls back
+**synchronously** with `-101` when the phone data channel is unavailable, so a test using the
+real radio would be asserting against the simulator's failures rather than its own scenario.
+That behaviour also forced a note in `transmit()`: nothing may assume the callback is deferred,
+which is why `inFlight` and the watchdog are both set before the request goes out.
+
+These are the regression tests for the reported defects, and they were mutation-checked:
+
+| Reintroduced defect | Result |
+|---|---|
+| `metaText != text` instead of `.equals` (C1) | 11 tests fail |
+| remove the hand-off to the next queued download (C2) | 4 tests fail |
+
+### 3. Simulator end-to-end — `scripts/simulator-test.sh`
+
+The only layer that makes real HTTP requests. Storage persists between simulator invocations,
+so the script runs three of them: seed two codes (one QR containing `&`, one barcode containing
+a space) with no images, run the real app so it drains its queue against the live service, then
+verify what was cached — both images present, attributed to the right codes, the QR square and
+the barcode wider than tall, and a warm start queuing nothing.
+
+The fixtures live in `integration/`, which only `monkey-integration.jungle` compiles, so they
+never run as part of the unit suite. Note the SDK's default `base.sourcePath` is `.\**.mc`,
+which sweeps in every `.mc` file in the repository; `monkey.jungle` now pins it to `source`.
+
+This layer is **not** in CI. It needs a simulator whose phone data channel actually carries
+traffic; a headless simulator returns `-101` for every request, and the original code behaves
+identically there, so a CI failure would say nothing about the app. It is a manual check to run
+before a release:
+
+```
+./scripts/simulator-test.sh fenix7pro
+```
 
 ## CI
 
-- Compile with `-l 2` (type checking on) and fail the build on any `ERROR` line. Level 2 is the
-  level that reports missing glance symbols; level 3 additionally demands full type annotations
-  on the Toybox callback surface and is not worth the churn here.
-- Build a device matrix covering the screen and input classes actually shipped: `fenix7pro`,
-  `fenix847mm`, `venu3`, `vivoactive6`, `fr165`, `edge1040`, `instinct3amoled45mm`,
-  `approachs50`.
-- Run the unit tests in the simulator via `scripts/run-tests.sh`. `monkeydo` exits 1 whatever
-  happens, so the script parses its summary line instead of trusting the exit code.
+- Compile with type-check level 3.
+- Build a device matrix covering the screen-size and input classes actually shipped:
+  `fenix7pro`, `fenix847mm`, `venu3`, `vivoactive6`, `fr165`, `edge1040`,
+  `instinct3amoled45mm`, `approachs50`.
+- Run the unit and app-flow suites in the simulator on a virtual display.
 - Keep the existing release job unchanged.
-
-## Result
-
-Measured on `vivoactive6`, release build, before and after:
-
-| | before | after |
-|---|---:|---:|
-| Glance data | 4989 B | 1584 B |
-| Glance code | 6510 B | 4342 B |
-| Foreground data | 11652 B | 5359 B |
-| Foreground code | 19542 B | 14725 B |
-| Total PRG | 58620 B | 40940 B |
-
-(The PRG figure also reflects dropping four bitmap resources and two layouts that nothing
-referenced any more.)
-
-35 unit tests pass. Reintroducing the original `!=` cache comparison, the unencoded URL and the
-delete-without-clearing-the-image behaviour makes 9 of them fail, so they are regression tests
-for the reported defects rather than descriptions of the new code.
 
 ## Out of scope
 

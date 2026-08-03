@@ -161,7 +161,7 @@ class ImageService {
 
     function forget(slot as Number) as Void {
         queue.remove(slot);
-        failures.remove(slot);
+        clearFailure(slot);
         if (inFlight == slot) {
             // The response is no longer interesting, but the lock must still be released.
             inFlight = NONE;
@@ -259,18 +259,7 @@ class ImageService {
         try {
             inFlight = slot;
             startWatchdog();
-            Communications.makeImageRequest(
-                url,
-                null,
-                {
-                    :maxWidth => size,
-                    :maxHeight => size,
-                    // Codes are pure black and white; dithering only blurs the modules and
-                    // makes them harder for a scanner to read.
-                    :dithering => Communications.IMAGE_DITHERING_NONE
-                },
-                method(:onResponse)
-            );
+            transmit(url, size);
             return true;
         } catch (e) {
             Log.warn("[ImageService] request failed to start for slot " + slot + ": " + e.getErrorMessage());
@@ -279,6 +268,26 @@ class ImageService {
             recordFailure(slot, -1);
             return false;
         }
+    }
+
+    //! The radio call, kept on its own so tests can drive the queue without a network.
+    //!
+    //! Note this can call `onResponse` back *synchronously* — the simulator does exactly that
+    //! when the phone data channel is unavailable — so nothing may assume the callback is
+    //! deferred. `inFlight` and the watchdog are both set before this runs for that reason.
+    function transmit(url as String, size as Number) as Void {
+        Communications.makeImageRequest(
+            url,
+            null,
+            {
+                :maxWidth => size,
+                :maxHeight => size,
+                // Codes are pure black and white; dithering only blurs the modules and makes
+                // them harder for a scanner to read.
+                :dithering => Communications.IMAGE_DITHERING_NONE
+            },
+            method(:onResponse)
+        );
     }
 
     function onResponse(
@@ -303,7 +312,7 @@ class ImageService {
                 } else {
                     CodeStore.putImage(slot, bitmap);
                 }
-                failures.remove(slot);
+                clearFailure(slot);
                 Log.debug("[ImageService] slot " + slot + " downloaded");
             } else {
                 recordFailure(slot, responseCode);
@@ -371,6 +380,10 @@ class ImageService {
         return responseCode >= 400 && responseCode < 500;
     }
 
+    static function errorKey(slot as Number) as String {
+        return "img_error_" + slot;
+    }
+
     function recordFailure(slot as Number, responseCode as Number) as Void {
         var record = failures.get(slot);
         var attempts = 1;
@@ -387,10 +400,23 @@ class ImageService {
             :permanent => permanent
         });
 
+        // Persisted so the reason survives a restart. Without it the app reopens knowing only
+        // that it has no image, and tells the user "loading" forever instead of why.
+        try {
+            Storage.setValue(errorKey(slot), responseCode);
+        } catch (e) {
+            // Diagnostics are not worth failing a download over.
+        }
+
         if (!permanent && !isQueued(slot)) {
             queue.add(slot);
             persistQueue();
         }
+    }
+
+    function clearFailure(slot as Number) as Void {
+        failures.remove(slot);
+        Storage.deleteValue(errorKey(slot));
     }
 
     //! 5s, 10s, 20s, 40s, capped at a minute.
@@ -415,10 +441,13 @@ class ImageService {
         return record.get(:readyAt) as Number;
     }
 
+    //! Falls back to the persisted code so the view can still explain a failure that happened
+    //! before the app was last closed.
     function lastErrorCode(slot as Number) as Number? {
         var record = failures.get(slot);
-        if (!(record instanceof Dictionary)) { return null; }
-        return record.get(:code) as Number;
+        if (record instanceof Dictionary) { return record.get(:code) as Number; }
+        var stored = Storage.getValue(errorKey(slot));
+        return stored instanceof Number ? stored : null;
     }
 
     // ------------------------------------------------------------ UI state
