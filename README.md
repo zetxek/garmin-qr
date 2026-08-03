@@ -95,10 +95,10 @@ docker run --rm --entrypoint bash -v "$PWD:/src" -w /src \
   -c './scripts/run-tests.sh fenix7pro'
 ```
 
-CI runs this job too, but as **advisory only**: on GitHub's hosted runners the simulator starts
-and listens, yet `monkeydo` never receives a response and produces no output. The same image
-and script pass on a developer machine, so a red check there would say nothing about the code.
-The device-matrix builds are the gate.
+CI runs the same script. One thing to know if you touch that workflow: the job must pin
+`HOME`. Hosted runners override it per step, and the simulator keeps its state under `$HOME` —
+with the overridden value it starts and listens on its port but never answers `monkeydo`, and
+the job produces no output at all.
 
 Two kinds of test live there:
 
