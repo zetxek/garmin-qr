@@ -47,13 +47,18 @@ jobs:
         env:
           DEVICE: ${{ matrix.device }}
         run: |
+          # Without pipefail the step's status comes from `tee`, not the compiler.
+          set -o pipefail
           mkdir -p bin
           monkeyc -o "bin/garmin-qr-$DEVICE.prg" \
             -y developer_key.der \
             -d "$DEVICE" \
             -f monkey.jungle \
             -w -l 2 2>&1 | tee build.log
-          if grep -q '^ERROR' build.log; then
+          # monkeyc prefixes most diagnostics with the device and source position, e.g.
+          # `ERROR: venu3: source/App.mc:12,5: ...`, so anchoring to the start of the line
+          # would miss them.
+          if grep -qE '(^|: )ERROR' build.log; then
             echo "::error::Compilation reported errors for $DEVICE"
             exit 1
           fi

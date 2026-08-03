@@ -218,3 +218,15 @@ function reusingASlotNeverShowsTheOldCode(logger as Test.Logger) as Boolean {
     logger.debug("slot reuse starts from a clean cache");
     return true;
 }
+
+//! `GlanceView extends WatchUi.GlanceView` shadows its own superclass name, which makes the
+//! initializer call look like infinite recursion. It resolves to the superclass, and this test
+//! is what keeps that true — a stack overflow here would be a blank glance on a real watch.
+(:test)
+function glanceViewConstructsWithoutRecursing(logger as Test.Logger) as Boolean {
+    TestSupport.threeCodes();
+    var view = new GlanceView();
+    Test.assertMessage(view != null, "the glance view constructed");
+    logger.debug("GlanceView constructed without recursing");
+    return true;
+}

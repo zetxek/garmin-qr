@@ -3,6 +3,7 @@ import Toybox.Test;
 import Toybox.System;
 import Toybox.Application;
 import Toybox.Application.Storage;
+import Toybox.WatchUi;
 
 //! End-to-end check that runs inside the Connect IQ simulator, driven by
 //! `scripts/simulator-test.sh` in three steps:
@@ -136,5 +137,33 @@ function integrationDump(logger as Test.Logger) as Boolean {
     logger.debug("glanceError=" + Storage.getValue(ImageService.errorKey(-2)));
     logger.debug("glanceValid=" + CodeStore.isGlanceCacheValid());
     logger.debug("phoneConnected=" + System.getDeviceSettings().phoneConnected);
+    return true;
+}
+
+//! Seeds two codes *with* cached images so the app renders immediately and makes no network
+//! request at all. Used for visual checks of the draw path in the simulator, and it doubles as a
+//! demonstration of the cache fix: a warm start shows codes with the radio never touched.
+//!
+//!     monkeydo bin/integration.prg fenix7pro -t integrationSeedRendered
+(:test)
+function integrationSeedRendered(logger as Test.Logger) as Boolean {
+    for (var slot = 0; slot < CodeStore.MAX_CODES; slot++) {
+        CodeStore.deleteSlot(slot);
+    }
+    Storage.deleteValue("pendingImageSlots");
+
+    CodeStore.save(0, "Gym card", $.SEED_QR_TEXT, CodeStore.TYPE_QR);
+    CodeStore.save(1, "Loyalty", $.SEED_BARCODE_TEXT, CodeStore.TYPE_BARCODE);
+
+    var bitmap = WatchUi.loadResource(Rez.Drawables.LauncherIcon) as WatchUi.BitmapResource;
+    CodeStore.putImage(0, bitmap);
+    CodeStore.putImage(1, bitmap);
+    CodeStore.putGlanceImage(bitmap);
+
+    Test.assertMessage(CodeStore.isCacheValid(0), "slot 0 is cached");
+    Test.assertMessage(CodeStore.isCacheValid(1), "slot 1 is cached");
+    Test.assertMessage(CodeStore.isGlanceCacheValid(), "the glance is cached");
+
+    logger.debug("SEEDED 2 codes with cached images; the app should need no network");
     return true;
 }

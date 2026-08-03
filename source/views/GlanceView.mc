@@ -9,8 +9,11 @@ import Toybox.Graphics;
 (:glance)
 class GlanceView extends WatchUi.GlanceView {
 
+    //! Qualified deliberately: this class shadows `WatchUi.GlanceView`, so an unqualified
+    //! `GlanceView.initialize()` reads like self-recursion. It is not — Monkey C resolves it to
+    //! the superclass — but `glanceViewConstructsWithoutRecursing` pins that down.
     function initialize() {
-        GlanceView.initialize();
+        WatchUi.GlanceView.initialize();
     }
 
     function onUpdate(dc as Graphics.Dc) as Void {
