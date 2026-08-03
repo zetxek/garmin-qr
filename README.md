@@ -72,11 +72,45 @@ You can manage your QR and barcode entries using the Garmin Connect IQ app or Ga
 2. Open the project in VS Code
 3. Build using the Connect IQ SDK
 
+Build with type checking on — `monkeyc -w -l 2` — and treat its output as part of the build.
+Level 2 is what reports a symbol that is missing from the glance process; without it a broken
+glance compiles cleanly and only shows up as a blank widget on a watch.
+
+### Testing
+
+```bash
+./scripts/run-tests.sh fenix7pro
+```
+
+The script compiles the `(:test)` functions under `source/tests/`, runs them in the Connect IQ
+simulator and reports the result. `monkeydo` exits 1 whether tests pass or fail, so the script
+reads its summary line rather than the exit code. CI runs the same script.
+
 ### Project Structure
 
-- `source/App.mc`: Main application code
-- `resources/`: UI resources and assets
-- `manifest.xml`: App configuration and device support
+| Path | Responsibility |
+| --- | --- |
+| `source/App.mc` | Entry point: lifecycle and view wiring, nothing else |
+| `source/CodeStore.mc` | The only code that knows Storage keys and the settings schema |
+| `source/ImageService.mc` | URL building, the download queue, retries, image cache |
+| `source/Connectivity.mc` | Phone reachability, and the heartbeat that retries downloads |
+| `source/Backlight.mc` | The "keep screen on" setting |
+| `source/Haptics.mc` | Vibration, guarded for devices without a motor |
+| `source/Log.mc` | Logging, compiled out of release builds |
+| `source/views/` | `AppView`, `GlanceView`, `AboutView` |
+| `source/menus/` | Menu construction and input delegates |
+| `source/tests/` | Unit tests, excluded from normal builds |
+| `resources/` | UI resources, strings and the settings schema |
+| `manifest.xml` | App configuration and device support |
+
+Two rules are worth knowing before changing anything:
+
+- **Compare Strings with `.equals()`, never `==`.** In Monkey C `==` on Strings compares
+  references, so two equal strings read from storage are never `==`. This caused the image cache
+  to be discarded on every load.
+- **The glance process only links `(:glance)` symbols.** `GlanceView` and `CodeStore` carry that
+  annotation. Anything the glance needs must have it too, and anything it does not need should
+  not, because the glance has a much smaller memory budget than the app.
 
 ## License
 

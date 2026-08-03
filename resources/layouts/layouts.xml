@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <layout id="MainLayout">
-        <label x="130" y="130" font="Gfx.FONT_MEDIUM" color="Gfx.COLOR_WHITE" justification="Gfx.TEXT_JUSTIFY_CENTER|Gfx.TEXT_JUSTIFY_VCENTER" text="@Strings.AppName"/>
-    </layout>
     <layout id="AboutLayout">
         <bitmap id="GithubQR" x="center" y="center" filename="../drawables/github-qr.png" />
 
