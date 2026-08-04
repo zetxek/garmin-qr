@@ -8,7 +8,7 @@ Using https://github.com/zetxek/qr-generator to generate QR codes and barcodes �
 
 ## Features
 
-- Generate QR codes and barcodes from text input
+- QR codes and Code 128 barcodes **generated on the watch** — no network, no waiting
 - Store multiple codes for quick access
 - View codes in both full app and glance view
 - Edit or remove existing codes
@@ -109,6 +109,18 @@ Two kinds of test live there:
   queueing, dispatch order, callback routing and caching are all production code. Tests must
   not use the real radio: in the simulator `makeImageRequest` calls back *synchronously* with
   `-101` when the phone data channel is unavailable.
+
+### Verifying a generated code actually scans
+
+Matching a reference encoder proves the bits are right. This proves the pixels a scanner sees
+are right too — capture a frame with the simulator's **File > Save Screen Capture** while a code
+is on screen, then:
+
+```bash
+./scripts/verify-generated-codes.sh qr.png 'https://example.com/pass?id=42&type=member'
+```
+
+Needs `brew install zbar imagemagick`.
 
 ### End-to-end check against the live service
 

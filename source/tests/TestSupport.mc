@@ -19,6 +19,9 @@ module TestSupport {
         Storage.deleteValue(CodeStore.GLANCE_META_TYPE);
         Storage.deleteValue("pendingImageSlots");
         Application.Properties.setValue(CodeStore.PROP_CODES, [] as Array<Application.PropertyValueType>);
+        // Most of these tests are about the download path, so they opt out of on-device
+        // generation explicitly. Tests that want generation turn it back on themselves.
+        Application.Properties.setValue(CodeGeneration.SETTING, false);
         ImageService.instance = null;
     }
 
@@ -67,6 +70,26 @@ module TestSupport {
         Test.assertMessage(actual.equals(expected),
             "'" + text + "' differs from the reference:\n  expected " + expected + "\n  actual   " + actual);
         logger.debug("'" + text + "' -> " + actual.length() + " modules, matches reference");
+    }
+
+    //! Assert a generated QR matrix equals the reference row for row.
+    function assertQrMatches(
+        logger as Test.Logger, text as String, mask as Number, expected as Array<String>
+    ) as Void {
+        var matrix = Qr.encodeWithMask(text, mask);
+        Test.assertMessage(matrix != null, "'" + text + "' should encode");
+        Test.assertEqualMessage(matrix.size, expected.size(),
+            "'" + text + "': expected a " + expected.size() + " module square, got " + matrix.size);
+
+        for (var y = 0; y < matrix.size; y++) {
+            var row = "";
+            for (var x = 0; x < matrix.size; x++) {
+                row += matrix.get(x, y) == 1 ? "1" : "0";
+            }
+            Test.assertMessage(row.equals(expected[y]),
+                "'" + text + "' row " + y + " differs:\n  expected " + expected[y] + "\n  actual   " + row);
+        }
+        logger.debug("'" + text + "' -> " + matrix.size + "x" + matrix.size + " mask " + mask + ", matches reference");
     }
 
     function propertiesEntryCount() as Number {

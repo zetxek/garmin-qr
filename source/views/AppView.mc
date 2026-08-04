@@ -3,6 +3,7 @@ import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.System;
 import Toybox.Application;
+import Toybox.Timer;
 
 //! The main screen: one code at a time, up/down or swipe to move between them.
 //!
@@ -20,6 +21,16 @@ class AppView extends WatchUi.View {
     //! part of this app's memory footprint on smaller devices.
     var currentSlot as Number;
     var currentImage as WatchUi.BitmapResource?;
+    //! Locally generated code for the visible slot. When either is set, nothing is downloaded.
+    var currentMatrix as QrMatrix?;
+    var currentBars as ByteArray?;
+    //! Generation is deferred to a timer rather than run inline. Building a QR takes a few
+    //! hundred milliseconds, and Connect IQ's watchdog kills a startup slice long before that --
+    //! doing it in `initialize` crashed the app with "Code Executed Too Long". Off the startup
+    //! path the screen appears immediately and the code fills in a frame later.
+    var generateTimer as Timer.Timer?;
+    var generateFor as Number = -1;
+    var builder as QrBuilder?;
     var emptyLayoutShown as Boolean;
 
     function initialize() {
@@ -45,6 +56,7 @@ class AppView extends WatchUi.View {
     }
 
     function onHide() as Void {
+        stopGeneration();
         var backlight = Application.getApp().backlight;
         if (backlight != null) {
             backlight.disable();
@@ -61,9 +73,14 @@ class AppView extends WatchUi.View {
         currentImage = null;
         loadCurrent();
 
-        var service = ImageService.get();
-        service.enqueueAll();
-        service.pump();
+        // Only prefetch from the service when it is actually the source. With on-device
+        // generation the codes never need downloading, and prefetching would spend battery on
+        // requests whose results are thrown away.
+        if (!CodeGeneration.enabled()) {
+            var service = ImageService.get();
+            service.enqueueAll();
+            service.pump();
+        }
         WatchUi.requestUpdate();
     }
 
@@ -74,17 +91,83 @@ class AppView extends WatchUi.View {
 
     function loadCurrent() as Void {
         var slot = activeSlot();
-        if (slot == currentSlot && currentImage != null) { return; }
+        if (slot == currentSlot && hasSomethingToDraw()) { return; }
 
         currentSlot = slot;
-        currentImage = slot < 0 ? null : CodeStore.cachedImage(slot);
+        currentMatrix = null;
+        currentBars = null;
+        currentImage = null;
+        if (slot < 0) { return; }
 
-        if (slot >= 0 && currentImage == null) {
+        // Generating on the watch is the primary path: no network, no waiting, and immune to the
+        // image-proxy failures that leave downloads returning 404.
+        if (CodeGeneration.enabled() && CodeStore.getText(slot) != null) {
+            var barcode = CodeStore.isBarcode(slot);
+            if (barcode) {
+                // Code 128 is a table lookup and a checksum -- fast enough to do inline.
+                currentBars = Code128.encode(CodeStore.getText(slot) as String);
+                if (currentBars != null) { return; }
+            } else {
+                scheduleGeneration(slot);
+                return;
+            }
+        }
+
+        // Fall back to the service: either the payload is outside what the local encoders cover,
+        // or on-device generation has been switched off.
+        currentImage = CodeStore.cachedImage(slot);
+        if (currentImage == null) {
             // The code the user is looking at jumps the queue.
             var service = ImageService.get();
             service.enqueueFirst(slot);
             service.pump();
         }
+    }
+
+    function hasSomethingToDraw() as Boolean {
+        return currentMatrix != null || currentBars != null || currentImage != null;
+    }
+
+    //! Start building a QR in the background, one slice per timer tick.
+    function scheduleGeneration(slot as Number) as Void {
+        var text = CodeStore.getText(slot);
+        if (text == null) { return; }
+
+        generateFor = slot;
+        builder = new QrBuilder(text);
+        if (generateTimer == null) { generateTimer = new Timer.Timer(); }
+        generateTimer.start(method(:onGenerateTick), 20, true);
+    }
+
+    //! One slice of generation. The watchdog kills any slice that runs too long, so the work is
+    //! spread over ticks rather than done in one call.
+    function onGenerateTick() as Void {
+        var work = builder;
+        if (work == null || generateFor != currentSlot) {
+            stopGeneration();
+            return;
+        }
+
+        if (!work.advance()) { return; }
+        stopGeneration();
+
+        if (!work.failed && work.matrix != null) {
+            currentMatrix = work.matrix;
+        } else {
+            // Outside what the local encoder covers; let the service try instead.
+            currentImage = CodeStore.cachedImage(generateFor);
+            if (currentImage == null) {
+                var service = ImageService.get();
+                service.enqueueFirst(generateFor);
+                service.pump();
+            }
+        }
+        builder = null;
+        WatchUi.requestUpdate();
+    }
+
+    function stopGeneration() as Void {
+        if (generateTimer != null) { generateTimer.stop(); }
     }
 
     function applyScreenTimeout() as Void {
@@ -112,22 +195,56 @@ class AppView extends WatchUi.View {
         }
 
         // Cheap re-check: a download may have completed since the last frame.
-        if (currentImage == null && currentSlot >= 0) {
+        if (!hasSomethingToDraw() && currentSlot >= 0) {
             currentImage = CodeStore.cachedImage(currentSlot);
         }
-
-        var image = currentImage;
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
 
         drawStatusBanner(dc);
 
-        if (image != null) {
-            drawCode(dc, image, currentSlot);
+        if (currentMatrix != null || currentBars != null) {
+            drawGeneratedCode(dc);
+            drawCounter(dc);
+        } else if (currentImage != null) {
+            drawCode(dc, currentImage, currentSlot);
             drawCounter(dc);
         } else {
             drawPlaceholder(dc);
+        }
+    }
+
+    //! Draw a locally generated code, leaving room for the title above and the counter below.
+    function drawGeneratedCode(dc as Graphics.Dc) as Void {
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+        var title = CodeStore.getTitle(currentSlot);
+        var titleHeight = title.length() > 0 ? (height * 0.12).toNumber() : 0;
+        var counterHeight = (height * 0.14).toNumber();
+
+        var top = (height * 0.08).toNumber() + titleHeight;
+        var boxHeight = height - top - counterHeight;
+        var centreY = top + (boxHeight / 2);
+
+        if (title.length() > 0) {
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(
+                width / 2, top - (titleHeight / 2), Graphics.FONT_TINY, title,
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+            );
+        }
+
+        if (currentBars != null) {
+            // Barcodes want width; the height only has to be enough for a scanner to find a row.
+            var barLimit = (height * 0.45).toNumber();
+            var barHeight = boxHeight < barLimit ? boxHeight : barLimit;
+            CodeRenderer.drawBarcode(
+                dc, currentBars as ByteArray, width / 2, centreY,
+                (width * 0.94).toNumber(), barHeight);
+        } else {
+            var available = boxHeight < width ? boxHeight : width;
+            CodeRenderer.drawQr(dc, currentMatrix as QrMatrix, width / 2, centreY, available);
         }
     }
 

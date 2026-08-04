@@ -4,4 +4,5 @@
     <property id="keepScreenOn" type="boolean"></property>
 
     <property id="serviceUrl" type="string">https://qr-gen.adrianmoreno.info</property>
+    <property id="generateOnDevice" type="boolean">true</property>
 </properties>

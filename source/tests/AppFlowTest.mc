@@ -1,5 +1,6 @@
 import Toybox.Lang;
 import Toybox.Test;
+import Toybox.Application;
 import Toybox.Application.Storage;
 
 //! Whole-app tests: they boot the real `AppView` inside the simulator and drive the real
@@ -228,5 +229,53 @@ function glanceViewConstructsWithoutRecursing(logger as Test.Logger) as Boolean 
     var view = new GlanceView();
     Test.assertMessage(view != null, "the glance view constructed");
     logger.debug("GlanceView constructed without recursing");
+    return true;
+}
+
+//! With on-device generation on -- the default -- opening a code must not touch the network at
+//! all. This is the whole point of generating locally: no service, no proxy, no waiting.
+(:test)
+function generatedCodesNeverHitTheNetwork(logger as Test.Logger) as Boolean {
+    TestSupport.threeCodes();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    var service = TestSupport.fakeService();
+
+    var view = new AppView();
+
+    Test.assertEqualMessage(service.requested.size(), 0, "nothing was requested");
+    Test.assertEqualMessage(service.pendingCount(), 0, "nothing was even queued");
+    Test.assertEqualMessage(service.inFlight, service.NONE, "no request is in flight");
+
+    // The barcode is generated inline; the QR is handed to the incremental builder.
+    view.position = 1;
+    view.currentSlot = -1;
+    view.loadCurrent();
+    Test.assertMessage(view.currentBars != null, "the barcode was generated on the spot");
+    Test.assertEqualMessage(service.requested.size(), 0, "still nothing requested");
+
+    logger.debug("on-device generation issued zero requests");
+    return true;
+}
+
+//! A QR is built across timer slices, so the builder must reach a finished matrix.
+(:test)
+function theIncrementalBuilderFinishesAQrCode(logger as Test.Logger) as Boolean {
+    var builder = new QrBuilder("https://example.com/pass?id=42&type=member");
+    var steps = 0;
+    while (!builder.advance() && steps < 50) { steps++; }
+
+    Test.assertMessage(!builder.failed, "the builder did not fail");
+    Test.assertMessage(builder.matrix != null, "a matrix was produced");
+    Test.assertEqualMessage(builder.matrix.size, 29, "version 3 for this payload");
+
+    // It must agree with the one-shot encoder, which the reference tests pin down.
+    var direct = Qr.encode("https://example.com/pass?id=42&type=member");
+    for (var y = 0; y < direct.size; y++) {
+        for (var x = 0; x < direct.size; x++) {
+            Test.assertEqualMessage(builder.matrix.get(x, y), direct.get(x, y),
+                "module " + x + "," + y + " differs from the one-shot encoder");
+        }
+    }
+    logger.debug("builder finished in " + steps + " slices and matches Qr.encode");
     return true;
 }
