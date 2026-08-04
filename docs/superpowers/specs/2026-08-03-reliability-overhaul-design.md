@@ -287,31 +287,47 @@ the app. It is a manual check to run before a release:
 ./scripts/simulator-test.sh fenix7pro
 ```
 
-### Open finding: the code service refuses Garmin's image fetcher
+### Root cause of the download failures: Garmin bug CIQQA-3382
 
-Running the end-to-end check against a signed-in simulator did **not** produce images. The
-investigation narrowed it down, and the app is not the cause:
+`makeImageRequest` does not fetch from the watch. It is proxied through Garmin's image service,
+which fetches the URL itself and returns a transcoded bitmap. That proxy returns **404 for
+domains it fails to fetch**, even when the URL is publicly reachable and returns 200 to every
+normal client. Garmin acknowledged this as **CIQQA-3382** and it has been open for over a year;
+`makeWebRequest` to the same host works, only `makeImageRequest` fails.
+
+Measured in the simulator, signed in to Garmin Connect:
 
 | Request | Result |
 |---|---|
 | `qr-gen.adrianmoreno.info/qr?text=HELLO&size=250` via `curl` | **200**, valid PNG |
-| the same URL via `Communications.makeImageRequest` | **404** |
-| the same URL, query passed as a params dictionary instead | **404** |
+| the same URL via `makeImageRequest` | **404** |
+| the same URL, query passed as a params dictionary | **404** |
 | a PNG on `raw.githubusercontent.com`, no query string | **200**, cached |
 | the same PNG **with** a query string | **200**, cached |
 | the original pre-refactor app, same seeded code | no image either |
+| an `http://127.0.0.1` URL | 200 with an empty body — the proxy cannot reach localhost |
 
-So the request path works, query strings are fine, and the behaviour is identical before and
-after this refactor. What fails is specifically the code service answering Garmin's image
-fetcher — `makeImageRequest` is proxied through Garmin's infrastructure rather than fetched by
-the watch, so the service sees a request from Garmin's network, not the user's. Header
-variations (`Accept`, `User-Agent`, HTTP version, HEAD vs GET) all return 200 from a normal
-client, so it is not content negotiation.
+So the request path is correct, query strings are fine, and the behaviour is identical before
+and after this change. The variable is the host: some domains the proxy can fetch, some it
+cannot, and ours is currently in the second group.
 
-This is worth chasing in the `qr-generator` service rather than here. It is a plausible
-contributor to "it doesn't work" reports that the client-side fixes in this change cannot
-address. A path-based URL (`/qr/<encoded>`) would also be worth testing, since the one URL
-shape confirmed to work through the proxy had no query string of its own.
+Header negotiation was ruled out — `Accept`, `User-Agent`, HTTP version, and HEAD vs GET all
+return 200 from a normal client. One difference worth trying on the service is caching: the
+host that works sends `Cache-Control` and `ETag`, and `qr-gen` sends neither.
+
+Two consequences for this app, both now fixed:
+
+- **404 is no longer treated as permanent.** It was, so the first 404 stranded the code for the
+  session and told the user "This code can't be generated. Check its text in settings." — which
+  blamed them for a Garmin-side failure. 404 is now retried with backoff, and the message for it
+  reads "Code service unavailable".
+- **The service host is now a setting** (`serviceUrl`). Since the failure is domain-specific and
+  outside this app's control, a working host can be pointed at from Garmin Express without
+  waiting on an app-store release.
+
+What this app cannot fix is the proxy itself. Worth trying on the `qr-generator` side: serving
+from the Cloud Run `*.run.app` URL or another domain, and adding `Cache-Control`/`ETag` to
+image responses.
 
 ### What the GUI pass confirmed
 

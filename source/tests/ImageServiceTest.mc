@@ -201,7 +201,9 @@ function permanentFailuresAreNeverSentAgain(logger as Test.Logger) as Boolean {
 
     var service = ImageService.get();
     service.enqueue(0);
-    service.recordFailure(0, 404);
+    // 400, not 404: a 404 from Garmin's image proxy is retryable, see
+    // proxy404IsRetriedNotGivenUpOn.
+    service.recordFailure(0, 400);
     service.pump();
 
     Test.assertMessage(service.inFlight == service.NONE, "nothing should be in flight");
@@ -241,5 +243,47 @@ function pendingCountIncludesTheRequestInFlight(logger as Test.Logger) as Boolea
     service.inFlight = 0;
 
     Test.assertEqualMessage(service.pendingCount(), 2, "one queued plus one in flight");
+    return true;
+}
+
+//! Garmin's image proxy returns 404 for its own fetch failures as well as genuine ones
+//! (CIQQA-3382), so a 404 must be retried rather than stranding the code forever.
+(:test)
+function proxy404IsRetriedNotGivenUpOn(logger as Test.Logger) as Boolean {
+    Test.assertMessage(!ImageService.isPermanent(404), "404 is retryable");
+    Test.assertMessage(ImageService.isPermanent(400), "400 is still permanent");
+    Test.assertMessage(ImageService.isPermanent(403), "403 is still permanent");
+    Test.assertMessage(!ImageService.isPermanent(500), "500 is still retryable");
+
+    TestSupport.reset();
+    CodeStore.save(0, "One", "only-code", CodeStore.TYPE_QR);
+    var service = TestSupport.fakeService();
+    service.enqueue(0);
+    service.pump();
+    Test.assertEqualMessage(service.inFlight, 0, "the code is in flight");
+
+    service.respondWith(404);
+
+    Test.assertMessage(!service.isPermanentlyFailed(0), "a 404 does not permanently fail a code");
+    Test.assertMessage(service.pendingCount() > 0, "the code stays queued for another attempt");
+    logger.debug("404 requeued instead of abandoned");
+    return true;
+}
+
+//! The endpoint is configurable so a host that Garmin's proxy cannot fetch can be swapped out
+//! without an app-store release.
+(:test)
+function serviceUrlCanBeOverriddenFromSettings(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue("serviceUrl", "https://example.test/codes/");
+    var url = ImageService.buildUrl("HELLO", CodeStore.TYPE_QR, 250);
+    logger.debug("override -> " + url);
+    Test.assertMessage(url.find("https://example.test/codes/qr?") != null,
+        "the override is used and its trailing slash trimmed: " + url);
+
+    Application.Properties.setValue("serviceUrl", "");
+    var fallback = ImageService.buildUrl("HELLO", CodeStore.TYPE_QR, 250);
+    Test.assertMessage(fallback.find("qr-gen.adrianmoreno.info") != null,
+        "an empty override falls back to the built-in host: " + fallback);
     return true;
 }

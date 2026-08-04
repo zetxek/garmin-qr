@@ -27,5 +27,8 @@
         <setting propertyKey="@Properties.keepScreenOn" title="@Strings.keepScreenOnTitle">
             <settingConfig type="boolean" />
         </setting>
+        <setting propertyKey="@Properties.serviceUrl" title="@Strings.serviceUrlTitle">
+            <settingConfig type="alphanumeric" required="false" maxLength="128" />
+        </setting>
     </settings>
 </resources>

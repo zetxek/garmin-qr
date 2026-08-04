@@ -51,12 +51,36 @@ class ImageService {
     //!
     //! Without this, a code containing `&` was cut short at the first ampersand, and `+`,
     //! spaces, `#` and `%` silently produced the wrong code (issue #31).
+    //! The service host, overridable from settings.
+    //!
+    //! Garmin's image proxy fails for some domains and not others, and the failure is outside
+    //! this app's control. Making the host a setting means a working host can be pointed at
+    //! without waiting on an app-store release.
+    static function serviceUrl() as String {
+        var configured = null;
+        try {
+            configured = Application.Properties.getValue("serviceUrl");
+        } catch (e) {
+            configured = null;
+        }
+        if (configured instanceof String && configured.length() > 0) {
+            // Trailing slashes would produce "//qr" or, worse, a path the service 404s on.
+            var trimmed = configured;
+            while (trimmed.length() > 0 && trimmed.substring(trimmed.length() - 1, trimmed.length()).equals("/")) {
+                trimmed = trimmed.substring(0, trimmed.length() - 1);
+            }
+            if (trimmed.length() > 0) { return trimmed; }
+        }
+        return $.QR_SERVICE_URL;
+    }
+
     static function buildUrl(text as String, type as String, size as Number) as String {
         var encoded = Communications.encodeURL(text);
+        var base = serviceUrl();
         if (type.equals(CodeStore.TYPE_BARCODE)) {
-            return $.QR_SERVICE_URL + "/barcode?text=" + encoded + "&size=" + size + "&shape=rectangle";
+            return base + "/barcode?text=" + encoded + "&size=" + size + "&shape=rectangle";
         }
-        return $.QR_SERVICE_URL + "/qr?text=" + encoded + "&size=" + size;
+        return base + "/qr?text=" + encoded + "&size=" + size;
     }
 
     //! Request size for the full-screen view, scaled to the display.
@@ -380,7 +404,16 @@ class ImageService {
 
     //! 4xx means the server understood us and refused: the payload is the problem, so retrying
     //! it verbatim will never work. Everything else — offline, timeout, 5xx — is transient.
+    //! 404 is deliberately *not* permanent.
+    //!
+    //! `makeImageRequest` does not fetch from the watch: it is proxied through Garmin's image
+    //! service, which returns 404 both for genuinely missing images and for its own failures to
+    //! fetch a perfectly reachable URL (Garmin bug CIQQA-3382, acknowledged, still open). Our
+    //! own service answers the identical URL with 200 to any normal client while the proxy
+    //! reports 404. Treating that as permanent stranded every code on the first attempt and
+    //! told the user their text was wrong, which it was not.
     static function isPermanent(responseCode as Number) as Boolean {
+        if (responseCode == 404) { return false; }
         return responseCode >= 400 && responseCode < 500;
     }
 

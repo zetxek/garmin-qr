@@ -192,9 +192,15 @@ class AppView extends WatchUi.View {
             color = Graphics.COLOR_YELLOW;
         } else if (state == :failed) {
             var failCode = ImageService.get().lastErrorCode(currentSlot);
-            message = failCode != null && ImageService.isPermanent(failCode)
-                ? "This code can't be\ngenerated. Check its\ntext in settings."
-                : "Couldn't load this code.\nUse Refresh to try again.";
+            if (failCode != null && failCode == 404) {
+                // Not the user's fault: Garmin's image proxy reports 404 for its own fetch
+                // failures too, so do not send them off to edit text that is already correct.
+                message = "Code service\nunavailable.\nUse Refresh to retry.";
+            } else if (failCode != null && ImageService.isPermanent(failCode)) {
+                message = "This code can't be\ngenerated. Check its\ntext in settings.";
+            } else {
+                message = "Couldn't load this code.\nUse Refresh to try again.";
+            }
             color = Graphics.COLOR_RED;
         }
 
