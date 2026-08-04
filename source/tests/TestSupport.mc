@@ -52,6 +52,23 @@ module TestSupport {
             context + ": expected '" + expected + "' but got '" + actual + "'");
     }
 
+    //! Assert an encoding matches the reference module-for-module. Lives in this module so the
+    //! test runner does not mistake a helper for a test case.
+    function assertCode128(logger as Test.Logger, text as String, expected as String) as Void {
+        var modules = Code128.encode(text);
+        Test.assertMessage(modules != null, "'" + text + "' should be encodable");
+
+        var actual = "";
+        for (var i = 0; i < modules.size(); i++) {
+            actual += modules[i] == 1 ? "1" : "0";
+        }
+        Test.assertEqualMessage(actual.length(), expected.length(),
+            "'" + text + "': expected " + expected.length() + " modules, got " + actual.length());
+        Test.assertMessage(actual.equals(expected),
+            "'" + text + "' differs from the reference:\n  expected " + expected + "\n  actual   " + actual);
+        logger.debug("'" + text + "' -> " + actual.length() + " modules, matches reference");
+    }
+
     function propertiesEntryCount() as Number {
         var raw = Application.Properties.getValue(CodeStore.PROP_CODES);
         return raw instanceof Array ? raw.size() : 0;
