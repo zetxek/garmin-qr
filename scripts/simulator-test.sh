@@ -134,6 +134,23 @@ if [ "$FAILED" -eq 0 ]; then
 fi
 
 echo "==> Simulator end-to-end test failed" >&2
-echo "    If the failure is 'the download never completed', check that the simulator has" >&2
-echo "    network access and that https://qr-gen.adrianmoreno.info is reachable." >&2
+cat >&2 <<'HINT'
+
+    If the failure is "the download never completed", check these in order:
+
+    1. Settings > Glance Launch Mode must be "Launch in Normal Mode". In glance mode the
+       simulator runs only the glance, which never downloads by design, so the app under
+       test never runs at all. This is the most common cause.
+
+    2. The simulator must be signed in to Garmin Connect. Image requests are proxied
+       through that account; until you sign in every request fails.
+
+    3. Run the diagnostic and look at lastError:
+
+           monkeydo bin/integration.prg <device> -t integrationDump
+
+       404 means the code service refused Garmin's image fetcher while still answering
+       curl normally. The app is not at fault in that case -- see
+       docs/superpowers/specs/ for the investigation.
+HINT
 exit 1

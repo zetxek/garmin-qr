@@ -287,6 +287,32 @@ the app. It is a manual check to run before a release:
 ./scripts/simulator-test.sh fenix7pro
 ```
 
+### Open finding: the code service refuses Garmin's image fetcher
+
+Running the end-to-end check against a signed-in simulator did **not** produce images. The
+investigation narrowed it down, and the app is not the cause:
+
+| Request | Result |
+|---|---|
+| `qr-gen.adrianmoreno.info/qr?text=HELLO&size=250` via `curl` | **200**, valid PNG |
+| the same URL via `Communications.makeImageRequest` | **404** |
+| the same URL, query passed as a params dictionary instead | **404** |
+| a PNG on `raw.githubusercontent.com`, no query string | **200**, cached |
+| the same PNG **with** a query string | **200**, cached |
+| the original pre-refactor app, same seeded code | no image either |
+
+So the request path works, query strings are fine, and the behaviour is identical before and
+after this refactor. What fails is specifically the code service answering Garmin's image
+fetcher — `makeImageRequest` is proxied through Garmin's infrastructure rather than fetched by
+the watch, so the service sees a request from Garmin's network, not the user's. Header
+variations (`Accept`, `User-Agent`, HTTP version, HEAD vs GET) all return 200 from a normal
+client, so it is not content negotiation.
+
+This is worth chasing in the `qr-generator` service rather than here. It is a plausible
+contributor to "it doesn't work" reports that the client-side fixes in this change cannot
+address. A path-based URL (`/qr/<encoded>`) would also be worth testing, since the one URL
+shape confirmed to work through the proxy had no query string of its own.
+
 ### What the GUI pass confirmed
 
 Driving the running app in the simulator, with codes seeded via `integrationSeedRendered`:
