@@ -92,6 +92,46 @@ module TestSupport {
         logger.debug("'" + text + "' -> " + matrix.size + "x" + matrix.size + " mask " + mask + ", matches reference");
     }
 
+    //! Recreate the storage an older release would have left behind.
+    function seedLegacyInstall() as Void {
+        reset();
+        Storage.deleteValue(Migration.SCHEMA_KEY);
+
+        // Codes as the old release wrote them: the type as a word, not "0"/"1".
+        Storage.setValue("code_0_text", "https://example.com/pass?id=42&type=member");
+        Storage.setValue("code_0_title", "Gym card");
+        Storage.setValue("code_0_type", "qr");
+        Storage.setValue("code_0_timestamp", 123456);
+
+        Storage.setValue("code_1_text", "MEMBER 12345");
+        Storage.setValue("code_1_title", "Loyalty");
+        Storage.setValue("code_1_type", "barcode");
+        Storage.setValue("code_1_timestamp", 123457);
+
+        // A settings-editor round trip could also leave the type as a Number.
+        Storage.setValue("code_2_text", "PLAIN");
+        Storage.setValue("code_2_title", "Numeric type");
+        Storage.setValue("code_2_type", 1);
+
+        // Debris from the old download path.
+        Storage.setValue("pendingSyncImages", [0, 1] as Array<Application.PropertyValueType>);
+        Storage.setValue("lastSyncTime", 998877);
+        Storage.setValue("last_error_code_0", 404);
+
+        // `codesList` with the undeclared timestamp key that broke the settings editor, plus a
+        // null hole where a code had been deleted.
+        var legacy = [
+            {
+                "code_$index_text" => "https://example.com/pass?id=42&type=member",
+                "code_$index_title" => "Gym card",
+                "code_$index_type" => "qr",
+                "code_$index_timestamp" => 123456
+            },
+            null
+        ] as Array<Application.PropertyValueType>;
+        Application.Properties.setValue(CodeStore.PROP_CODES, legacy);
+    }
+
     function propertiesEntryCount() as Number {
         var raw = Application.Properties.getValue(CodeStore.PROP_CODES);
         return raw instanceof Array ? raw.size() : 0;

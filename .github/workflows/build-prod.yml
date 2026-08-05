@@ -52,8 +52,21 @@ jobs:
           fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Final VERSION: $VERSION"
-          sed -i.bak "s/0.0.0/$VERSION/g" resources/drawables/properties.xml
-          sed -i.bak "s/0.0.0/$VERSION/g" resources/strings/strings.xml
+          # Stamp the release version into the appVersion property, which is what the About
+          # screen reads. This used to substitute the literal "0.0.0", which stopped matching
+          # the moment a real version was committed, so the shipped build reported whatever was
+          # in the file rather than the tag. Target the property itself, and drop the leading
+          # "v" so About shows "0.1.0" rather than "v0.1.0".
+          PLAIN_VERSION="${VERSION#v}"
+          sed -i.bak -E \
+            "s|(<property id=\"appVersion\" type=\"string\">)[^<]*(</property>)|\1$PLAIN_VERSION\2|" \
+            resources/drawables/properties.xml
+          echo "appVersion is now: $(grep appVersion resources/drawables/properties.xml)"
+          if ! grep -q "<property id=\"appVersion\" type=\"string\">$PLAIN_VERSION</property>" \
+               resources/drawables/properties.xml; then
+            echo "::error::Failed to stamp appVersion as $PLAIN_VERSION"
+            exit 1
+          fi
 
       - name: Build Release
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'

@@ -351,6 +351,41 @@ Driving the running app in the simulator, with codes seeded via `integrationSeed
 - Run the unit and app-flow suites in the simulator on a virtual display.
 - Keep the existing release job unchanged.
 
+## Upgrading an existing install
+
+Version 0.1.0. Existing users keep their codes: the slot keys (`code_N_text`, `code_N_title`,
+`code_N_type`) are unchanged from every previous release, and nothing rewrites them except to
+normalise the type value.
+
+`Migration.run()` executes once at startup, guarded by a stored `schemaVersion`, before anything
+reads storage:
+
+- **Type values are normalised in place.** Older releases stored whatever the settings editor
+  handed over — the words `qr` and `barcode`, or a `Number`. Reads normalise anyway, but writing
+  the canonical `"0"`/`"1"` back means the stored data matches the schema from here on.
+- **`codesList` is republished from Storage.** Older releases wrote a `code_$index_timestamp`
+  key into every entry and a literal `null` for a deleted code. Neither is in the settings
+  schema, and together they are what stopped the Connect IQ editor saving (C5). Rewriting from
+  Storage leaves only the three declared keys, which is what unbreaks issue #30 for an install
+  that already has the bad data.
+- **Obsolete keys are dropped**: `pendingSyncImages`, `lastSyncTime`, `code_N_timestamp`,
+  `last_error_code_N`.
+
+**Cached images are deliberately kept.** They are the download fallback's cache. A user who has
+to switch generation off should not then face a re-download against a service that may still be
+refusing Garmin's image proxy. They cost the same storage they already did, so keeping them is
+no regression.
+
+The migration is idempotent, safe on a fresh install, and covered by six tests that build
+storage the way an old release actually wrote it and check what survives.
+
+### Release versioning
+
+The release workflow stamps the tag into `appVersion`, which the About screen reads. It used to
+substitute the literal `0.0.0`; that stopped matching the moment a real version was committed,
+so shipped builds reported whatever was in the file rather than the tag. It now targets the
+property itself, strips the leading `v`, and fails the job if the stamp does not take.
+
 ## Out of scope
 
 - Changing the code-generation service or its API.

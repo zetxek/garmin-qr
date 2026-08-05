@@ -39,6 +39,9 @@ class App extends Application.AppBase {
         started = true;
         backlight = new Backlight();
         loadSettings();
+        // Before anything reads storage: an install upgraded from an older release still has
+        // legacy type values and settings entries the editor cannot save.
+        Migration.run();
         CodeStore.reconcile();
 
         var view = new AppView();
