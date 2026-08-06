@@ -12,7 +12,10 @@ import Toybox.WatchUi;
 (:app)
 class App extends Application.AppBase {
 
-    var keepScreenOn as Boolean = false;
+    //! Held on by default: the whole point of the app is a code someone can scan, and a screen
+    //! that dims while the wrist is held up to a reader defeats it. `Backlight` caps how long it
+    //! will hold, so this cannot pin the display on indefinitely.
+    var keepScreenOn as Boolean = true;
     //! False while running as a glance. Guards every path that touches app-only classes.
     var started as Boolean = false;
     var backlight as Backlight?;
@@ -81,6 +84,6 @@ class App extends Application.AppBase {
         } catch (e) {
             value = null;
         }
-        keepScreenOn = (value instanceof Boolean) ? value : false;
+        keepScreenOn = (value instanceof Boolean) ? value : true;
     }
 }

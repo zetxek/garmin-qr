@@ -24,6 +24,9 @@ class Backlight {
         heldMs = 0;
     }
 
+    //! True while this class is holding the backlight on.
+    function isHolding() as Boolean { return timer != null; }
+
     static function isSupported() as Boolean {
         return (Toybox has :Attention) && (Attention has :backlight);
     }
@@ -41,13 +44,20 @@ class Backlight {
         }
     }
 
+    //! Release the backlight.
+    //!
+    //! Only tells the device to switch the backlight off if this class actually turned it on.
+    //! `Attention.backlight(false)` does not merely release a hold, it darkens the screen there
+    //! and then -- so calling it unconditionally on every open (which is what happens when
+    //! "keep screen on" is off) blacked out the display the moment the app appeared.
     function disable() as Void {
+        var wasHolding = timer != null;
         if (timer != null) {
             timer.stop();
             timer = null;
         }
         heldMs = 0;
-        if (!isSupported()) { return; }
+        if (!wasHolding || !isSupported()) { return; }
         try {
             Attention.backlight(false);
         } catch (e) {

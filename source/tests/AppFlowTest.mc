@@ -396,3 +396,49 @@ function openingTheAppPreparesTheGlanceCode(logger as Test.Logger) as Boolean {
     logger.debug("glance code prepared regardless of which code is on screen");
     return true;
 }
+
+//! Opening the app must not switch the backlight off.
+//!
+//! `applyScreenTimeout` runs on every show, and with "keep screen on" off it called
+//! `Backlight.disable()`. That did not just release a hold, it drove `Attention.backlight(false)`
+//! and blacked out the display as soon as the app opened.
+(:test)
+function openingTheAppDoesNotDarkenTheScreen(logger as Test.Logger) as Boolean {
+    var backlight = new Backlight();
+
+    // Never enabled, so there is no hold to release and nothing to switch off.
+    backlight.disable();
+    Test.assertMessage(!backlight.isHolding(), "not holding the backlight after a bare disable");
+
+    // A hold that was actually taken is still released.
+    backlight.enable();
+    if (Backlight.isSupported()) {
+        Test.assertMessage(backlight.isHolding(), "enable() takes the hold");
+    }
+    backlight.disable();
+    Test.assertMessage(!backlight.isHolding(), "disable() releases it again");
+    logger.debug("backlight is only switched off when it was switched on");
+    return true;
+}
+
+//! The user's choice of screen behaviour is honoured in both directions.
+//!
+//! The shipped default is `true`, set on the `keepScreenOn` property in
+//! resources/drawables/properties.xml -- a code that dims while you hold your wrist up to a
+//! scanner is not much use. That default cannot be asserted here: the simulator persists
+//! properties between runs, so "nothing stored yet" is not a reachable state in a test.
+(:test)
+function theScreenSettingIsHonoured(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    var app = Application.getApp();
+
+    Application.Properties.setValue("keepScreenOn", false);
+    app.loadSettings();
+    Test.assertMessage(!app.keepScreenOn, "an explicit off is honoured");
+
+    Application.Properties.setValue("keepScreenOn", true);
+    app.loadSettings();
+    Test.assertMessage(app.keepScreenOn, "and an explicit on");
+    logger.debug("screen-on setting round-trips in both directions");
+    return true;
+}
