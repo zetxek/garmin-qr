@@ -36,6 +36,10 @@ function integrationSeed(logger as Test.Logger) as Boolean {
     Storage.deleteValue(CodeStore.GLANCE_IMAGE);
     Application.Properties.setValue(
         CodeStore.PROP_CODES, [] as Array<Application.PropertyValueType>);
+    // Match a real install. The simulator persists properties between runs, so without this the
+    // fixture inherits whatever the last unit-test run left behind -- and the unit tests turn
+    // generation off, which quietly puts the app back on the dead download path.
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
 
     CodeStore.save(0, $.SEED_QR_TITLE, $.SEED_QR_TEXT, CodeStore.TYPE_QR);
     CodeStore.save(1, $.SEED_BARCODE_TITLE, $.SEED_BARCODE_TEXT, CodeStore.TYPE_BARCODE);
@@ -44,6 +48,7 @@ function integrationSeed(logger as Test.Logger) as Boolean {
     Test.assertEqualMessage(CodeStore.count(), 2, "two codes seeded");
     Test.assertMessage(!CodeStore.isCacheValid(0), "slot 0 starts with no image");
     Test.assertMessage(!CodeStore.isCacheValid(1), "slot 1 starts with no image");
+    Test.assertMessage(CodeGeneration.enabled(), "codes are generated on the watch, as shipped");
 
     logger.debug("SEEDED 2 codes, no cached images");
     return true;
