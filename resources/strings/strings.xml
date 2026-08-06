@@ -20,4 +20,6 @@ Code: github.com/zetxek/garmin-qr
     <string id="keepScreenOnTitle">Keep Screen On While Showing Code</string>
     <string id="keepScreenOnEnabled">Enabled</string>
     <string id="keepScreenOnDisabled">Disabled</string>
+    <string id="serviceUrlTitle">Code service URL (advanced)</string>
+    <string id="generateOnDeviceTitle">Generate codes on the watch</string>
 </resources> 

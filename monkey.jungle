@@ -1,1 +1,5 @@
-project.manifest = manifest.xml 
+project.manifest = manifest.xml
+
+# The SDK default is `.\**.mc`, which sweeps in every .mc file anywhere in the repo —
+# including the simulator fixtures in integration/. Keep normal builds to source/ only.
+base.sourcePath = source

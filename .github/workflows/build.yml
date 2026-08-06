@@ -10,12 +10,32 @@ on:
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
+  # One build per screen class and input class we actually ship to. Building only fenix7pro let
+  # device-specific breakage — Edge units with no vibration motor, the small memory budget of
+  # the glance on vivoactive — reach the store instead of the pull request.
   build:
+    name: Build ${{ matrix.device }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     container:
-      #image: ghcr.io/matco/connectiq-tester:v2.3.0
       image: ghcr.io/zetxek/connectiq-tester:latest
-    
+    # The container's default shell is dash, which has no `set -o pipefail`.
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        device:
+          - fenix7pro            # button watch, MIP display
+          - fenix847mm           # large AMOLED
+          - venu3                # touch AMOLED
+          - vivoactive6          # touch, tightest memory budget
+          - fr165                # Forerunner
+          - edge1040             # cycling computer, no vibration motor
+          - instinct3amoled45mm
+          - approachs50          # golf
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,31 +45,77 @@ jobs:
           DEVELOPER_KEY_BASE64: ${{ secrets.DEVELOPER_KEY_BASE64 }}
         run: |
           echo "$DEVELOPER_KEY_BASE64" | base64 -d > developer_key.der
-          # Verify the key was created
-          ls -la developer_key.der
 
-      - name: Build Debug
+      # -l 2 turns on the type checker. It is what catches a symbol missing from the glance
+      # process, which is otherwise only visible as a blank glance on a real watch.
+      - name: Build debug (type-checked)
+        env:
+          DEVICE: ${{ matrix.device }}
         run: |
+          # Without pipefail the step's status comes from `tee`, not the compiler.
+          set -o pipefail
           mkdir -p bin
-          monkeyc -o bin/garmin-qr.prg -y developer_key.der -d fenix7pro -w -f monkey.jungle
+          monkeyc -o "bin/garmin-qr-$DEVICE.prg" \
+            -y developer_key.der \
+            -d "$DEVICE" \
+            -f monkey.jungle \
+            -w -l 2 2>&1 | tee build.log
+          # monkeyc prefixes most diagnostics with the device and source position, e.g.
+          # `ERROR: venu3: source/App.mc:12,5: ...`, so anchoring to the start of the line
+          # would miss them.
+          if grep -qE '(^|: )ERROR' build.log; then
+            echo "::error::Compilation reported errors for $DEVICE"
+            exit 1
+          fi
 
-      - name: Build Release
+      - name: Build release
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          DEVICE: ${{ matrix.device }}
         run: |
-          mkdir -p bin
-          monkeyc -o bin/garmin-qr.prg -y developer_key.der -d fenix7pro -r -f monkey.jungle
+          monkeyc -o "bin/garmin-qr-$DEVICE-release.prg" \
+            -y developer_key.der \
+            -d "$DEVICE" \
+            -f monkey.jungle \
+            -r
 
-      - name: Upload Debug Build
+      - name: Upload build
         uses: actions/upload-artifact@v4
         with:
-          name: debug-build
-          path: bin/garmin-qr.prg
+          name: build-${{ matrix.device }}
+          path: bin/*.prg
           if-no-files-found: error
 
-      - name: Upload Release Build
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-build
-          path: bin/garmin-qr.prg
-          if-no-files-found: error 
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: ghcr.io/zetxek/connectiq-tester:latest
+    env:
+      # Required. Hosted runners override HOME per step, and the simulator keeps its state
+      # there; with the overridden value it starts and listens but never answers monkeydo, so
+      # the job produced no output at all until this was pinned.
+      HOME: /root
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup developer key
+        env:
+          DEVELOPER_KEY_BASE64: ${{ secrets.DEVELOPER_KEY_BASE64 }}
+        run: |
+          echo "$DEVELOPER_KEY_BASE64" | base64 -d > developer_key.der
+
+      # The suite runs in the simulator on a virtual display. `monkeydo` always exits 1, so
+      # run-tests.sh reads the verdict out of its output instead.
+      - name: Run unit tests
+        env:
+          DEVELOPER_KEY: developer_key.der
+        run: |
+          chmod +x scripts/run-tests.sh
+          ./scripts/run-tests.sh fenix7pro
