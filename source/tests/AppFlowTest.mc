@@ -442,3 +442,27 @@ function theScreenSettingIsHonoured(logger as Test.Logger) as Boolean {
     logger.debug("screen-on setting round-trips in both directions");
     return true;
 }
+
+//! While the watch is building a code it must not claim to be loading one.
+//!
+//! Nothing is fetched when codes are generated on the device, so "Loading code..." described
+//! work that was not happening. The download wording still applies when the service is the
+//! source.
+(:test)
+function theWaitMessageSaysWhatIsActuallyHappening(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    CodeStore.save(0, "Pass", "https://example.com/pass?id=42&type=member", CodeStore.TYPE_QR);
+    TestSupport.fakeService();
+
+    var view = new AppView();
+    Test.assertEqualMessage(view.placeholderMessage(), "Generating code...",
+        "the watch says it is generating, not loading");
+
+    // With generation off the service is the source again, and so is its wording.
+    Application.Properties.setValue(CodeGeneration.SETTING, false);
+    Test.assertEqualMessage(view.placeholderMessage(), "Loading code...",
+        "the download path still says loading");
+    logger.debug("wait message matches where the code is coming from");
+    return true;
+}

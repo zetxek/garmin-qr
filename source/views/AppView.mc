@@ -352,33 +352,52 @@ class AppView extends WatchUi.View {
 
     //! What the user sees while there is no image: always an explanation, never a bare spinner
     //! that hides the fact that nothing is happening.
-    function drawPlaceholder(dc as Graphics.Dc) as Void {
-        var state = ImageService.get().stateFor(currentSlot);
-        var message = "Loading code...";
-        var color = Graphics.COLOR_WHITE;
+    //! What to say when there is no code to draw yet.
+    //!
+    //! When codes are generated on the watch nothing is being fetched, so the download states
+    //! below cannot apply and "Loading" would be a plain lie -- the watch is building the code.
+    function placeholderMessage() as String {
+        if (!serviceIsInUse()) { return "Generating code..."; }
 
+        var state = ImageService.get().stateFor(currentSlot);
         if (state == :offline) {
-            message = "Offline\nWill load when your\nphone is back";
-            color = Graphics.COLOR_YELLOW;
-        } else if (state == :retrying) {
+            return "Offline\nWill load when your\nphone is back";
+        }
+        if (state == :retrying) {
             var code = ImageService.get().lastErrorCode(currentSlot);
-            message = "Couldn't load\nRetrying...";
-            if (code != null) { message = "Couldn't load (" + code + ")\nRetrying..."; }
-            color = Graphics.COLOR_YELLOW;
-        } else if (state == :failed) {
+            return code == null
+                ? "Couldn't load\nRetrying..."
+                : "Couldn't load (" + code + ")\nRetrying...";
+        }
+        if (state == :failed) {
             var failCode = ImageService.get().lastErrorCode(currentSlot);
             if (failCode != null && failCode == 404) {
                 // Not the user's fault: Garmin's image proxy reports 404 for its own fetch
                 // failures too, so do not send them off to edit text that is already correct.
-                message = "Code service\nunavailable.\nUse Refresh to retry.";
-            } else if (failCode != null && ImageService.isPermanent(failCode)) {
-                message = "This code can't be\ngenerated. Check its\ntext in settings.";
-            } else {
-                message = "Couldn't load this code.\nUse Refresh to try again.";
+                return "Code service\nunavailable.\nUse Refresh to retry.";
             }
-            color = Graphics.COLOR_RED;
+            if (failCode != null && ImageService.isPermanent(failCode)) {
+                return "This code can't be\ngenerated. Check its\ntext in settings.";
+            }
+            return "Couldn't load this code.\nUse Refresh to try again.";
         }
+        return "Loading code...";
+    }
 
+    function drawPlaceholder(dc as Graphics.Dc) as Void {
+        var color = Graphics.COLOR_WHITE;
+        if (serviceIsInUse()) {
+            var state = ImageService.get().stateFor(currentSlot);
+            if (state == :offline || state == :retrying) {
+                color = Graphics.COLOR_YELLOW;
+            } else if (state == :failed) {
+                color = Graphics.COLOR_RED;
+            }
+        }
+        drawPlaceholderText(dc, placeholderMessage(), color);
+    }
+
+    function drawPlaceholderText(dc as Graphics.Dc, message as String, color as Graphics.ColorType) as Void {
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             dc.getWidth() / 2, dc.getHeight() / 2, Graphics.FONT_XTINY,
