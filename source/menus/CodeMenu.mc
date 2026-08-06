@@ -53,7 +53,7 @@ class CodeMenuDelegate extends WatchUi.Menu2InputDelegate {
             WatchUi.popView(WatchUi.SLIDE_DOWN);
 
         } else if (id == :sync_now) {
-            ImageService.get().pump();
+            if (!CodeGeneration.enabled()) { ImageService.get().pump(); }
             WatchUi.popView(WatchUi.SLIDE_DOWN);
 
         } else if (id == :about_app) {

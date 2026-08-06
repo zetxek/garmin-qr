@@ -78,8 +78,13 @@ class AddCodeMenu {
                 break;
             }
         }
-        ImageService.get().enqueueFirst(slot);
-        ImageService.get().pump();
+        // Only fetch when the service is actually the source. With on-device generation this
+        // used to queue a download the moment a code was saved, which is why adding a code
+        // flashed "SYNCING..." and then failed with a 404.
+        if (!CodeGeneration.enabled()) {
+            ImageService.get().enqueueFirst(slot);
+            ImageService.get().pump();
+        }
         WatchUi.requestUpdate();
     }
 }

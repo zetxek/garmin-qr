@@ -279,3 +279,120 @@ function theIncrementalBuilderFinishesAQrCode(logger as Test.Logger) as Boolean 
     logger.debug("builder finished in " + steps + " slices and matches Qr.encode");
     return true;
 }
+
+// ---------------------------------------------------------------- on-watch feedback
+// Three things reported from a real fenix 8, each pinned here.
+
+//! "When adding a code it says SYNCING. Where to?"
+//!
+//! Saving a code queued a download even though the code is generated locally, so the banner
+//! claimed to be syncing and the request then failed with the proxy's 404.
+(:test)
+function addingACodeDoesNotStartADownload(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    var service = TestSupport.fakeService();
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.codeTitle = "Gym";
+    menu.codeText = "MEMBER 12345";
+    menu.codeType = CodeStore.TYPE_BARCODE;
+    menu.save();
+
+    Test.assertEqualMessage(CodeStore.count(), 1, "the code was saved");
+    Test.assertEqualMessage(service.requested.size(), 0, "saving requested nothing");
+    Test.assertEqualMessage(service.pendingCount(), 0, "and queued nothing, so no SYNCING banner");
+    logger.debug("saving a code stays entirely local");
+    return true;
+}
+
+//! "I go to the glance and see 'failed to load code' / 'open to load code'."
+//!
+//! The glance only ever read downloaded images, so with generation on it had nothing to show and
+//! fell through to an error. It now draws what the app cached.
+(:test)
+function theGlanceDrawsGeneratedCodes(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    CodeStore.save(0, "Gym card", "MEMBER 12345", CodeStore.TYPE_BARCODE);
+
+    Test.assertMessage(CodeStore.cachedBars(0) == null, "nothing cached before the app runs");
+
+    TestSupport.fakeService();
+    new AppView();   // opening the code generates and caches it
+
+    Test.assertMessage(CodeStore.cachedBars(0) != null,
+        "the app cached the generated barcode for the glance to draw");
+    Test.assertMessage(CodeStore.isGeneratedValid(0), "and the cache is valid for this slot");
+    logger.debug("glance has a generated code to draw without any download");
+    return true;
+}
+
+//! "There is an intermediate screen that shouldn't be there."
+//!
+//! A QR is built across timer slices, so the first open shows a brief 'generating' state. Once
+//! cached it must be drawn on the very first frame, with no intermediate state at all.
+(:test)
+function aCachedCodeIsDrawnOnTheFirstFrame(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    CodeStore.save(0, "Pass", "https://example.com/pass?id=42&type=member", CodeStore.TYPE_QR);
+
+    // Generate it the way the app does, then cache it.
+    var builder = new QrBuilder("https://example.com/pass?id=42&type=member");
+    for (var i = 0; i < 50 && !builder.advance(); i++) {}
+    CodeStore.putMatrix(0, builder.matrix as QrMatrix);
+
+    TestSupport.fakeService();
+    var view = new AppView();
+
+    Test.assertMessage(view.currentMatrix != null,
+        "the cached matrix is loaded immediately, not built again");
+    Test.assertMessage(view.hasSomethingToDraw(), "so the first frame has a code to draw");
+    Test.assertEqualMessage(view.currentMatrix.size, 29, "and it is the right symbol");
+    logger.debug("a cached code needs no intermediate screen");
+    return true;
+}
+
+//! Changing a code must invalidate what was generated from the old text, or the watch would show
+//! the previous code.
+(:test)
+function editingACodeDropsTheGeneratedCache(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    CodeStore.save(0, "One", "FIRST", CodeStore.TYPE_BARCODE);
+
+    TestSupport.fakeService();
+    new AppView();
+    Test.assertMessage(CodeStore.cachedBars(0) != null, "precondition: generated and cached");
+
+    CodeStore.save(0, "One", "SECOND", CodeStore.TYPE_BARCODE);
+    Test.assertMessage(CodeStore.cachedBars(0) == null, "the old barcode was dropped");
+    Test.assertMessage(!CodeStore.isGeneratedValid(0), "and the cache reads as stale");
+    logger.debug("editing a code invalidates what was generated from it");
+    return true;
+}
+
+//! "I leave the glance, go back, and it says 'open to load code' again."
+//!
+//! The glance can only draw what is already cached, and only the visible code was ever built.
+//! Opening the app must also prepare the code the glance shows, even when that is a different
+//! slot from the one on screen.
+(:test)
+function openingTheAppPreparesTheGlanceCode(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    CodeStore.save(0, "Gym card", "MEMBER 12345", CodeStore.TYPE_BARCODE);
+    CodeStore.save(1, "Second", "ANOTHER", CodeStore.TYPE_BARCODE);
+    TestSupport.fakeService();
+
+    var view = new AppView();
+    view.showNext();          // look at slot 1, not the one the glance draws
+    Test.assertEqualMessage(view.activeSlot(), 1, "the second code is on screen");
+
+    Test.assertMessage(CodeStore.isGeneratedValid(0),
+        "the glance's code (slot 0) was prepared even though slot 1 is on screen");
+    Test.assertMessage(CodeStore.cachedBars(0) != null, "and the glance can read it back");
+    logger.debug("glance code prepared regardless of which code is on screen");
+    return true;
+}

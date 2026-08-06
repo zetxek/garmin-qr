@@ -137,6 +137,7 @@ module CodeStore {
             || !previousType.equals(normalisedType);
         if (contentChanged) {
             clearImage(slot);
+            clearGenerated(slot);
         }
     }
 
@@ -150,6 +151,7 @@ module CodeStore {
         Storage.deleteValue("code_" + slot + "_timestamp"); // written by releases <= 0.0.22
         Storage.deleteValue("img_error_" + slot);
         clearImage(slot);
+        clearGenerated(slot);
     }
 
     // --------------------------------------------------------- image cache
@@ -228,6 +230,94 @@ module CodeStore {
         } catch (e) {
             Log.warn("[CodeStore] could not cache glance image: " + e.getErrorMessage());
         }
+    }
+
+    // ------------------------------------------------- generated code cache
+
+    //! Generated codes are cached so a code is built once, not rebuilt on every open.
+    //!
+    //! This is also what lets the glance show a code at all. The glance has a fraction of the
+    //! app's memory and the same watchdog, so it can read and draw a matrix but must never build
+    //! one. The app populates this cache; the glance only consumes it.
+    function matrixKey(slot as Number) as String { return "qr_matrix_" + slot; }
+    function matrixSizeKey(slot as Number) as String { return "qr_matrix_size_" + slot; }
+    function barsKey(slot as Number) as String { return "code_bars_" + slot; }
+    function generatedMetaTextKey(slot as Number) as String { return "gen_meta_text_" + slot; }
+    function generatedMetaTypeKey(slot as Number) as String { return "gen_meta_type_" + slot; }
+
+    //! True when the cached generated code still matches the slot's text and type.
+    function isGeneratedValid(slot as Number) as Boolean {
+        var text = getText(slot);
+        if (text == null) { return false; }
+
+        var metaText = Storage.getValue(generatedMetaTextKey(slot));
+        if (!(metaText instanceof String) || !metaText.equals(text)) { return false; }
+
+        var metaType = Storage.getValue(generatedMetaTypeKey(slot));
+        if (!(metaType instanceof String) || !metaType.equals(getType(slot))) { return false; }
+
+        return isBarcode(slot)
+            ? Storage.getValue(barsKey(slot)) != null
+            : Storage.getValue(matrixKey(slot)) != null;
+    }
+
+    function cachedMatrix(slot as Number) as QrMatrix? {
+        if (isBarcode(slot) || !isGeneratedValid(slot)) { return null; }
+        var modules = Storage.getValue(matrixKey(slot));
+        var side = Storage.getValue(matrixSizeKey(slot));
+        if (!(modules instanceof ByteArray) || !(side instanceof Number)) { return null; }
+        if (modules.size() != side * side) { return null; }
+
+        var matrix = new QrMatrix(side);
+        matrix.modules = modules;
+        return matrix;
+    }
+
+    function cachedBars(slot as Number) as ByteArray? {
+        if (!isBarcode(slot) || !isGeneratedValid(slot)) { return null; }
+        var bars = Storage.getValue(barsKey(slot));
+        return bars instanceof ByteArray ? bars : null;
+    }
+
+    function putMatrix(slot as Number, matrix as QrMatrix) as Void {
+        var text = getText(slot);
+        if (text == null) { return; }
+        try {
+            Storage.setValue(matrixKey(slot), matrix.modules as Application.PropertyValueType);
+            Storage.setValue(matrixSizeKey(slot), matrix.size);
+            Storage.deleteValue(barsKey(slot));
+            stampGeneratedMeta(slot, text);
+        } catch (e) {
+            Log.warn("[CodeStore] could not cache the generated code: " + e.getErrorMessage());
+            clearGenerated(slot);
+        }
+    }
+
+    function putBars(slot as Number, bars as ByteArray) as Void {
+        var text = getText(slot);
+        if (text == null) { return; }
+        try {
+            Storage.setValue(barsKey(slot), bars as Application.PropertyValueType);
+            Storage.deleteValue(matrixKey(slot));
+            Storage.deleteValue(matrixSizeKey(slot));
+            stampGeneratedMeta(slot, text);
+        } catch (e) {
+            Log.warn("[CodeStore] could not cache the generated code: " + e.getErrorMessage());
+            clearGenerated(slot);
+        }
+    }
+
+    function stampGeneratedMeta(slot as Number, text as String) as Void {
+        Storage.setValue(generatedMetaTextKey(slot), text);
+        Storage.setValue(generatedMetaTypeKey(slot), getType(slot));
+    }
+
+    function clearGenerated(slot as Number) as Void {
+        Storage.deleteValue(matrixKey(slot));
+        Storage.deleteValue(matrixSizeKey(slot));
+        Storage.deleteValue(barsKey(slot));
+        Storage.deleteValue(generatedMetaTextKey(slot));
+        Storage.deleteValue(generatedMetaTypeKey(slot));
     }
 
     // ------------------------------------------------------ settings editor

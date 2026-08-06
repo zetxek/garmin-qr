@@ -78,7 +78,7 @@ class Connectivity {
 
             // Also the heartbeat that lets a backed-off download try again: `pump` is a no-op
             // when nothing is queued or everything is still waiting out its backoff.
-            ImageService.get().pump();
+            if (!CodeGeneration.enabled()) { ImageService.get().pump(); }
         } catch (e) {
             Log.warn("[Connectivity] poll failed: " + e.getErrorMessage());
         }

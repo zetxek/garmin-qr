@@ -26,24 +26,77 @@ class GlanceView extends WatchUi.GlanceView {
             return;
         }
 
-        var bmp = CodeStore.glanceImage();
-        if (bmp == null) {
-            bmp = CodeStore.cachedImage(slot);
-        }
-        if (bmp == null) {
-            drawMessage(dc, "Open to load code");
-            return;
-        }
-
         try {
-            if (CodeStore.isBarcode(slot)) {
-                drawBarcode(dc, bmp);
-            } else {
-                drawQr(dc, bmp, slot);
+            // Generated codes first. The glance never builds one -- it has a fraction of the
+            // app's memory and the same watchdog -- it only draws what the app already cached.
+            var bars = CodeStore.cachedBars(slot);
+            if (bars != null) {
+                drawGeneratedBarcode(dc, bars);
+                return;
+            }
+            var matrix = CodeStore.cachedMatrix(slot);
+            if (matrix != null) {
+                drawGeneratedQr(dc, matrix, slot);
+                return;
+            }
+
+            // Nothing generated yet: fall back to a downloaded image if one happens to exist.
+            var bmp = CodeStore.glanceImage();
+            if (bmp == null) { bmp = CodeStore.cachedImage(slot); }
+            if (bmp != null) {
+                if (CodeStore.isBarcode(slot)) { drawBarcode(dc, bmp); } else { drawQr(dc, bmp, slot); }
+                return;
             }
         } catch (e) {
             drawMessage(dc, "Error displaying code");
+            return;
         }
+
+        drawMessage(dc, "Open the app once");
+    }
+
+    //! A generated barcode: bars across most of the width, label underneath if it fits.
+    function drawGeneratedBarcode(dc as Graphics.Dc, bars as ByteArray) as Void {
+        var height = (dc.getHeight() * 0.72).toNumber();
+        CodeRenderer.drawBarcode(
+            dc, bars, dc.getWidth() / 2, dc.getHeight() / 2,
+            (dc.getWidth() * 0.96).toNumber(), height);
+    }
+
+    //! A generated QR sits left of the title.
+    //!
+    //! The glance is a chord across a round display, so the far left and right of the band are
+    //! cut off by the bezel. Everything is inset from the edges rather than run to them, which
+    //! is what clipped the quiet zone and the end of the title.
+    function drawGeneratedQr(dc as Graphics.Dc, matrix as QrMatrix, slot as Number) as Void {
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+
+        var available = (height * 0.88).toNumber();
+        var widthCap = (width * 0.34).toNumber();
+        if (available > widthCap) { available = widthCap; }
+
+        var centreX = (width * 0.30).toNumber();
+        var side = CodeRenderer.drawQr(dc, matrix, centreX, height / 2, available);
+
+        var label = CodeStore.getTitle(slot);
+        if (label.length() == 0) {
+            var text = CodeStore.getText(slot);
+            label = text == null ? "" : text;
+        }
+        if (label.length() == 0) { return; }
+
+        var textX = centreX + (side / 2) + 10;
+        // Leave a margin on the right for the same reason: the bezel eats the last few pixels.
+        var maxTextWidth = (width * 0.94).toNumber() - textX;
+        if (maxTextWidth <= 20) { return; }
+
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(
+            textX, height / 2, Graphics.FONT_XTINY,
+            truncate(dc, label, maxTextWidth),
+            Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
+        );
     }
 
     function drawMessage(dc as Graphics.Dc, message as String) as Void {

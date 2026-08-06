@@ -50,9 +50,11 @@ class AppView extends WatchUi.View {
     }
 
     function onShow() as Void {
-        Connectivity.get().start();
         applyScreenTimeout();
-        ImageService.get().pump();
+        if (serviceIsInUse()) {
+            Connectivity.get().start();
+            ImageService.get().pump();
+        }
     }
 
     function onHide() as Void {
@@ -102,11 +104,22 @@ class AppView extends WatchUi.View {
         // Generating on the watch is the primary path: no network, no waiting, and immune to the
         // image-proxy failures that leave downloads returning 404.
         if (CodeGeneration.enabled() && CodeStore.getText(slot) != null) {
-            var barcode = CodeStore.isBarcode(slot);
-            if (barcode) {
-                // Code 128 is a table lookup and a checksum -- fast enough to do inline.
+            // A code already generated is drawn on this very frame -- no intermediate screen.
+            currentBars = CodeStore.cachedBars(slot);
+            currentMatrix = CodeStore.cachedMatrix(slot);
+            if (hasSomethingToDraw()) {
+                prepareGlanceCode();
+                return;
+            }
+
+            if (CodeStore.isBarcode(slot)) {
+                // Code 128 is a table lookup and a checksum, fast enough to do inline.
                 currentBars = Code128.encode(CodeStore.getText(slot) as String);
-                if (currentBars != null) { return; }
+                if (currentBars != null) {
+                    CodeStore.putBars(slot, currentBars as ByteArray);
+                    prepareGlanceCode();
+                    return;
+                }
             } else {
                 scheduleGeneration(slot);
                 return;
@@ -124,8 +137,33 @@ class AppView extends WatchUi.View {
         }
     }
 
+    //! Only reach for the network when it is actually the source of codes.
+    function serviceIsInUse() as Boolean {
+        return !CodeGeneration.enabled();
+    }
+
     function hasSomethingToDraw() as Boolean {
         return currentMatrix != null || currentBars != null || currentImage != null;
+    }
+
+    //! The glance draws the first code, and it cannot build one itself. If that code is not
+    //! cached, build it here in the background so the glance has something to show without the
+    //! user having to open it in the app first.
+    function prepareGlanceCode() as Void {
+        if (!CodeGeneration.enabled() || builder != null) { return; }
+
+        var slot = CodeStore.firstSlot();
+        if (slot < 0 || CodeStore.isGeneratedValid(slot)) { return; }
+
+        var text = CodeStore.getText(slot);
+        if (text == null) { return; }
+
+        if (CodeStore.isBarcode(slot)) {
+            var bars = Code128.encode(text);
+            if (bars != null) { CodeStore.putBars(slot, bars as ByteArray); }
+            return;
+        }
+        scheduleGeneration(slot);
     }
 
     //! Start building a QR in the background, one slice per timer tick.
@@ -141,28 +179,44 @@ class AppView extends WatchUi.View {
 
     //! One slice of generation. The watchdog kills any slice that runs too long, so the work is
     //! spread over ticks rather than done in one call.
+    //!
+    //! The slot being built is not always the one on screen: once the visible code is ready the
+    //! glance's code is built the same way, so the glance has something to draw without the user
+    //! opening it first.
     function onGenerateTick() as Void {
         var work = builder;
-        if (work == null || generateFor != currentSlot) {
+        if (work == null || generateFor < 0) {
             stopGeneration();
             return;
         }
-
         if (!work.advance()) { return; }
-        stopGeneration();
 
-        if (!work.failed && work.matrix != null) {
-            currentMatrix = work.matrix;
-        } else {
-            // Outside what the local encoder covers; let the service try instead.
-            currentImage = CodeStore.cachedImage(generateFor);
-            if (currentImage == null) {
-                var service = ImageService.get();
-                service.enqueueFirst(generateFor);
-                service.pump();
-            }
-        }
+        stopGeneration();
+        var slot = generateFor;
+        var succeeded = !work.failed && work.matrix != null;
         builder = null;
+        generateFor = -1;
+
+        if (succeeded) {
+            CodeStore.putMatrix(slot, work.matrix as QrMatrix);
+            if (slot == currentSlot) { currentMatrix = work.matrix; }
+            prepareGlanceCode();
+            WatchUi.requestUpdate();
+            return;
+        }
+
+        if (slot != currentSlot) {
+            // A background build for the glance failed; nothing on screen depends on it.
+            return;
+        }
+
+        // The visible code is outside what the local encoder covers; let the service try.
+        currentImage = CodeStore.cachedImage(slot);
+        if (currentImage == null) {
+            var service = ImageService.get();
+            service.enqueueFirst(slot);
+            service.pump();
+        }
         WatchUi.requestUpdate();
     }
 
@@ -271,6 +325,10 @@ class AppView extends WatchUi.View {
         var label = null;
         var color = Graphics.COLOR_YELLOW;
 
+        if (!serviceIsInUse()) {
+            // Codes are generated here; there is nothing to be offline from or to sync.
+            return;
+        }
         if (!Connectivity.isConnected()) {
             label = "OFFLINE";
         } else if (ImageService.get().pendingCount() > 0) {
