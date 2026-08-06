@@ -166,7 +166,8 @@ function movingToACodePrioritisesIt(logger as Test.Logger) as Boolean {
     view.showNext();
     var visible = view.activeSlot();
 
-    Test.assertMessage(service.inFlight == visible || service.queue[0] == visible,
+    Test.assertMessage(
+        service.inFlight == visible || (service.queue.size() > 0 && service.queue[0] == visible),
         "the code the user moved to is being fetched or is next, not stuck behind the glance");
     logger.debug("moved to slot " + visible + ", inFlight=" + service.inFlight
         + " queue=" + service.queue);
@@ -262,7 +263,8 @@ function generatedCodesNeverHitTheNetwork(logger as Test.Logger) as Boolean {
 function theIncrementalBuilderFinishesAQrCode(logger as Test.Logger) as Boolean {
     var builder = new QrBuilder("https://example.com/pass?id=42&type=member");
     var steps = 0;
-    while (!builder.advance() && steps < 50) { steps++; }
+    // Check the bound before advancing, or the loop takes one slice more than it claims.
+    while (steps < 50 && !builder.advance()) { steps++; }
 
     Test.assertMessage(!builder.failed, "the builder did not fail");
     Test.assertMessage(builder.matrix != null, "a matrix was produced");
@@ -464,5 +466,91 @@ function theWaitMessageSaysWhatIsActuallyHappening(logger as Test.Logger) as Boo
     Test.assertEqualMessage(view.placeholderMessage(), "Loading code...",
         "the download path still says loading");
     logger.debug("wait message matches where the code is coming from");
+    return true;
+}
+
+// ------------------------------------------------------------- review findings
+
+//! A long barcode must never be laid out wider than the space it has.
+//!
+//! The quiet zone was charged at full width before the fit was checked, so a long payload was
+//! pushed off both edges: the start and stop patterns fell outside the screen, and a clipped
+//! Code 128 symbol does not scan. The bars are fitted first now, and a payload that genuinely
+//! cannot be drawn is reported rather than drawn wrong.
+(:test)
+function aLongBarcodeIsNeverLaidOutWiderThanTheScreen(logger as Test.Logger) as Boolean {
+    // Letters stay in Code B at 11 modules each, so this does not compress the way digits do:
+    // 18 characters is 11 * 20 + 13 = 233 modules. A 260px screen offers about 244px, and the
+    // old code added a 20-module quiet zone on top of the bars before checking the fit -- 253px,
+    // pushing the start and stop patterns off the edges.
+    var long = Code128.encode("ABCDEFGHIJKLMNOPQR");
+    Test.assertMessage(long != null, "the payload encodes");
+    var moduleCount = (long as ByteArray).size();
+
+    var available = (260 * 0.94).toNumber();
+    Test.assertMessage(moduleCount + 20 > available,
+        "precondition: this payload plus a full quiet zone overflows (" + moduleCount + " + 20 > "
+        + available + ")");
+
+    var layout = CodeRenderer.barcodeLayout(moduleCount, available);
+    Test.assertMessage(layout != null, "it still fits once the quiet zone gives way to the bars");
+    Test.assertMessage(layout[2] <= available,
+        "total width " + layout[2] + " must fit within " + available);
+    logger.debug(moduleCount + " modules in " + available + "px -> width " + layout[2]
+        + " (was " + (moduleCount + 20) + ", off-screen)");
+    return true;
+}
+
+//! A normal payload still gets its full quiet zone.
+(:test)
+function aShortBarcodeKeepsItsQuietZone(logger as Test.Logger) as Boolean {
+    var bars = Code128.encode("MEMBER 12345");
+    var available = 244;
+    var layout = CodeRenderer.barcodeLayout((bars as ByteArray).size(), available);
+
+    Test.assertMessage(layout != null, "a normal payload lays out");
+    Test.assertMessage(layout[2] <= available, "and fits: " + layout[2] + " <= " + available);
+    Test.assertMessage(layout[1] > 0, "with a quiet zone either side");
+    logger.debug("short barcode: scale " + layout[0] + ", quiet " + layout[1] + ", width " + layout[2]);
+    return true;
+}
+
+//! A payload with no room at all is reported rather than drawn clipped.
+(:test)
+function anImpossibleBarcodeIsReported(logger as Test.Logger) as Boolean {
+    var bars = Code128.encode("ABCDEFGHIJ1234567890");
+    // Far less width than the payload has modules: not drawable at one pixel per bar.
+    var layout = CodeRenderer.barcodeLayout((bars as ByteArray).size(), 100);
+
+    Test.assertMessage(layout == null, "a payload that cannot fit is reported, not clipped");
+    logger.debug("unrenderable payload reported instead of drawn off-screen");
+    return true;
+}
+
+//! A cancelled request must not write its image into whatever slot took its place.
+//!
+//! `makeImageRequest` cannot be cancelled. Releasing the in-flight slot on `forget` let the next
+//! request start, and the late response -- which reads its target slot at callback time -- was
+//! then cached against the wrong code.
+(:test)
+function aCancelledRequestCannotLandOnAnotherSlot(logger as Test.Logger) as Boolean {
+    TestSupport.threeCodes();
+    var service = TestSupport.fakeService();
+
+    service.enqueueFirst(0);
+    service.pump();
+    Test.assertEqualMessage(service.inFlight, 0, "slot 0 is in flight");
+
+    service.forget(0);
+    Test.assertEqualMessage(service.inFlight, 0,
+        "the slot is held until the live request resolves, so nothing else can claim it");
+    Test.assertMessage(service.discardInFlight, "and its result is marked for discard");
+
+    // The late response arrives; it must be dropped, not cached anywhere.
+    service.onResponse(200, TestSupport.sampleBitmap());
+    Test.assertMessage(!CodeStore.isCacheValid(0), "the cancelled slot was not cached");
+    Test.assertMessage(!CodeStore.isCacheValid(1), "and it did not land on another slot");
+    Test.assertMessage(!service.discardInFlight, "the discard flag is cleared afterwards");
+    logger.debug("a cancelled response is dropped rather than misattributed");
     return true;
 }

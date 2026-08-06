@@ -17,7 +17,7 @@ module TestSupport {
         Storage.deleteValue(CodeStore.GLANCE_IMAGE);
         Storage.deleteValue(CodeStore.GLANCE_META_TEXT);
         Storage.deleteValue(CodeStore.GLANCE_META_TYPE);
-        Storage.deleteValue("pendingImageSlots");
+        Storage.deleteValue(CodeStore.PENDING_SLOTS);
         Application.Properties.setValue(CodeStore.PROP_CODES, [] as Array<Application.PropertyValueType>);
         // Most of these tests are about the download path, so they opt out of on-device
         // generation explicitly. Tests that want generation turn it back on themselves.
@@ -50,9 +50,12 @@ module TestSupport {
     }
 
     function assertStringEquals(actual as String?, expected as String, context as String) as Void {
+        // Build the message first. Concatenating a null throws UnexpectedTypeException, which
+        // would crash the test before the assertion could report the null it was checking for.
+        var got = actual == null ? "null" : actual;
         Test.assertMessage(
             actual != null && actual.equals(expected),
-            context + ": expected '" + expected + "' but got '" + actual + "'");
+            context + ": expected '" + expected + "' but got '" + got + "'");
     }
 
     //! Assert an encoding matches the reference module-for-module. Lives in this module so the

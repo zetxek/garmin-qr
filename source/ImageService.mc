@@ -30,7 +30,8 @@ class ImageService {
     const GLANCE = -2;
     const NONE = -1;
 
-    const QUEUE_KEY = "pendingImageSlots";
+    //! Storage keys belong to CodeStore; this is the queue's.
+    const QUEUE_KEY = CodeStore.PENDING_SLOTS;
 
     static var instance as ImageService? = null;
 
@@ -110,6 +111,9 @@ class ImageService {
 
     var queue as Array<Number>;
     var inFlight as Number;
+    //! True when the in-flight request's result is no longer wanted. The request itself cannot
+    //! be cancelled, so the slot stays occupied until it resolves and the result is dropped.
+    var discardInFlight as Boolean;
     var watchdog as Timer.Timer?;
     //! slot -> { :attempts, :readyAt, :code }
     var failures as Dictionary;
@@ -117,6 +121,7 @@ class ImageService {
     function initialize() {
         queue = [] as Array<Number>;
         inFlight = NONE;
+        discardInFlight = false;
         watchdog = null;
         failures = {};
         restoreQueue();
@@ -191,9 +196,12 @@ class ImageService {
         queue.remove(slot);
         clearFailure(slot);
         if (inFlight == slot) {
-            // The response is no longer interesting, but the lock must still be released.
-            inFlight = NONE;
-            stopWatchdog();
+            // `makeImageRequest` cannot be cancelled, so the request is still live and its
+            // callback still coming. Releasing the slot here let `pump` start the next request,
+            // and the late response -- which reads its target from `inFlight` -- was then
+            // written into whichever slot had taken its place. Hold the slot instead and drop
+            // the result when it arrives; the watchdog still frees it if nothing does.
+            discardInFlight = true;
         }
         persistQueue();
     }
@@ -293,6 +301,7 @@ class ImageService {
             Log.warn("[ImageService] request failed to start for slot " + slot + ": " + e.getErrorMessage());
             stopWatchdog();
             inFlight = NONE;
+            discardInFlight = false;
             recordFailure(slot, -1);
             return false;
         }
@@ -324,7 +333,15 @@ class ImageService {
     ) as Void {
         stopWatchdog();
         var slot = inFlight;
+        var discard = discardInFlight;
         inFlight = NONE;
+        discardInFlight = false;
+
+        if (discard) {
+            Log.debug("[ImageService] discarding response " + responseCode + " for cancelled slot " + slot);
+            pump();
+            return;
+        }
 
         if (slot == NONE) {
             Log.debug("[ImageService] response " + responseCode + " for a cancelled request");
@@ -372,9 +389,11 @@ class ImageService {
     //! be held forever and the app would sit on "Loading..." until it was restarted.
     function onTimeout() as Void {
         var slot = inFlight;
+        var discard = discardInFlight;
         watchdog = null;
         inFlight = NONE;
-        if (slot == NONE) { return; }
+        discardInFlight = false;
+        if (slot == NONE || discard) { return; }
 
         Log.warn("[ImageService] slot " + slot + " timed out after " + REQUEST_TIMEOUT_MS + "ms");
         recordFailure(slot, Communications.NETWORK_REQUEST_TIMED_OUT);

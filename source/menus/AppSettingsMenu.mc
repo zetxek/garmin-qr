@@ -8,7 +8,7 @@ module AppSettingsMenu {
 
     function build() as WatchUi.Menu2 {
         var menu = new WatchUi.Menu2({:title => "Settings"});
-        var enabled = Application.getApp().keepScreenOn;
+        var enabled = (Application.getApp() as App).keepScreenOn;
         menu.addItem(new WatchUi.MenuItem(
             "Keep Screen On", enabled ? "Enabled" : "Disabled", :toggle_keep_screen_on, {}));
         return menu;
@@ -27,7 +27,7 @@ class AppSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
     function onSelect(item) as Void {
         if (item.getId() != :toggle_keep_screen_on) { return; }
 
-        var app = Application.getApp();
+        var app = Application.getApp() as App;
         app.keepScreenOn = !app.keepScreenOn;
         try {
             Application.Properties.setValue("keepScreenOn", app.keepScreenOn);

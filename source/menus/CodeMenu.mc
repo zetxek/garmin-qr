@@ -27,7 +27,7 @@ module CodeMenu {
 
         var pending = ImageService.get().pendingCount();
         if (pending > 0) {
-            menu.addItem(new WatchUi.MenuItem("Sync Now", pending + " pending", :sync_now, {}));
+            menu.addItem(new WatchUi.MenuItem("Sync Now", pending.toString() + " pending", :sync_now, {}));
         }
 
         menu.addItem(new WatchUi.MenuItem("Settings", null, :app_settings, {}));

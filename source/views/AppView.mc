@@ -59,7 +59,7 @@ class AppView extends WatchUi.View {
 
     function onHide() as Void {
         stopGeneration();
-        var backlight = Application.getApp().backlight;
+        var backlight = (Application.getApp() as App).backlight;
         if (backlight != null) {
             backlight.disable();
         }
@@ -225,7 +225,7 @@ class AppView extends WatchUi.View {
     }
 
     function applyScreenTimeout() as Void {
-        var app = Application.getApp();
+        var app = Application.getApp() as App;
         var backlight = app.backlight;
         if (backlight == null) { return; }
         if (app.keepScreenOn) {
@@ -293,9 +293,13 @@ class AppView extends WatchUi.View {
             // Barcodes want width; the height only has to be enough for a scanner to find a row.
             var barLimit = (height * 0.45).toNumber();
             var barHeight = boxHeight < barLimit ? boxHeight : barLimit;
-            CodeRenderer.drawBarcode(
+            var drawn = CodeRenderer.drawBarcode(
                 dc, currentBars as ByteArray, width / 2, centreY,
                 (width * 0.94).toNumber(), barHeight);
+            if (!drawn) {
+                // Better to say it than to show a symbol no reader will accept.
+                drawPlaceholderText(dc, "Code too long to\nshow on this screen", Graphics.COLOR_YELLOW);
+            }
         } else {
             var available = boxHeight < width ? boxHeight : width;
             CodeRenderer.drawQr(dc, currentMatrix as QrMatrix, width / 2, centreY, available);

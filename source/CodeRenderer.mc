@@ -54,19 +54,47 @@ module CodeRenderer {
         return side;
     }
 
+    //! Bar width, quiet-zone width and total width for a barcode, or null when the payload
+    //! cannot be drawn legibly in the space available.
+    //!
+    //! Separate from the drawing so the fit can be asserted without a Dc.
+    function barcodeLayout(moduleCount as Number, available as Number) as Array<Number>? {
+        if (moduleCount <= 0 || available <= 0) { return null; }
+
+        var quietModules = 10;
+        var scale = available / (moduleCount + (2 * quietModules));
+        if (scale < 1) {
+            // No room for a full quiet zone. A bar must be at least one pixel wide to be read,
+            // so that is the floor -- below it the payload does not fit this screen at all.
+            scale = 1;
+            if (moduleCount > available) { return null; }
+        }
+
+        var barsWidth = moduleCount * scale;
+        var quiet = (available - barsWidth) / 2;
+        if (quiet > quietModules * scale) { quiet = quietModules * scale; }
+        return [scale, quiet, barsWidth + (2 * quiet)] as Array<Number>;
+    }
+
     //! Draw a Code 128 module row as vertical bars filling the given box.
+    //!
+    //! Returns false when the payload cannot be drawn legibly, so the caller can say so rather
+    //! than show a symbol no reader will accept.
+    //!
+    //! The bars come first and the quiet zone gets what is left. Charging the full 10-module
+    //! quiet zone either side before checking the fit pushed long payloads off both edges: a
+    //! 20-character payload is 255 modules, which with 20 quiet modules wants 275px on a screen
+    //! offering about 244px. The start and stop patterns were drawn past the edge, and a clipped
+    //! Code 128 symbol does not scan.
     function drawBarcode(
         dc as Graphics.Dc, modules as ByteArray,
         centreX as Number, centreY as Number, available as Number, height as Number
-    ) as Void {
-        // A barcode's quiet zone is 10 modules either side; clamp the bar width so it fits.
-        var quietModules = 10;
-        var scale = available / (modules.size() + (2 * quietModules));
-        if (scale < 1) { scale = 1; }
-
-        var barsWidth = modules.size() * scale;
-        var quiet = quietModules * scale;
-        var totalWidth = barsWidth + (2 * quiet);
+    ) as Boolean {
+        var layout = barcodeLayout(modules.size(), available);
+        if (layout == null) { return false; }
+        var scale = layout[0];
+        var quiet = layout[1];
+        var totalWidth = layout[2];
 
         var left = centreX - (totalWidth / 2);
         var top = centreY - (height / 2);
@@ -84,5 +112,6 @@ module CodeRenderer {
             dc.fillRectangle(originX + (i * scale), top, run * scale, height);
             i += run;
         }
+        return true;
     }
 }

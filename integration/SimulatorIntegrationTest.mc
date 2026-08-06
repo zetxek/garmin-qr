@@ -65,8 +65,12 @@ function integrationVerify(logger as Test.Logger) as Boolean {
 
     // The image is attributed to the code it was generated from, so a response cannot have
     // landed on the wrong slot.
-    var meta0 = Storage.getValue(CodeStore.metaTextKey(0)) as String;
-    var meta1 = Storage.getValue(CodeStore.metaTextKey(1)) as String;
+    var meta0 = Storage.getValue(CodeStore.metaTextKey(0));
+    var meta1 = Storage.getValue(CodeStore.metaTextKey(1));
+    // Assert presence first: calling equals on a missing key throws, and the test then reports
+    // an exception rather than the failure it was written to describe.
+    Test.assertMessage(meta0 instanceof String && meta1 instanceof String,
+        "both slots must have cached image metadata");
     Test.assertMessage(meta0.equals($.SEED_QR_TEXT), "slot 0 image is attributed to slot 0's text");
     Test.assertMessage(meta1.equals($.SEED_BARCODE_TEXT), "slot 1 image is attributed to slot 1's text");
 

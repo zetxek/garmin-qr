@@ -154,6 +154,10 @@ module CodeStore {
         clearGenerated(slot);
     }
 
+    //! The download queue's Storage key. ImageService owns the queue, but Storage keys live
+    //! here so a rename cannot silently strand readers on a stale key.
+    const PENDING_SLOTS = "pendingImageSlots";
+
     // --------------------------------------------------------- image cache
 
     //! True when a stored image exists and was generated from the code currently in the slot.
@@ -228,7 +232,12 @@ module CodeStore {
             Storage.setValue(GLANCE_META_TEXT, getText(slot));
             Storage.setValue(GLANCE_META_TYPE, getType(slot));
         } catch (e) {
+            // The image may have been written before the metadata throw. Leaving it behind means
+            // a cached glance image attributed to nothing, so drop the pair together.
             Log.warn("[CodeStore] could not cache glance image: " + e.getErrorMessage());
+            Storage.deleteValue(GLANCE_IMAGE);
+            Storage.deleteValue(GLANCE_META_TEXT);
+            Storage.deleteValue(GLANCE_META_TYPE);
         }
     }
 

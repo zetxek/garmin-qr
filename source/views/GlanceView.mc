@@ -58,9 +58,10 @@ class GlanceView extends WatchUi.GlanceView {
     //! A generated barcode: bars across most of the width, label underneath if it fits.
     function drawGeneratedBarcode(dc as Graphics.Dc, bars as ByteArray) as Void {
         var height = (dc.getHeight() * 0.72).toNumber();
-        CodeRenderer.drawBarcode(
+        var drawn = CodeRenderer.drawBarcode(
             dc, bars, dc.getWidth() / 2, dc.getHeight() / 2,
             (dc.getWidth() * 0.96).toNumber(), height);
+        if (!drawn) { drawMessage(dc, "Code too long"); }
     }
 
     //! A generated QR sits left of the title.
@@ -114,7 +115,8 @@ class GlanceView extends WatchUi.GlanceView {
 
         var width = screenWidth - (margin * 2);
         var height = screenHeight * 0.7;
-        if (bmp.getHeight() > 0) {
+        // Both dimensions matter: the ratio is the divisor, so a zero width divides by zero.
+        if (bmp.getHeight() > 0 && bmp.getWidth() > 0) {
             var proportional = width / (bmp.getWidth().toFloat() / bmp.getHeight());
             if (proportional < height) { height = proportional; }
         }
