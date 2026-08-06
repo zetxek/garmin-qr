@@ -33,10 +33,14 @@ find_sdk() {
         return
     fi
     echo "Could not locate the Connect IQ SDK; put monkeyc on PATH." >&2
-    exit 2
+    # `return`, not `exit`: this runs inside $(...), so an exit here would only end the
+    # subshell and leave the caller running with an empty SDK_BIN.
+    return 2
 }
 
-SDK_BIN="$(find_sdk)"
+if ! SDK_BIN="$(find_sdk)"; then
+    exit 2
+fi
 mkdir -p "$OUT_DIR"
 
 build() {  # build <output> <jungle> [--unit-test]

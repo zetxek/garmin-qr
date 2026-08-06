@@ -44,8 +44,15 @@ check() {  # check <image> <expected>
     fi
 }
 
+# Validate before reading positionals: under `set -u` a missing $1 exits with an unset-variable
+# error that says nothing useful, and an odd count would silently skip the incomplete pair.
+if [ "$#" -ne 2 ] && [ "$#" -ne 4 ]; then
+    echo "usage: $(basename "$0") <text> <expected> [<text> <expected>]" >&2
+    exit 2
+fi
+
 check "$1" "$2"
-if [ "$#" -ge 4 ]; then
+if [ "$#" -eq 4 ]; then
     check "$3" "$4"
 fi
 

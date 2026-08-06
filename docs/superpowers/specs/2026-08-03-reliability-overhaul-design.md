@@ -283,7 +283,7 @@ Garmin Connect credentials are required" prompt for every outbound request and t
 `-101`. The original code behaves identically there, so a CI failure would say nothing about
 the app. It is a manual check to run before a release:
 
-```
+```shell
 ./scripts/simulator-test.sh fenix7pro
 ```
 
@@ -344,7 +344,7 @@ Driving the running app in the simulator, with codes seeded via `integrationSeed
 
 ## CI
 
-- Compile with type-check level 3.
+- Compile with type-check level 2 (`monkeyc -w -l 2`), matching the workflows.
 - Build a device matrix covering the screen-size and input classes actually shipped:
   `fenix7pro`, `fenix847mm`, `venu3`, `vivoactive6`, `fr165`, `edge1040`,
   `instinct3amoled45mm`, `approachs50`.

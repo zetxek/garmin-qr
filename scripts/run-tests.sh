@@ -23,10 +23,14 @@ find_sdk() {
         return
     fi
     echo "Could not locate the Connect IQ SDK; put monkeyc on PATH." >&2
-    exit 2
+    # `return`, not `exit`: this runs inside $(...), so an exit here would only end the
+    # subshell and leave the caller running with an empty SDK_BIN.
+    return 2
 }
 
-SDK_BIN="$(find_sdk)"
+if ! SDK_BIN="$(find_sdk)"; then
+    exit 2
+fi
 mkdir -p "$OUT_DIR"
 
 echo "==> Building unit tests for $DEVICE"
@@ -78,10 +82,24 @@ dump_diagnostics() {
     echo "--- end diagnostics ---" >&2
 }
 
+# Anything this script starts in the background is torn down on the way out. Without this a
+# failed early run left Xvfb and the simulator behind, and the next run reused display :99 or
+# simulator port 1234 while reading state from the previous run.
+XVFB_PID=""
+SIMULATOR_PID=""
+cleanup() {
+    [ -n "$SIMULATOR_PID" ] && kill "$SIMULATOR_PID" 2>/dev/null || true
+    [ -n "$XVFB_PID" ] && kill "$XVFB_PID" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
 # The simulator is a GUI process; on a headless machine it needs a virtual display.
 if [ -z "${DISPLAY:-}" ] && command -v Xvfb >/dev/null 2>&1; then
     export DISPLAY=:99
-    Xvfb :99 -screen 0 1280x1024x24 >/dev/null 2>&1 &
+    # Keep the startup output: when the display fails to come up, /dev/null is the difference
+    # between a diagnosable failure and a mystery timeout.
+    Xvfb :99 -screen 0 1280x1024x24 >"${OUT_DIR}/xvfb.log" 2>&1 &
+    XVFB_PID=$!
     # Wait for the display itself, rather than assuming a fixed delay is enough.
     for _ in 1 2 3 4 5 6 7 8 9 10; do
         if ! command -v xdpyinfo >/dev/null 2>&1 || xdpyinfo >/dev/null 2>&1; then break; fi
@@ -97,6 +115,7 @@ if ! pgrep -f "ConnectIQ.app/Contents/MacOS/simulator" >/dev/null 2>&1 \
     # connectiq-tester image's own runner launches `simulator` directly for the same reason.
     SIMULATOR="$(command -v simulator || command -v connectiq || echo "$SDK_BIN/connectiq")"
     "$SIMULATOR" >"${OUT_DIR}/simulator.log" 2>&1 &
+    SIMULATOR_PID=$!
 fi
 LOG="$OUT_DIR/test-output.txt"
 wait_for_simulator || { dump_diagnostics; exit 1; }
