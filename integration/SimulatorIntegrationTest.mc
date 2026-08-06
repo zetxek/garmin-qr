@@ -176,3 +176,27 @@ function integrationSeedRendered(logger as Test.Logger) as Boolean {
     logger.debug("SEEDED 2 codes with cached images; the app should need no network");
     return true;
 }
+
+//! Seed a barcode long enough to overflow the old layout, for a visual check that it is not
+//! drawn off the edges.
+//!
+//!     monkeydo bin/integration.prg fenix843mm -t integrationSeedLongBarcode
+(:test)
+function integrationSeedLongBarcode(logger as Test.Logger) as Boolean {
+    for (var slot = 0; slot < CodeStore.MAX_CODES; slot++) {
+        CodeStore.deleteSlot(slot);
+    }
+    Storage.deleteValue(CodeStore.PENDING_SLOTS);
+    Application.Properties.setValue(
+        CodeStore.PROP_CODES, [] as Array<Application.PropertyValueType>);
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+
+    // Letters stay in Code B at 11 modules each: 18 characters is 233 modules, which with a
+    // full quiet zone wanted more width than the screen has.
+    CodeStore.save(0, "Long barcode", "ABCDEFGHIJKLMNOPQR", CodeStore.TYPE_BARCODE);
+    CodeStore.publishProperties();
+
+    Test.assertEqualMessage(CodeStore.count(), 1, "one long barcode seeded");
+    logger.debug("SEEDED a 18-character barcode for the overflow case");
+    return true;
+}
