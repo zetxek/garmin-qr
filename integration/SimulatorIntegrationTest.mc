@@ -121,6 +121,81 @@ function integrationVerifyNoRedownload(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! Issue #30, end to end: codes configured in the settings editor before the app has ever been
+//! opened must survive the first launch, and `codesList` must still be something the editor can
+//! save afterwards.
+//!
+//! The unit suite calls `Migration.run()` and `CodeStore.reconcile()` by hand. This drives the
+//! real `getInitialView`, which is where the order of those two — and the wipe that used to
+//! happen between them — actually lives.
+(:test)
+function integrationSeedIssue30(logger as Test.Logger) as Boolean {
+    // A fresh install: no codes and no schema marker, so migration treats this as a first run.
+    for (var slot = 0; slot < CodeStore.MAX_CODES; slot++) {
+        CodeStore.deleteSlot(slot);
+    }
+    Storage.deleteValue(CodeStore.PENDING_SLOTS);
+    Storage.deleteValue(Migration.SCHEMA_KEY);
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+
+    // `codesList` as the Connect IQ settings editor writes it: the three declared keys, nothing
+    // else. This is step 2 of the reproduction in the issue.
+    var pushed = [
+        {
+            "code_$index_text" => $.SEED_QR_TEXT,
+            "code_$index_title" => $.SEED_QR_TITLE,
+            "code_$index_type" => CodeStore.TYPE_QR
+        },
+        {
+            "code_$index_text" => $.SEED_BARCODE_TEXT,
+            "code_$index_title" => $.SEED_BARCODE_TITLE,
+            "code_$index_type" => CodeStore.TYPE_BARCODE
+        }
+    ] as Array<Application.PropertyValueType>;
+    Application.Properties.setValue(CodeStore.PROP_CODES, pushed);
+
+    Test.assertEqualMessage(CodeStore.count(), 0, "storage starts empty, as on a fresh install");
+    Test.assertEqualMessage(Migration.storedSchema(), 1, "and looks un-migrated");
+
+    logger.debug("SEEDED 2 codes into codesList only, storage empty");
+    return true;
+}
+
+(:test)
+function integrationVerifyIssue30(logger as Test.Logger) as Boolean {
+    // If this fails with an empty storage, check Settings > Glance Launch Mode first: in glance
+    // mode `getInitialView` never runs, so the app under test never booted.
+    Test.assertEqualMessage(CodeStore.count(), 2,
+        "the codes configured from the phone did not survive the first launch");
+    TestSupport30.assertText(0, $.SEED_QR_TEXT, "slot 0");
+    TestSupport30.assertText(1, $.SEED_BARCODE_TEXT, "slot 1");
+    Test.assertMessage(CodeStore.isBarcode(1), "slot 1 is still a barcode");
+
+    // And the property the settings editor reads is still populated and still in the declared
+    // shape, so step 4 of the reproduction — edit and save again — has something to work with.
+    var raw = Application.Properties.getValue(CodeStore.PROP_CODES);
+    Test.assertMessage(raw instanceof Array, "codesList is still an array");
+    Test.assertEqualMessage((raw as Array).size(), 2, "codesList still holds both codes");
+    for (var i = 0; i < (raw as Array).size(); i++) {
+        var entry = (raw as Array)[i];
+        Test.assertMessage(entry instanceof Dictionary, "entry " + i + " is a dictionary");
+        Test.assertEqualMessage((entry as Dictionary).keys().size(), 3,
+            "entry " + i + " carries only the three declared keys");
+    }
+
+    logger.debug("VERIFIED codes configured before first launch survived it, codesList intact");
+    return true;
+}
+
+(:test)
+module TestSupport30 {
+    function assertText(slot as Number, expected as String, context as String) as Void {
+        var actual = CodeStore.getText(slot);
+        Test.assertMessage(actual != null && actual.equals(expected),
+            context + ": expected '" + expected + "' but got '" + (actual == null ? "null" : actual) + "'");
+    }
+}
+
 //! Diagnostic, not an assertion. Run it on its own when the end-to-end check fails, to see what
 //! the app actually left behind:
 //!

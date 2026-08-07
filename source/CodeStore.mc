@@ -434,12 +434,29 @@ module CodeStore {
         }
     }
 
+    //! True when `codesList` already holds exactly `list`, compared against the *raw* property.
+    //!
+    //! It has to be the raw property rather than `readProperties()`. Reading discards undeclared
+    //! keys and null holes, which is precisely the corruption the write exists to clear: a legacy
+    //! entry carrying `code_$index_timestamp` reads back clean, so comparing what was read
+    //! reported "already up to date", the write was skipped, and the settings editor went on
+    //! failing to save (issue #30). The key count is compared too, so an entry that is right in
+    //! every declared value but carries a fourth key is still rewritten.
     function propertiesMatch(list as Array<Dictionary>) as Boolean {
-        var current = readProperties();
-        if (current.size() != list.size()) { return false; }
+        var raw = null;
+        try {
+            raw = Application.Properties.getValue(PROP_CODES);
+        } catch (e) {
+            Log.warn("[CodeStore] could not read codesList: " + e.getErrorMessage());
+            return false;
+        }
+        if (!(raw instanceof Array) || raw.size() != list.size()) { return false; }
+
         for (var i = 0; i < list.size(); i++) {
-            var a = current[i];
+            var a = raw[i];
             var b = list[i];
+            if (!(a instanceof Dictionary)) { return false; }
+            if (a.keys().size() != b.keys().size()) { return false; }
             if (!stringsEqual(a.get(PROP_TEXT), b.get(PROP_TEXT))) { return false; }
             if (!stringsEqual(a.get(PROP_TITLE), b.get(PROP_TITLE))) { return false; }
             if (!stringsEqual(a.get(PROP_TYPE), b.get(PROP_TYPE))) { return false; }

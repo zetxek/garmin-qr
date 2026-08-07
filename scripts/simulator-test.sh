@@ -4,8 +4,11 @@
 #
 #   ./scripts/simulator-test.sh [device]
 #
-# Three simulator invocations, sharing the simulator's persistent app storage:
+# Several simulator invocations, sharing the simulator's persistent app storage:
 #
+#   0. settings  codes that exist in the settings editor but not in storage — a fresh install
+#                configured from the phone before it was ever opened — survive the first launch
+#                and leave `codesList` saveable (issue #30). Boot only, no network.
 #   1. seed    two codes, one QR containing an `&` and one barcode containing a space, with
 #              their image cache cleared
 #   2. run     the real app for a while, so it reconciles settings, drains the download queue
@@ -113,17 +116,29 @@ run_fixture() {  # run_fixture <test name>
     return 1
 }
 
+run_app() {  # run_app <seconds>
+    "$SDK_BIN/monkeydo" "$OUT_DIR/app.prg" "$DEVICE" >/dev/null 2>&1 &
+    local pid=$!
+    sleep "$1"
+    kill "$pid" >/dev/null 2>&1
+    wait "$pid" 2>/dev/null
+}
+
+# Issue #30. Boot only, so it needs no network and only a few seconds: the question is what
+# `getInitialView` does to codes that exist in the settings editor but not yet in storage.
+echo
+echo "==> 0/3 Settings round trip: codes configured before the first launch"
+run_fixture integrationSeedIssue30 || { echo "==> Seeding failed" >&2; exit 1; }
+run_app "${BOOT_RUN_SECONDS:-10}"
+run_fixture integrationVerifyIssue30 || { echo "==> Settings round trip failed" >&2; exit 1; }
+
 echo
 echo "==> 1/3 Seeding two codes with no cached images"
 run_fixture integrationSeed || { echo "==> Seeding failed" >&2; exit 1; }
 
 echo
 echo "==> 2/3 Running the app for ${APP_RUN_SECONDS}s so it downloads them"
-"$SDK_BIN/monkeydo" "$OUT_DIR/app.prg" "$DEVICE" >/dev/null 2>&1 &
-MONKEYDO_PID=$!
-sleep "$APP_RUN_SECONDS"
-kill "$MONKEYDO_PID" >/dev/null 2>&1
-wait "$MONKEYDO_PID" 2>/dev/null
+run_app "$APP_RUN_SECONDS"
 
 echo
 echo "==> 3/3 Verifying what the app actually cached"
