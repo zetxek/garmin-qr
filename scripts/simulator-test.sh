@@ -1,22 +1,26 @@
 #!/usr/bin/env bash
 #
-# End-to-end test in the Connect IQ simulator, with a live HTTP round-trip to the code service.
+# End-to-end test in the Connect IQ simulator.
 #
 #   ./scripts/simulator-test.sh [device]
+#   WITH_DOWNLOAD=1 ./scripts/simulator-test.sh [device]
 #
 # Several simulator invocations, sharing the simulator's persistent app storage:
 #
 #   0. settings  codes that exist in the settings editor but not in storage — a fresh install
 #                configured from the phone before it was ever opened — survive the first launch
-#                and leave `codesList` saveable (issue #30). Boot only, no network.
+#                and leave `codesList` saveable (issue #30). Boot only.
 #   1. seed    two codes, one QR containing an `&` and one barcode containing a space, with
-#              their image cache cleared
-#   2. run     the real app for a while, so it reconciles settings, drains the download queue
-#              and caches whatever the service returns
-#   3. verify  both images arrived, are attributed to the right codes, and have the shape the
-#              endpoint should have produced; then that a warm start queues nothing
+#              nothing cached and nothing generated
+#   2. run     the real app for a while, so it reconciles settings and builds the code on screen
+#   3. verify  the code was generated on the watch, cached, attributed to the right slot, and
+#              that no network request was made; then, after a restart, that the cache survived
 #
-# Needs network access. `monkeydo` always exits 1, so results are read out of its output.
+# None of that needs network: generating on the watch is what ships. `WITH_DOWNLOAD=1` adds the
+# service fallback, which does need network *and* a code service willing to answer Garmin's
+# image proxy — see the hint at the bottom before believing a failure there.
+#
+# `monkeydo` always exits 1, so results are read out of its output.
 set -uo pipefail
 
 DEVICE="${1:-fenix7pro}"
@@ -133,18 +137,33 @@ run_app "${BOOT_RUN_SECONDS:-10}"
 run_fixture integrationVerifyIssue30 || { echo "==> Settings round trip failed" >&2; exit 1; }
 
 echo
-echo "==> 1/3 Seeding two codes with no cached images"
+echo "==> 1/3 Seeding two codes with nothing generated"
 run_fixture integrationSeed || { echo "==> Seeding failed" >&2; exit 1; }
 
 echo
-echo "==> 2/3 Running the app for ${APP_RUN_SECONDS}s so it downloads them"
+echo "==> 2/3 Running the app for ${APP_RUN_SECONDS}s so it generates them"
 run_app "$APP_RUN_SECONDS"
 
 echo
-echo "==> 3/3 Verifying what the app actually cached"
+echo "==> 3/3 Verifying what the app actually built"
 FAILED=0
 run_fixture integrationVerify || FAILED=1
-run_fixture integrationVerifyNoRedownload || FAILED=1
+
+# Restart it: the cache has to survive, which is the defect that made every load rebuild.
+echo "    restarting to check the cache survives"
+run_app "${BOOT_RUN_SECONDS:-10}"
+run_fixture integrationVerifyWarmStart || FAILED=1
+
+# The download fallback needs the code service to answer Garmin's image proxy, which it does
+# not reliably do (CIQQA-3382). Opt in when you actually want to exercise it.
+if [ -n "${WITH_DOWNLOAD:-}" ]; then
+    echo
+    echo "==> Download fallback: seeding with generation switched off"
+    run_fixture integrationSeedDownloadFallback || { echo "==> Seeding failed" >&2; exit 1; }
+    run_app "$APP_RUN_SECONDS"
+    run_fixture integrationVerifyDownload || FAILED=1
+    run_fixture integrationVerifyNoRedownload || FAILED=1
+fi
 
 echo
 if [ "$FAILED" -eq 0 ]; then
@@ -155,21 +174,23 @@ fi
 echo "==> Simulator end-to-end test failed" >&2
 cat >&2 <<'HINT'
 
-    If the failure is "the download never completed", check these in order:
+    If the failure is "generation never completed", check this first:
 
     1. Settings > Glance Launch Mode must be "Launch in Normal Mode". In glance mode the
-       simulator runs only the glance, which never downloads by design, so the app under
-       test never runs at all. This is the most common cause.
+       simulator runs only the glance, which draws a cached code but never builds one, so
+       the app under test never runs at all. This is the most common cause.
 
-    2. The simulator must be signed in to Garmin Connect. Image requests are proxied
-       through that account; until you sign in every request fails.
-
-    3. Run the diagnostic and look at lastError:
+    2. Run the diagnostic to see what the app left behind:
 
            monkeydo bin/integration.prg <device> -t integrationDump
 
-       404 means the code service refused Garmin's image fetcher while still answering
-       curl normally. The app is not at fault in that case -- see
+    If a WITH_DOWNLOAD=1 run is what failed, with "the download never completed":
+
+    3. The simulator must be signed in to Garmin Connect. Image requests are proxied
+       through that account; until you sign in every request fails.
+
+    4. A lastError of 404 means the code service refused Garmin's image fetcher while
+       still answering curl normally. The app is not at fault in that case -- see
        docs/superpowers/specs/ for the investigation.
 HINT
 exit 1
