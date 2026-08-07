@@ -131,7 +131,7 @@ run_app() {  # run_app <seconds>
 # Issue #30. Boot only, so it needs no network and only a few seconds: the question is what
 # `getInitialView` does to codes that exist in the settings editor but not yet in storage.
 echo
-echo "==> 0/3 Settings round trip: codes configured before the first launch"
+echo "==> 0/4 Settings round trip: codes configured before the first launch"
 run_fixture integrationSeedIssue30 || { echo "==> Seeding failed" >&2; exit 1; }
 run_app "${BOOT_RUN_SECONDS:-10}"
 run_fixture integrationVerifyIssue30 || { echo "==> Settings round trip failed" >&2; exit 1; }
