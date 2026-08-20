@@ -54,25 +54,36 @@ module CodeRenderer {
         return side;
     }
 
+    //! The quiet zone actually drawn, whenever there is room for it.
+    const IDEAL_QUIET_MODULES = 10;
+    //! The minimum the scale search insists on before picking a bigger integer scale. Requiring
+    //! the full IDEAL_QUIET_MODULES here (as this used to) double-charges the margin: once to
+    //! pick the scale, again below when centering. A small floor instead lets a bigger scale win
+    //! whenever the bars themselves have room, even if the *ideal* margin would not also fit.
+    const DEFAULT_MIN_QUIET_MODULES = 2;
+    //! Wide mode's floor: thinner still, so a scale step that only just does not fit at the
+    //! default floor gets to happen anyway. See WideBarcode for what this trades away.
+    const WIDE_MIN_QUIET_MODULES = 1;
+
     //! Bar width, quiet-zone width and total width for a barcode, or null when the payload
     //! cannot be drawn legibly in the space available.
     //!
     //! Separate from the drawing so the fit can be asserted without a Dc.
-    function barcodeLayout(moduleCount as Number, available as Number) as Array<Number>? {
+    function barcodeLayout(moduleCount as Number, available as Number, wide as Boolean) as Array<Number>? {
         if (moduleCount <= 0 || available <= 0) { return null; }
 
-        var quietModules = 10;
-        var scale = available / (moduleCount + (2 * quietModules));
+        var minQuietModules = wide ? WIDE_MIN_QUIET_MODULES : DEFAULT_MIN_QUIET_MODULES;
+        var scale = available / (moduleCount + (2 * minQuietModules));
         if (scale < 1) {
-            // No room for a full quiet zone. A bar must be at least one pixel wide to be read,
-            // so that is the floor -- below it the payload does not fit this screen at all.
+            // No room for even the reduced floor. A bar must be at least one pixel wide to be
+            // read, so that is the last resort -- below it the payload does not fit this screen.
             scale = 1;
             if (moduleCount > available) { return null; }
         }
 
         var barsWidth = moduleCount * scale;
         var quiet = (available - barsWidth) / 2;
-        if (quiet > quietModules * scale) { quiet = quietModules * scale; }
+        if (quiet > IDEAL_QUIET_MODULES * scale) { quiet = IDEAL_QUIET_MODULES * scale; }
         return [scale, quiet, barsWidth + (2 * quiet)] as Array<Number>;
     }
 
@@ -88,9 +99,9 @@ module CodeRenderer {
     //! Code 128 symbol does not scan.
     function drawBarcode(
         dc as Graphics.Dc, modules as ByteArray,
-        centreX as Number, centreY as Number, available as Number, height as Number
+        centreX as Number, centreY as Number, available as Number, height as Number, wide as Boolean
     ) as Boolean {
-        var layout = barcodeLayout(modules.size(), available);
+        var layout = barcodeLayout(modules.size(), available, wide);
         if (layout == null) { return false; }
         var scale = layout[0];
         var quiet = layout[1];

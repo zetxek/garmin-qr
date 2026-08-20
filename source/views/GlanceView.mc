@@ -58,9 +58,11 @@ class GlanceView extends WatchUi.GlanceView {
     //! A generated barcode: bars across most of the width, label underneath if it fits.
     function drawGeneratedBarcode(dc as Graphics.Dc, bars as ByteArray) as Void {
         var height = (dc.getHeight() * 0.72).toNumber();
+        var wide = WideBarcode.enabled();
+        var widthFraction = wide ? 0.99 : 0.96;
         var drawn = CodeRenderer.drawBarcode(
             dc, bars, dc.getWidth() / 2, dc.getHeight() / 2,
-            (dc.getWidth() * 0.96).toNumber(), height);
+            (dc.getWidth() * widthFraction).toNumber(), height, wide);
         if (!drawn) { drawMessage(dc, "Code too long"); }
     }
 
