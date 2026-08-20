@@ -225,3 +225,27 @@ function integrationSeedIssue35Barcode(logger as Test.Logger) as Boolean {
     logger.debug("SEEDED issue #35 barcode: " + (bars as ByteArray).size() + " modules");
     return true;
 }
+
+//! Same payload as integrationSeedIssue35Barcode, with wide mode already on -- for a matched
+//! before/after screenshot pair.
+//!
+//!     monkeydo bin/integration.prg fenix843mm -t integrationSeedIssue35BarcodeWide
+(:test)
+function integrationSeedIssue35BarcodeWide(logger as Test.Logger) as Boolean {
+    for (var slot = 0; slot < CodeStore.MAX_CODES; slot++) {
+        CodeStore.deleteSlot(slot);
+    }
+    Storage.deleteValue(CodeStore.PENDING_SLOTS);
+    Application.Properties.setValue(
+        CodeStore.PROP_CODES, [] as Array<Application.PropertyValueType>);
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    Application.Properties.setValue(WideBarcode.SETTING, true);
+
+    CodeStore.save(0, "Club card", "FFCC12345", CodeStore.TYPE_BARCODE);
+    CodeStore.publishProperties();
+
+    Test.assertMessage(WideBarcode.enabled(), "wide mode is on for this fixture");
+    Test.assertEqualMessage(CodeStore.count(), 1, "one code seeded");
+    logger.debug("SEEDED issue #35 barcode with wide mode on");
+    return true;
+}
