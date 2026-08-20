@@ -11,6 +11,8 @@ module AppSettingsMenu {
         var enabled = (Application.getApp() as App).keepScreenOn;
         menu.addItem(new WatchUi.MenuItem(
             "Keep Screen On", enabled ? "Enabled" : "Disabled", :toggle_keep_screen_on, {}));
+        menu.addItem(new WatchUi.MenuItem(
+            "Wide Barcode", WideBarcode.enabled() ? "Enabled" : "Disabled", :toggle_wide_barcode, {}));
         return menu;
     }
 }
@@ -25,8 +27,14 @@ class AppSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
     }
 
     function onSelect(item) as Void {
-        if (item.getId() != :toggle_keep_screen_on) { return; }
+        if (item.getId() == :toggle_keep_screen_on) {
+            toggleKeepScreenOn(item);
+        } else if (item.getId() == :toggle_wide_barcode) {
+            toggleWideBarcode(item);
+        }
+    }
 
+    function toggleKeepScreenOn(item) as Void {
         var app = Application.getApp() as App;
         app.keepScreenOn = !app.keepScreenOn;
         try {
@@ -37,6 +45,18 @@ class AppSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
 
         item.setSubLabel(app.keepScreenOn ? "Enabled" : "Disabled");
         view.applyScreenTimeout();
+        WatchUi.requestUpdate();
+    }
+
+    function toggleWideBarcode(item) as Void {
+        var next = !WideBarcode.enabled();
+        try {
+            Application.Properties.setValue(WideBarcode.SETTING, next);
+        } catch (e) {
+            Log.warn("[AppSettingsMenu] could not persist wideBarcode: " + e.getErrorMessage());
+        }
+
+        item.setSubLabel(next ? "Enabled" : "Disabled");
         WatchUi.requestUpdate();
     }
 }
