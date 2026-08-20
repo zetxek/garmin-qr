@@ -1,6 +1,6 @@
 # Wider Code 128 Barcodes Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Fix [issue #35](https://github.com/zetxek/garmin-qr/issues/35) — barcodes rendering with bars too thin for some scanners — with an always-on layout correctness fix plus an opt-in "Wide Barcode" toggle.
 
@@ -29,7 +29,7 @@
 **Interfaces:**
 - Produces: `WideBarcode.SETTING as String` (the property key, `"wideBarcode"`), `WideBarcode.enabled() as Boolean`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add to `source/tests/AppFlowTest.mc`, immediately after `anImpossibleBarcodeIsReported` (the last of the three existing `barcodeLayout` tests, ending around line 528):
 
@@ -51,12 +51,12 @@ function wideBarcodeReflectsTheProperty(logger as Test.Logger) as Boolean {
 }
 ```
 
-- [ ] **Step 2: Run it to confirm it fails to build**
+- [x] **Step 2: Run it to confirm it fails to build**
 
 Run: `./scripts/run-tests.sh fenix843mm`
 Expected: build failure — `WideBarcode` is not yet defined.
 
-- [ ] **Step 3: Register the property**
+- [x] **Step 3: Register the property**
 
 In `resources/drawables/properties.xml`, add a line after `generateOnDevice` so the file reads:
 
@@ -72,7 +72,7 @@ In `resources/drawables/properties.xml`, add a line after `generateOnDevice` so 
 </properties>
 ```
 
-- [ ] **Step 4: Create the settings module**
+- [x] **Step 4: Create the settings module**
 
 Create `source/WideBarcode.mc`:
 
@@ -100,7 +100,7 @@ module WideBarcode {
 }
 ```
 
-- [ ] **Step 5: Reset the property between tests**
+- [x] **Step 5: Reset the property between tests**
 
 In `source/tests/TestSupport.mc`, in `reset()`, add a line next to the existing `CodeGeneration.SETTING` reset so both read together:
 
@@ -112,12 +112,12 @@ In `source/tests/TestSupport.mc`, in `reset()`, add a line next to the existing 
         ImageService.instance = null;
 ```
 
-- [ ] **Step 6: Run the test to verify it passes**
+- [x] **Step 6: Run the test to verify it passes**
 
 Run: `./scripts/run-tests.sh fenix843mm`
 Expected: `==> Tests passed`, including `wideBarcodeReflectsTheProperty`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add source/WideBarcode.mc resources/drawables/properties.xml source/tests/TestSupport.mc source/tests/AppFlowTest.mc
@@ -142,7 +142,7 @@ the tree does not build again until all of it lands.
 - Consumes: `WideBarcode.enabled() as Boolean` (Task 1).
 - Produces: `CodeRenderer.barcodeLayout(moduleCount as Number, available as Number, wide as Boolean) as Array<Number>?`, `CodeRenderer.drawBarcode(dc as Graphics.Dc, modules as ByteArray, centreX as Number, centreY as Number, available as Number, height as Number, wide as Boolean) as Boolean`.
 
-- [ ] **Step 1: Update the three existing `barcodeLayout` tests for the new signature**
+- [x] **Step 1: Update the three existing `barcodeLayout` tests for the new signature**
 
 In `source/tests/AppFlowTest.mc`, the three calls around line 474-528 each gain a trailing `, false` (they test today's default, non-wide behavior):
 
@@ -156,7 +156,7 @@ In `source/tests/AppFlowTest.mc`, the three calls around line 474-528 each gain 
     var layout = CodeRenderer.barcodeLayout((bars as ByteArray).size(), 100, false);
 ```
 
-- [ ] **Step 2: Write the new failing test**
+- [x] **Step 2: Write the new failing test**
 
 Add to `source/tests/AppFlowTest.mc`, after `wideBarcodeReflectsTheProperty` from Task 1:
 
@@ -191,12 +191,12 @@ function wideModePicksABiggerScaleThanDefault(logger as Test.Logger) as Boolean 
 }
 ```
 
-- [ ] **Step 3: Run tests to confirm the build fails**
+- [x] **Step 3: Run tests to confirm the build fails**
 
 Run: `./scripts/run-tests.sh fenix843mm`
 Expected: build failure — `barcodeLayout` does not take 3 arguments yet.
 
-- [ ] **Step 4: Update `barcodeLayout` and `drawBarcode`**
+- [x] **Step 4: Update `barcodeLayout` and `drawBarcode`**
 
 In `source/CodeRenderer.mc`, replace:
 
@@ -283,7 +283,7 @@ with:
         if (layout == null) { return false; }
 ```
 
-- [ ] **Step 5: Update `AppView.drawGeneratedCode`**
+- [x] **Step 5: Update `AppView.drawGeneratedCode`**
 
 In `source/views/AppView.mc`, replace:
 
@@ -313,7 +313,7 @@ with:
             if (!drawn) {
 ```
 
-- [ ] **Step 6: Update `GlanceView.drawGeneratedBarcode`**
+- [x] **Step 6: Update `GlanceView.drawGeneratedBarcode`**
 
 In `source/views/GlanceView.mc`, replace:
 
@@ -343,12 +343,12 @@ with:
     }
 ```
 
-- [ ] **Step 7: Run the full unit suite**
+- [x] **Step 7: Run the full unit suite**
 
 Run: `./scripts/run-tests.sh fenix843mm`
 Expected: `==> Tests passed`, including `wideModePicksABiggerScaleThanDefault` (log line should read `134 modules: default scale 2 (308px), wide scale 3 (410px)`).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add source/CodeRenderer.mc source/tests/AppFlowTest.mc source/views/AppView.mc source/views/GlanceView.mc
@@ -365,7 +365,7 @@ git commit -m "Thread a wide-mode flag through barcode layout, AppView and Glanc
 **Interfaces:**
 - Consumes: `WideBarcode.SETTING as String`, `WideBarcode.enabled() as Boolean` (Task 1).
 
-- [ ] **Step 1: Replace the whole file**
+- [x] **Step 1: Replace the whole file**
 
 `source/menus/AppSettingsMenu.mc` currently:
 
@@ -481,12 +481,12 @@ class AppSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
 }
 ```
 
-- [ ] **Step 2: Run the full unit suite**
+- [x] **Step 2: Run the full unit suite**
 
 Run: `./scripts/run-tests.sh fenix843mm`
 Expected: `==> Tests passed`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add source/menus/AppSettingsMenu.mc
@@ -503,7 +503,7 @@ git commit -m "Add an on-watch Wide Barcode toggle"
 **Interfaces:**
 - Consumes: the built app from Tasks 1-3, and the `integrationSeedIssue35Barcode` fixture already committed in `integration/SimulatorIntegrationTest.mc`.
 
-- [ ] **Step 1: Add a second fixture that also turns wide mode on**
+- [x] **Step 1: Add a second fixture that also turns wide mode on**
 
 There is no scriptable way to drive the on-watch menu from `monkeydo`, so add a fixture that seeds
 the same payload with the property already flipped — mechanical and reproducible, matching how
@@ -536,7 +536,7 @@ function integrationSeedIssue35BarcodeWide(logger as Test.Logger) as Boolean {
 }
 ```
 
-- [ ] **Step 2: Build app and integration binaries**
+- [x] **Step 2: Build app and integration binaries**
 
 ```bash
 SDK_BIN="$(dirname "$(command -v monkeyc)")"
@@ -546,7 +546,7 @@ DEVELOPER_KEY="$HOME/Documents/garmin-sdk/developer_key"
 ```
 Expected: both `BUILD SUCCESSFUL`.
 
-- [ ] **Step 3: Screenshot with the toggle off (default)**
+- [x] **Step 3: Screenshot with the toggle off (default)**
 
 Ensure a simulator is running (`pgrep -x simulator`; if empty, start
 `"$SDK_BIN/ConnectIQ.app/Contents/MacOS/simulator"` in the background and wait for port 1234 to
@@ -566,7 +566,7 @@ Expected: same 2px-scale bars as the pre-fix screenshot from exploration — the
 does not change this specific payload (see design doc) — but confirm nothing regressed: still
 centered, still legible, title and counter still drawn.
 
-- [ ] **Step 4: Screenshot with the toggle on**
+- [x] **Step 4: Screenshot with the toggle on**
 
 Kill the running `app.prg`, reseed with the wide fixture, relaunch, and capture the same way:
 
@@ -580,11 +580,11 @@ screencapture -x -R<x>,<y>,<w>,<h> /tmp/issue35-after-wide.png
 Expected: visibly thicker bars filling nearly the full screen width, matching the design doc's
 predicted 410px/scale-3 result.
 
-- [ ] **Step 5: Commit the new fixture**
+- [x] **Step 5: Commit the new fixture**
 
 ```bash
 git add integration/SimulatorIntegrationTest.mc
 git commit -m "Add a simulator fixture for wide-mode barcode screenshots"
 ```
 
-- [ ] **Step 6: Attach both screenshots to the PR description** when opening the PR for this change (per the user's request to include screenshots the way this conversation's exploration did).
+- [x] **Step 6: Attach both screenshots to the PR description** when opening the PR for this change (per the user's request to include screenshots the way this conversation's exploration did).
