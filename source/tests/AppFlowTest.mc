@@ -527,6 +527,22 @@ function anImpossibleBarcodeIsReported(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! `WideBarcode.enabled()` reflects whatever is in Properties, off by default.
+(:test)
+function wideBarcodeReflectsTheProperty(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Test.assertMessage(!WideBarcode.enabled(), "off by default after reset");
+
+    Application.Properties.setValue(WideBarcode.SETTING, true);
+    Test.assertMessage(WideBarcode.enabled(), "reflects a true property");
+
+    Application.Properties.setValue(WideBarcode.SETTING, false);
+    Test.assertMessage(!WideBarcode.enabled(), "reflects a false property");
+
+    logger.debug("WideBarcode.enabled() tracks the wideBarcode property, off by default");
+    return true;
+}
+
 //! A cancelled request must not write its image into whatever slot took its place.
 //!
 //! `makeImageRequest` cannot be cancelled. Releasing the in-flight slot on `forget` let the next

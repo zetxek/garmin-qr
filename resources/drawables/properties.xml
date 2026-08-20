@@ -5,4 +5,5 @@
 
     <property id="serviceUrl" type="string">https://qr-gen.adrianmoreno.info</property>
     <property id="generateOnDevice" type="boolean">true</property>
+    <property id="wideBarcode" type="boolean">false</property>
 </properties>

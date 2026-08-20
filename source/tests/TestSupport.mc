@@ -22,6 +22,7 @@ module TestSupport {
         // Most of these tests are about the download path, so they opt out of on-device
         // generation explicitly. Tests that want generation turn it back on themselves.
         Application.Properties.setValue(CodeGeneration.SETTING, false);
+        Application.Properties.setValue(WideBarcode.SETTING, false);
         ImageService.instance = null;
     }
 
