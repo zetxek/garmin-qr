@@ -200,3 +200,28 @@ function integrationSeedLongBarcode(logger as Test.Logger) as Boolean {
     logger.debug("SEEDED a 18-character barcode for the overflow case");
     return true;
 }
+
+//! Seed the exact payload from GitHub issue #35: a club membership barcode whose bars are too
+//! thin for an older scanner to read reliably, for a visual check of how much of the display
+//! width today's layout actually uses.
+//!
+//!     monkeydo bin/integration.prg fenix843mm -t integrationSeedIssue35Barcode
+(:test)
+function integrationSeedIssue35Barcode(logger as Test.Logger) as Boolean {
+    for (var slot = 0; slot < CodeStore.MAX_CODES; slot++) {
+        CodeStore.deleteSlot(slot);
+    }
+    Storage.deleteValue(CodeStore.PENDING_SLOTS);
+    Application.Properties.setValue(
+        CodeStore.PROP_CODES, [] as Array<Application.PropertyValueType>);
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+
+    CodeStore.save(0, "Club card", "FFCC12345", CodeStore.TYPE_BARCODE);
+    CodeStore.publishProperties();
+
+    var bars = Code128.encode("FFCC12345");
+    Test.assertMessage(bars != null, "the payload encodes");
+    Test.assertEqualMessage(CodeStore.count(), 1, "one code seeded");
+    logger.debug("SEEDED issue #35 barcode: " + (bars as ByteArray).size() + " modules");
+    return true;
+}
