@@ -215,12 +215,16 @@ function integrationSeedIssue35Barcode(logger as Test.Logger) as Boolean {
     Application.Properties.setValue(
         CodeStore.PROP_CODES, [] as Array<Application.PropertyValueType>);
     Application.Properties.setValue(CodeGeneration.SETTING, true);
+    // The simulator persists properties between invocations, so without this a default-mode
+    // capture taken after integrationSeedIssue35BarcodeWide would silently inherit wide mode.
+    Application.Properties.setValue(WideBarcode.SETTING, false);
 
     CodeStore.save(0, "Club card", "FFCC12345", CodeStore.TYPE_BARCODE);
     CodeStore.publishProperties();
 
     var bars = Code128.encode("FFCC12345");
     Test.assertMessage(bars != null, "the payload encodes");
+    Test.assertMessage(!WideBarcode.enabled(), "wide mode is off for this fixture");
     Test.assertEqualMessage(CodeStore.count(), 1, "one code seeded");
     logger.debug("SEEDED issue #35 barcode: " + (bars as ByteArray).size() + " modules");
     return true;

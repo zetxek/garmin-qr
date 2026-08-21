@@ -49,14 +49,15 @@ class AppSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
     }
 
     function toggleWideBarcode(item) as Void {
-        var next = !WideBarcode.enabled();
         try {
-            Application.Properties.setValue(WideBarcode.SETTING, next);
+            Application.Properties.setValue(WideBarcode.SETTING, !WideBarcode.enabled());
         } catch (e) {
             Log.warn("[AppSettingsMenu] could not persist wideBarcode: " + e.getErrorMessage());
         }
 
-        item.setSubLabel(next ? "Enabled" : "Disabled");
+        // Read back rather than trust the value just written: if setValue threw, the property is
+        // unchanged, and the label must say so rather than claim the flip that didn't happen.
+        item.setSubLabel(WideBarcode.enabled() ? "Enabled" : "Disabled");
         WatchUi.requestUpdate();
     }
 }

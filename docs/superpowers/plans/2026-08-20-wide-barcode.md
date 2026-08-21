@@ -468,14 +468,15 @@ class AppSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
     }
 
     function toggleWideBarcode(item) as Void {
-        var next = !WideBarcode.enabled();
         try {
-            Application.Properties.setValue(WideBarcode.SETTING, next);
+            Application.Properties.setValue(WideBarcode.SETTING, !WideBarcode.enabled());
         } catch (e) {
             Log.warn("[AppSettingsMenu] could not persist wideBarcode: " + e.getErrorMessage());
         }
 
-        item.setSubLabel(next ? "Enabled" : "Disabled");
+        // Read back rather than trust the value just written: if setValue threw, the property is
+        // unchanged, and the label must say so rather than claim the flip that didn't happen.
+        item.setSubLabel(WideBarcode.enabled() ? "Enabled" : "Disabled");
         WatchUi.requestUpdate();
     }
 }
@@ -555,6 +556,7 @@ accept a connection), then:
 ```bash
 "$SDK_BIN/monkeydo" bin/integration.prg fenix843mm -t integrationSeedIssue35Barcode
 "$SDK_BIN/monkeydo" bin/app.prg fenix843mm &
+APP_PID=$!
 sleep 6
 ```
 Find the simulator window's position and size (System Events `position`/`size` of its window, as
@@ -568,10 +570,12 @@ centered, still legible, title and counter still drawn.
 
 - [x] **Step 4: Screenshot with the toggle on**
 
-Kill the running `app.prg`, reseed with the wide fixture, relaunch, and capture the same way:
+Kill the running `app.prg`, reseed with the wide fixture, relaunch, and capture the same way.
+Killing by the PID captured in Step 3 -- rather than a bare `kill %1` -- doesn't depend on job
+control being enabled, which isn't guaranteed across every shell that runs this:
 
 ```bash
-kill %1 2>/dev/null
+kill "$APP_PID" 2>/dev/null
 "$SDK_BIN/monkeydo" bin/integration.prg fenix843mm -t integrationSeedIssue35BarcodeWide
 "$SDK_BIN/monkeydo" bin/app.prg fenix843mm &
 sleep 6
