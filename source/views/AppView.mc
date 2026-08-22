@@ -347,7 +347,19 @@ class AppView extends WatchUi.View {
         dc.drawText(dc.getWidth() / 2, 8, Graphics.FONT_XTINY, label, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
+    //! "Code 1 of 1" states the obvious, so it is dropped when there is nothing to count.
+    function showsCounter() as Boolean {
+        return slots.size() > 1;
+    }
+
+    //! Decluttering only, deliberately not a size win: the counter's height stays reserved in
+    //! `drawGeneratedCode`, so the code neither moves nor grows. Reclaiming it would push the
+    //! code *down* rather than centre it -- the title above has nothing balancing it below --
+    //! and would let a QR outgrow the largest square a round screen can show, clipping the
+    //! corners its finder patterns sit in.
     function drawCounter(dc as Graphics.Dc) as Void {
+        if (!showsCounter()) { return; }
+
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             dc.getWidth() / 2, dc.getHeight() - 40, Graphics.FONT_XTINY,

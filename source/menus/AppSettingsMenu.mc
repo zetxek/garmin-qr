@@ -11,8 +11,11 @@ module AppSettingsMenu {
         var enabled = (Application.getApp() as App).keepScreenOn;
         menu.addItem(new WatchUi.MenuItem(
             "Keep Screen On", enabled ? "Enabled" : "Disabled", :toggle_keep_screen_on, {}));
+        // Named for the symptom, not the mechanism: someone reaches for this because a code will
+        // not scan, not because they want a wider one. The property key stays `wideBarcode` --
+        // renaming it would orphan the value on watches that already have it set.
         menu.addItem(new WatchUi.MenuItem(
-            "Wide Barcode", WideBarcode.enabled() ? "Enabled" : "Disabled", :toggle_wide_barcode, {}));
+            "Thicker bars", WideBarcode.enabled() ? "Enabled" : "Disabled", :toggle_wide_barcode, {}));
         return menu;
     }
 }
