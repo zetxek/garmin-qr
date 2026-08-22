@@ -423,6 +423,36 @@ function openingTheAppDoesNotDarkenTheScreen(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! Pressing Select to open the in-app menu must not darken the screen either.
+//!
+//! `onHide()` released the backlight hold unconditionally on every hide, and `disable()` drives
+//! `Attention.backlight(false)` when a hold was taken. Select pushes the code menu, which hides
+//! `AppView` -- so with "keep screen on" on, opening the menu blacked out the display immediately,
+//! even though the user never left the app.
+(:test)
+function openingTheMenuDoesNotDarkenTheScreen(logger as Test.Logger) as Boolean {
+    TestSupport.threeCodes();
+    var app = Application.getApp() as App;
+    app.backlight = new Backlight();
+    app.backlight.enable();
+
+    if (!Backlight.isSupported()) {
+        logger.debug("Attention.backlight not supported here; nothing to assert");
+        return true;
+    }
+    Test.assertMessage(app.backlight.isHolding(), "precondition: the hold is taken");
+
+    var view = new AppView();
+    view.onHide();
+
+    Test.assertMessage(app.backlight.isHolding(),
+        "the hold must survive navigating away from the code screen within the app");
+
+    app.backlight.disable();
+    logger.debug("backlight hold survives onHide (e.g. opening the menu)");
+    return true;
+}
+
 //! The user's choice of screen behaviour is honoured in both directions.
 //!
 //! The shipped default is `true`, set on the `keepScreenOn` property in
@@ -492,7 +522,7 @@ function aLongBarcodeIsNeverLaidOutWiderThanTheScreen(logger as Test.Logger) as 
         "precondition: this payload plus a full quiet zone overflows (" + moduleCount + " + 20 > "
         + available + ")");
 
-    var layout = CodeRenderer.barcodeLayout(moduleCount, available);
+    var layout = CodeRenderer.barcodeLayout(moduleCount, available, false);
     Test.assertMessage(layout != null, "it still fits once the quiet zone gives way to the bars");
     Test.assertMessage(layout[2] <= available,
         "total width " + layout[2] + " must fit within " + available);
@@ -506,7 +536,7 @@ function aLongBarcodeIsNeverLaidOutWiderThanTheScreen(logger as Test.Logger) as 
 function aShortBarcodeKeepsItsQuietZone(logger as Test.Logger) as Boolean {
     var bars = Code128.encode("MEMBER 12345");
     var available = 244;
-    var layout = CodeRenderer.barcodeLayout((bars as ByteArray).size(), available);
+    var layout = CodeRenderer.barcodeLayout((bars as ByteArray).size(), available, false);
 
     Test.assertMessage(layout != null, "a normal payload lays out");
     Test.assertMessage(layout[2] <= available, "and fits: " + layout[2] + " <= " + available);
@@ -520,10 +550,55 @@ function aShortBarcodeKeepsItsQuietZone(logger as Test.Logger) as Boolean {
 function anImpossibleBarcodeIsReported(logger as Test.Logger) as Boolean {
     var bars = Code128.encode("ABCDEFGHIJ1234567890");
     // Far less width than the payload has modules: not drawable at one pixel per bar.
-    var layout = CodeRenderer.barcodeLayout((bars as ByteArray).size(), 100);
+    var layout = CodeRenderer.barcodeLayout((bars as ByteArray).size(), 100, false);
 
     Test.assertMessage(layout == null, "a payload that cannot fit is reported, not clipped");
     logger.debug("unrenderable payload reported instead of drawn off-screen");
+    return true;
+}
+
+//! `WideBarcode.enabled()` reflects whatever is in Properties, off by default.
+(:test)
+function wideBarcodeReflectsTheProperty(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Test.assertMessage(!WideBarcode.enabled(), "off by default after reset");
+
+    Application.Properties.setValue(WideBarcode.SETTING, true);
+    Test.assertMessage(WideBarcode.enabled(), "reflects a true property");
+
+    Application.Properties.setValue(WideBarcode.SETTING, false);
+    Test.assertMessage(!WideBarcode.enabled(), "reflects a false property");
+
+    logger.debug("WideBarcode.enabled() tracks the wideBarcode property, off by default");
+    return true;
+}
+
+//! Wide mode trades quiet zone for scale when the default is too conservative to use it -- the
+//! exact case from issue #35: a barcode readable on a plastic card but too thin on the watch.
+(:test)
+function wideModePicksABiggerScaleThanDefault(logger as Test.Logger) as Boolean {
+    var bars = Code128.encode("FFCC12345");
+    Test.assertMessage(bars != null, "the payload encodes");
+    var moduleCount = (bars as ByteArray).size();
+
+    // The fenix843mm from the issue: a 416px round display, 94% given to the barcode box
+    // normally, 99% in wide mode (see AppView.drawGeneratedCode / GlanceView.drawGeneratedBarcode).
+    var normalAvailable = (416 * 0.94).toNumber();
+    var wideAvailable = (416 * 0.99).toNumber();
+
+    var normal = CodeRenderer.barcodeLayout(moduleCount, normalAvailable, false);
+    var wide = CodeRenderer.barcodeLayout(moduleCount, wideAvailable, true);
+
+    Test.assertMessage(normal != null, "the default layout fits");
+    Test.assertMessage(wide != null, "the wide layout fits");
+    Test.assertMessage(wide[0] > normal[0],
+        "wide mode should pick a bigger scale: " + wide[0] + " vs default " + normal[0]);
+    Test.assertMessage(wide[2] <= wideAvailable,
+        "the wide layout must still fit: " + wide[2] + " <= " + wideAvailable);
+    Test.assertMessage(wide[1] > 0, "wide mode still keeps some quiet zone, however thin");
+
+    logger.debug(moduleCount + " modules: default scale " + normal[0] + " (" + normal[2]
+        + "px), wide scale " + wide[0] + " (" + wide[2] + "px)");
     return true;
 }
 

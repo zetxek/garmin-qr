@@ -52,6 +52,10 @@ class AddCodeMenu {
     function save() as Void {
         if (codeText.length() == 0) {
             Log.debug("[AddCodeMenu] refusing to save an empty code");
+            WatchUi.pushView(
+                new WatchUi.Confirmation("Code text is required"),
+                new EmptyCodeDelegate(),
+                WatchUi.SLIDE_UP);
             return;
         }
 
@@ -145,6 +149,19 @@ class CodeTextPickerDelegate extends WatchUi.TextPickerDelegate {
             }
         }
         owner.show();
+        return true;
+    }
+}
+
+//! Confirmation pops itself on response, the same way TextPicker does above -- this only needs
+//! to acknowledge it, not manage the view stack.
+(:app)
+class EmptyCodeDelegate extends WatchUi.ConfirmationDelegate {
+    function initialize() {
+        ConfirmationDelegate.initialize();
+    }
+
+    function onResponse(response) as Boolean {
         return true;
     }
 }

@@ -57,12 +57,12 @@ class AppView extends WatchUi.View {
         }
     }
 
+    //! `onHide` fires whenever another view is pushed on top -- the code menu, settings, add
+    //! code -- not only when the app is truly closing. Releasing the backlight hold here darkened
+    //! the screen the moment Select was pressed, even with "keep screen on" on and the user still
+    //! inside the app. The hold is released for real in App.onStop, which only fires on actual exit.
     function onHide() as Void {
         stopGeneration();
-        var backlight = (Application.getApp() as App).backlight;
-        if (backlight != null) {
-            backlight.disable();
-        }
     }
 
     //! Called whenever the set of codes may have changed: startup, settings sync, add, delete.
@@ -293,9 +293,11 @@ class AppView extends WatchUi.View {
             // Barcodes want width; the height only has to be enough for a scanner to find a row.
             var barLimit = (height * 0.45).toNumber();
             var barHeight = boxHeight < barLimit ? boxHeight : barLimit;
+            var wide = WideBarcode.enabled();
+            var widthFraction = wide ? 0.99 : 0.94;
             var drawn = CodeRenderer.drawBarcode(
                 dc, currentBars as ByteArray, width / 2, centreY,
-                (width * 0.94).toNumber(), barHeight);
+                (width * widthFraction).toNumber(), barHeight, wide);
             if (!drawn) {
                 // Better to say it than to show a symbol no reader will accept.
                 drawPlaceholderText(dc, "Code too long to\nshow on this screen", Graphics.COLOR_YELLOW);
