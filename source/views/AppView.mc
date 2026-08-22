@@ -57,12 +57,12 @@ class AppView extends WatchUi.View {
         }
     }
 
+    //! `onHide` fires whenever another view is pushed on top -- the code menu, settings, add
+    //! code -- not only when the app is truly closing. Releasing the backlight hold here darkened
+    //! the screen the moment Select was pressed, even with "keep screen on" on and the user still
+    //! inside the app. The hold is released for real in App.onStop, which only fires on actual exit.
     function onHide() as Void {
         stopGeneration();
-        var backlight = (Application.getApp() as App).backlight;
-        if (backlight != null) {
-            backlight.disable();
-        }
     }
 
     //! Called whenever the set of codes may have changed: startup, settings sync, add, delete.

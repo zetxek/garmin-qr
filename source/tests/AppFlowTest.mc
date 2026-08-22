@@ -423,6 +423,36 @@ function openingTheAppDoesNotDarkenTheScreen(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! Pressing Select to open the in-app menu must not darken the screen either.
+//!
+//! `onHide()` released the backlight hold unconditionally on every hide, and `disable()` drives
+//! `Attention.backlight(false)` when a hold was taken. Select pushes the code menu, which hides
+//! `AppView` -- so with "keep screen on" on, opening the menu blacked out the display immediately,
+//! even though the user never left the app.
+(:test)
+function openingTheMenuDoesNotDarkenTheScreen(logger as Test.Logger) as Boolean {
+    TestSupport.threeCodes();
+    var app = Application.getApp() as App;
+    app.backlight = new Backlight();
+    app.backlight.enable();
+
+    if (!Backlight.isSupported()) {
+        logger.debug("Attention.backlight not supported here; nothing to assert");
+        return true;
+    }
+    Test.assertMessage(app.backlight.isHolding(), "precondition: the hold is taken");
+
+    var view = new AppView();
+    view.onHide();
+
+    Test.assertMessage(app.backlight.isHolding(),
+        "the hold must survive navigating away from the code screen within the app");
+
+    app.backlight.disable();
+    logger.debug("backlight hold survives onHide (e.g. opening the menu)");
+    return true;
+}
+
 //! The user's choice of screen behaviour is honoured in both directions.
 //!
 //! The shipped default is `true`, set on the `keepScreenOn` property in
