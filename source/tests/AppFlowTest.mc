@@ -499,6 +499,27 @@ function theWaitMessageSaysWhatIsActuallyHappening(logger as Test.Logger) as Boo
     return true;
 }
 
+//! "Code 1 of 1" tells the user nothing, so a lone code gets no counter -- but the moment there
+//! is more than one, the position is worth stating again.
+(:test)
+function aLoneCodeGetsNoCounter(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    CodeStore.save(0, "Club card", "FFCC12345", CodeStore.TYPE_BARCODE);
+
+    var view = new AppView();
+    Test.assertEqualMessage(view.slots.size(), 1, "precondition: exactly one code");
+    Test.assertMessage(!view.showsCounter(), "a single code needs no 'Code 1 of 1'");
+
+    CodeStore.save(1, "Loyalty", "MEMBER 12345", CodeStore.TYPE_BARCODE);
+    view.onCodesChanged();
+    Test.assertEqualMessage(view.slots.size(), 2, "precondition: a second code was added");
+    Test.assertMessage(view.showsCounter(), "with two codes the counter comes back");
+
+    logger.debug("counter is drawn only when there is something to count");
+    return true;
+}
+
 // ------------------------------------------------------------- review findings
 
 //! A long barcode must never be laid out wider than the space it has.
