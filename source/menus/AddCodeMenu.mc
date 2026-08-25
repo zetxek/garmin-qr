@@ -54,7 +54,7 @@ class AddCodeMenu {
             Log.debug("[AddCodeMenu] refusing to save an empty code");
             WatchUi.pushView(
                 new WatchUi.Confirmation("Code text is required"),
-                new EmptyCodeDelegate(),
+                new AddCodeConfirmationDelegate(),
                 WatchUi.SLIDE_UP);
             return;
         }
@@ -62,10 +62,20 @@ class AddCodeMenu {
         var slot = CodeStore.nextFreeSlot();
         if (slot < 0) {
             Log.warn("[AddCodeMenu] no free slot, all " + CodeStore.MAX_CODES + " are in use");
+            WatchUi.pushView(
+                new WatchUi.Confirmation("All " + CodeStore.MAX_CODES + " code slots are full"),
+                new AddCodeConfirmationDelegate(),
+                WatchUi.SLIDE_UP);
             return;
         }
 
-        CodeStore.save(slot, codeTitle, codeText, codeType);
+        if (!CodeStore.save(slot, codeTitle, codeText, codeType)) {
+            WatchUi.pushView(
+                new WatchUi.Confirmation("Not enough space to save this code"),
+                new AddCodeConfirmationDelegate(),
+                WatchUi.SLIDE_UP);
+            return;
+        }
         CodeStore.publishProperties();
         Log.debug("[AddCodeMenu] saved new code in slot " + slot);
 
@@ -154,9 +164,10 @@ class CodeTextPickerDelegate extends WatchUi.TextPickerDelegate {
 }
 
 //! Confirmation pops itself on response, the same way TextPicker does above -- this only needs
-//! to acknowledge it, not manage the view stack.
+//! to acknowledge it, not manage the view stack. Shared by every validation/failure message this
+//! menu shows (empty text, no free slot, storage full): none of them carry state to act on.
 (:app)
-class EmptyCodeDelegate extends WatchUi.ConfirmationDelegate {
+class AddCodeConfirmationDelegate extends WatchUi.ConfirmationDelegate {
     function initialize() {
         ConfirmationDelegate.initialize();
     }
