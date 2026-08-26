@@ -130,9 +130,17 @@ function occupiedSlotsSkipsHoles(logger as Test.Logger) as Boolean {
 (:test)
 function emptyTextIsNotSaved(logger as Test.Logger) as Boolean {
     TestSupport.reset();
-    CodeStore.save(0, "Nothing", "", CodeStore.TYPE_QR);
+    Test.assertMessage(!CodeStore.save(0, "Nothing", "", CodeStore.TYPE_QR), "empty text should report failure");
     Test.assertMessage(CodeStore.getText(0) == null, "an empty code is not a code");
     Test.assertEqualMessage(CodeStore.count(), 0, "nothing should have been stored");
+    return true;
+}
+
+(:test)
+function saveReportsSuccess(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Test.assertMessage(
+        CodeStore.save(0, "Gym", "MEMBER-12345", CodeStore.TYPE_QR), "a valid save should report success");
     return true;
 }
 

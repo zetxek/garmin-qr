@@ -230,6 +230,53 @@ function integrationSeedIssue35Barcode(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! Fill every slot up to the new MAX_CODES so Add Code can be driven by hand in the simulator to
+//! see the "all slots full" confirmation that used to be a silent Log.warn.
+//!
+//!     monkeydo bin/integration.prg fenix843mm -t integrationSeedFullSlots
+(:test)
+function integrationSeedFullSlots(logger as Test.Logger) as Boolean {
+    for (var slot = 0; slot < CodeStore.MAX_CODES; slot++) {
+        CodeStore.deleteSlot(slot);
+    }
+    Storage.deleteValue(CodeStore.PENDING_SLOTS);
+    Application.Properties.setValue(
+        CodeStore.PROP_CODES, [] as Array<Application.PropertyValueType>);
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+
+    for (var slot = 0; slot < CodeStore.MAX_CODES; slot++) {
+        CodeStore.save(slot, "Code " + slot, "CODE-" + slot, CodeStore.TYPE_QR);
+    }
+    CodeStore.publishProperties();
+
+    Test.assertEqualMessage(CodeStore.count(), CodeStore.MAX_CODES, "every slot filled");
+    Test.assertEqualMessage(CodeStore.nextFreeSlot(), -1, "no free slot left");
+    logger.debug("SEEDED " + CodeStore.MAX_CODES + " codes; Add Code should now refuse a new one");
+    return true;
+}
+
+//! Drives the exact call a person triggers from the UI when every slot is full. Run after
+//! integrationSeedFullSlots, whose 20 filled slots this depends on (simulator storage persists
+//! between invocations):
+//!
+//!     monkeydo bin/integration.prg fenix843mm -t integrationSeedFullSlots
+//!     monkeydo bin/integration.prg fenix843mm -t integrationAddCodeRefusesWhenFull
+(:test)
+function integrationAddCodeRefusesWhenFull(logger as Test.Logger) as Boolean {
+    Test.assertEqualMessage(CodeStore.count(), CodeStore.MAX_CODES, "precondition: every slot is full");
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.codeTitle = "Overflow";
+    menu.codeText = "one-too-many";
+    menu.codeType = CodeStore.TYPE_QR;
+    menu.save();
+
+    Test.assertEqualMessage(CodeStore.count(), CodeStore.MAX_CODES,
+        "a 21st code must not be stored when every slot is full");
+    logger.debug("VERIFIED: adding a code when full does not crash and does not store anything");
+    return true;
+}
+
 //! Same payload as integrationSeedIssue35Barcode, with wide mode already on -- for a matched
 //! before/after screenshot pair.
 //!

@@ -2,7 +2,7 @@
 <resources xmlns:iq="http://www.garmin.com/xml/connectiq">
     <settings>
         <!-- Must stay in step with CodeStore.MAX_CODES. -->
-        <setting propertyKey="@Properties.codesList" title="@Strings.codesTitle" maxLength="10">
+        <setting propertyKey="@Properties.codesList" title="@Strings.codesTitle" maxLength="20">
             <setting title="@Strings.codeType" type="string">
                 <settingConfig id="code_$index_type" type="list">
                     <listEntry value="0">@Strings.QR</listEntry>

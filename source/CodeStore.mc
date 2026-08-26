@@ -20,7 +20,7 @@ import Toybox.WatchUi;
 (:glance)
 module CodeStore {
 
-    const MAX_CODES = 10;
+    const MAX_CODES = 20;
 
     const TYPE_QR = "0";
     const TYPE_BARCODE = "1";
@@ -120,17 +120,32 @@ module CodeStore {
 
     //! Write a code. Drops the cached image when the encoded content changed, so a slot can
     //! never display the image of whatever used to live in it.
-    function save(slot as Number, title as String?, text as String, type as Object?) as Void {
-        if (slot < 0 || slot >= MAX_CODES) { return; }
-        if (!(text instanceof String) || text.length() == 0) { return; }
+    //!
+    //! Returns false if the Object Store is full (`Lang.StorageFullException` -- the platform's
+    //! only way of reporting this, since remaining space cannot be queried ahead of time) or any
+    //! other write failure occurs. The partial write is then rolled back by deleting the slot's
+    //! keys outright, which is only safe because every caller passes a slot from `nextFreeSlot()`
+    //! -- there is no edit path that overwrites an occupied slot, so rollback can never destroy a
+    //! previously saved code.
+    function save(slot as Number, title as String?, text as String, type as Object?) as Boolean {
+        if (slot < 0 || slot >= MAX_CODES) { return false; }
+        if (!(text instanceof String) || text.length() == 0) { return false; }
 
         var normalisedType = normaliseType(type);
         var previousText = getText(slot);
         var previousType = getType(slot);
 
-        Storage.setValue(textKey(slot), text);
-        Storage.setValue(titleKey(slot), title == null ? "" : title);
-        Storage.setValue(typeKey(slot), normalisedType);
+        try {
+            Storage.setValue(textKey(slot), text);
+            Storage.setValue(titleKey(slot), title == null ? "" : title);
+            Storage.setValue(typeKey(slot), normalisedType);
+        } catch (e) {
+            Log.warn("[CodeStore] could not save slot " + slot + ": " + e.getErrorMessage());
+            Storage.deleteValue(textKey(slot));
+            Storage.deleteValue(titleKey(slot));
+            Storage.deleteValue(typeKey(slot));
+            return false;
+        }
 
         var contentChanged = previousText == null
             || !previousText.equals(text)
@@ -139,6 +154,7 @@ module CodeStore {
             clearImage(slot);
             clearGenerated(slot);
         }
+        return true;
     }
 
     //! Remove a code and everything derived from it. The cached image in particular: leaving it
