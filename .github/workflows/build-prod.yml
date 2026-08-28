@@ -24,7 +24,7 @@ jobs:
       actions: write
     container:
       #image: ghcr.io/matco/connectiq-tester:v2.3.0
-      image: ghcr.io/zetxek/connectiq-tester:v2.4.0-git
+      image: ghcr.io/zetxek/connectiq-tester:v2.5.0-git
     
     steps:
       - name: Checkout code
