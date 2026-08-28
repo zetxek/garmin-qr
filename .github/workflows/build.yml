@@ -9,6 +9,9 @@ on:
       - main
   workflow_dispatch:  # Allows manual triggering
 
+permissions:
+  contents: read
+
 jobs:
   # One build per screen class and input class we actually ship to. Building only fenix7pro let
   # device-specific breakage — Edge units with no vibration motor, the small memory budget of
@@ -18,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     container:
-      image: ghcr.io/zetxek/connectiq-tester:latest
+      image: ghcr.io/zetxek/connectiq-tester:v2.5.0-git
     # The container's default shell is dash, which has no `set -o pipefail`.
     defaults:
       run:
@@ -30,6 +33,8 @@ jobs:
           - fenix7pro            # button watch, MIP display
           - fenix847mm           # large AMOLED
           - venu3                # touch AMOLED
+          - venu441mm             # touch AMOLED, Venu 4
+          - venu445mm             # touch AMOLED, Venu 4 (454x454 round)
           - vivoactive6          # touch, tightest memory budget
           - fr165                # Forerunner
           - edge1040             # cycling computer, no vibration motor
@@ -91,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     container:
-      image: ghcr.io/zetxek/connectiq-tester:latest
+      image: ghcr.io/zetxek/connectiq-tester:v2.5.0-git
     env:
       # Required. Hosted runners override HOME per step, and the simulator keeps its state
       # there; with the overridden value it starts and listens but never answers monkeydo, so
