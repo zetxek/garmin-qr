@@ -362,7 +362,13 @@ module CodeStore {
 
         var entries = [] as Array<Dictionary>;
         for (var i = 0; i < raw.size() && entries.size() < MAX_CODES; i++) {
-            var entry = raw[i];
+            // `Properties.ValueType` (raw's element type) does not include Dictionary, even
+            // though a `codesList` entry always is one -- the settings editor's per-entry
+            // group widget produces Dictionaries that the property-value type union just never
+            // documents. Cast to Object? so `instanceof Dictionary` narrows normally instead of
+            // being seen as statically impossible, which is what made the 9.x checker flag the
+            // rest of this block as unreachable and its declarations as uninitialized.
+            var entry = raw[i] as Object?;
             if (!(entry instanceof Dictionary)) { continue; }
             var text = entry.get(PROP_TEXT);
             if (!(text instanceof String) || text.length() == 0) { continue; }
