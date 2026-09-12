@@ -101,6 +101,16 @@ module CodeStore {
         return occupiedSlots().size();
     }
 
+    //! Orders titles for `orderedSlots()`: untitled codes ("") always sort after any titled code,
+    //! regardless of alphabetical value, and are equal (not less-than) to one another so that the
+    //! insertion sort below leaves their relative order untouched.
+    function compareTitles(a as String, b as String) as Number {
+        if (a.equals("") && b.equals("")) { return 0; }
+        if (a.equals("")) { return 1; }
+        if (b.equals("")) { return -1; }
+        return a.compareTo(b);
+    }
+
     //! `occupiedSlots()`, sorted by title when the "Order By Title" setting is on; otherwise the
     //! slot order, same as `occupiedSlots()`. The sort is case-insensitive and stable -- an
     //! insertion sort rather than `Array.sort()`, so that codes sharing a title (notably ones with
@@ -113,7 +123,7 @@ module CodeStore {
             var slot = slots[i];
             var key = getTitle(slot).toLower();
             var j = i - 1;
-            while (j >= 0 && getTitle(slots[j]).toLower().compareTo(key) > 0) {
+            while (j >= 0 && compareTitles(getTitle(slots[j]).toLower(), key) > 0) {
                 slots[j + 1] = slots[j];
                 j--;
             }
