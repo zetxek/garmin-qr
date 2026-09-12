@@ -101,6 +101,27 @@ module CodeStore {
         return occupiedSlots().size();
     }
 
+    //! `occupiedSlots()`, sorted by title when the "Order By Title" setting is on; otherwise the
+    //! slot order, same as `occupiedSlots()`. The sort is case-insensitive and stable -- an
+    //! insertion sort rather than `Array.sort()`, so that codes sharing a title (notably ones with
+    //! no title at all) keep their existing relative order instead of shuffling on every reload.
+    function orderedSlots() as Array<Number> {
+        var slots = occupiedSlots();
+        if (!OrderByTitle.enabled()) { return slots; }
+
+        for (var i = 1; i < slots.size(); i++) {
+            var slot = slots[i];
+            var key = getTitle(slot).toLower();
+            var j = i - 1;
+            while (j >= 0 && getTitle(slots[j]).toLower().compareTo(key) > 0) {
+                slots[j + 1] = slots[j];
+                j--;
+            }
+            slots[j + 1] = slot;
+        }
+        return slots;
+    }
+
     //! The slot the glance view shows, or -1 when there are no codes.
     function firstSlot() as Number {
         for (var i = 0; i < MAX_CODES; i++) {

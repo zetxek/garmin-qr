@@ -16,6 +16,8 @@ module AppSettingsMenu {
         // renaming it would orphan the value on watches that already have it set.
         menu.addItem(new WatchUi.MenuItem(
             "Thicker bars", WideBarcode.enabled() ? "Enabled" : "Disabled", :toggle_wide_barcode, {}));
+        menu.addItem(new WatchUi.MenuItem(
+            "Order By Title", OrderByTitle.enabled() ? "Enabled" : "Disabled", :toggle_order_by_title, {}));
         return menu;
     }
 }
@@ -34,6 +36,8 @@ class AppSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
             toggleKeepScreenOn(item);
         } else if (item.getId() == :toggle_wide_barcode) {
             toggleWideBarcode(item);
+        } else if (item.getId() == :toggle_order_by_title) {
+            toggleOrderByTitle(item);
         }
     }
 
@@ -61,6 +65,18 @@ class AppSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
         // Read back rather than trust the value just written: if setValue threw, the property is
         // unchanged, and the label must say so rather than claim the flip that didn't happen.
         item.setSubLabel(WideBarcode.enabled() ? "Enabled" : "Disabled");
+        WatchUi.requestUpdate();
+    }
+
+    function toggleOrderByTitle(item) as Void {
+        try {
+            Application.Properties.setValue(OrderByTitle.SETTING, !OrderByTitle.enabled());
+        } catch (e) {
+            Log.warn("[AppSettingsMenu] could not persist orderByTitle: " + e.getErrorMessage());
+        }
+
+        item.setSubLabel(OrderByTitle.enabled() ? "Enabled" : "Disabled");
+        view.onCodesChanged();
         WatchUi.requestUpdate();
     }
 }

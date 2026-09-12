@@ -67,7 +67,7 @@ class AppView extends WatchUi.View {
 
     //! Called whenever the set of codes may have changed: startup, settings sync, add, delete.
     function onCodesChanged() as Void {
-        slots = CodeStore.occupiedSlots();
+        slots = CodeStore.orderedSlots();
         if (position >= slots.size()) {
             position = slots.size() > 0 ? slots.size() - 1 : 0;
         }

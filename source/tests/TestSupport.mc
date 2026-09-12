@@ -23,6 +23,7 @@ module TestSupport {
         // generation explicitly. Tests that want generation turn it back on themselves.
         Application.Properties.setValue(CodeGeneration.SETTING, false);
         Application.Properties.setValue(WideBarcode.SETTING, false);
+        Application.Properties.setValue(OrderByTitle.SETTING, false);
         ImageService.instance = null;
     }
 
