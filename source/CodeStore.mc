@@ -101,29 +101,37 @@ module CodeStore {
         return occupiedSlots().size();
     }
 
-    //! Orders titles for `orderedSlots()`: untitled codes ("") always sort after any titled code,
-    //! regardless of alphabetical value, and are equal (not less-than) to one another so that the
-    //! insertion sort below leaves their relative order untouched.
-    function compareTitles(a as String, b as String) as Number {
+    //! Orders sort keys for `orderedSlots()`: an empty key (an untitled code) always sorts after any
+    //! non-empty one, regardless of alphabetical value, and is equal (not less-than) to another
+    //! empty key so that the insertion sort below leaves their relative order untouched.
+    function compareKeys(a as String, b as String) as Number {
         if (a.equals("") && b.equals("")) { return 0; }
         if (a.equals("")) { return 1; }
         if (b.equals("")) { return -1; }
         return a.compareTo(b);
     }
 
-    //! `occupiedSlots()`, sorted by title when the "Order By Title" setting is on; otherwise the
-    //! slot order, same as `occupiedSlots()`. The sort is case-insensitive and stable -- an
-    //! insertion sort rather than `Array.sort()`, so that codes sharing a title (notably ones with
-    //! no title at all) keep their existing relative order instead of shuffling on every reload.
+    function sortKey(slot as Number, order as Number) as String {
+        if (order == SortOrder.TITLE) { return getTitle(slot).toLower(); }
+        var text = getText(slot);
+        return text != null ? text.toLower() : "";
+    }
+
+    //! `occupiedSlots()`, ordered by the "Sort by" setting: by title or by code text, or -- for
+    //! "Date added" -- the slot order, same as `occupiedSlots()`. Sorting is case-insensitive and
+    //! stable -- an insertion sort rather than `Array.sort()`, so that codes sharing a key (notably
+    //! ones with no title at all) keep their existing relative order instead of shuffling on every
+    //! reload.
     function orderedSlots() as Array<Number> {
         var slots = occupiedSlots();
-        if (!OrderByTitle.enabled()) { return slots; }
+        var order = SortOrder.current();
+        if (order == SortOrder.DATE) { return slots; }
 
         for (var i = 1; i < slots.size(); i++) {
             var slot = slots[i];
-            var key = getTitle(slot).toLower();
+            var key = sortKey(slot, order);
             var j = i - 1;
-            while (j >= 0 && compareTitles(getTitle(slots[j]).toLower(), key) > 0) {
+            while (j >= 0 && compareKeys(sortKey(slots[j], order), key) > 0) {
                 slots[j + 1] = slots[j];
                 j--;
             }

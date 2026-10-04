@@ -127,23 +127,23 @@ function occupiedSlotsSkipsHoles(logger as Test.Logger) as Boolean {
     return true;
 }
 
-//! Off by default: order must match `occupiedSlots()` until the setting is turned on.
+//! "Date added" is the default: order must match `occupiedSlots()` until another sort is chosen.
 (:test)
-function orderedSlotsMatchesSlotOrderWhenDisabled(logger as Test.Logger) as Boolean {
+function orderedSlotsMatchesSlotOrderByDefault(logger as Test.Logger) as Boolean {
     TestSupport.reset();
     CodeStore.save(0, "Zebra", "zzz", CodeStore.TYPE_QR);
     CodeStore.save(1, "Alpha", "aaa", CodeStore.TYPE_QR);
 
     var slots = CodeStore.orderedSlots();
-    Test.assertEqualMessage(slots[0], 0, "slot order is unchanged when the setting is off");
-    Test.assertEqualMessage(slots[1], 1, "slot order is unchanged when the setting is off");
+    Test.assertEqualMessage(slots[0], 0, "slot order is unchanged for Date added");
+    Test.assertEqualMessage(slots[1], 1, "slot order is unchanged for Date added");
     return true;
 }
 
 (:test)
-function orderedSlotsSortsByTitleCaseInsensitivelyWhenEnabled(logger as Test.Logger) as Boolean {
+function orderedSlotsSortsByTitleCaseInsensitively(logger as Test.Logger) as Boolean {
     TestSupport.reset();
-    Application.Properties.setValue(OrderByTitle.SETTING, true);
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
     CodeStore.save(0, "zebra", "zzz", CodeStore.TYPE_QR);
     CodeStore.save(1, "Alpha", "aaa", CodeStore.TYPE_QR);
     CodeStore.save(2, "bravo", "bbb", CodeStore.TYPE_QR);
@@ -160,7 +160,7 @@ function orderedSlotsSortsByTitleCaseInsensitivelyWhenEnabled(logger as Test.Log
 (:test)
 function orderedSlotsIsStableForEqualTitles(logger as Test.Logger) as Boolean {
     TestSupport.reset();
-    Application.Properties.setValue(OrderByTitle.SETTING, true);
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
     CodeStore.save(0, null, "first-untitled", CodeStore.TYPE_QR);
     CodeStore.save(1, null, "second-untitled", CodeStore.TYPE_QR);
     CodeStore.save(2, "Alpha", "aaa", CodeStore.TYPE_QR);
@@ -173,9 +173,33 @@ function orderedSlotsIsStableForEqualTitles(logger as Test.Logger) as Boolean {
 }
 
 (:test)
+function orderedSlotsSortsByCodeTextCaseInsensitively(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.CODE);
+    CodeStore.save(0, "Alpha", "zzz", CodeStore.TYPE_QR);
+    CodeStore.save(1, "Zulu", "AAA", CodeStore.TYPE_QR);
+    CodeStore.save(2, null, "bbb", CodeStore.TYPE_QR);
+
+    var slots = CodeStore.orderedSlots();
+    Test.assertEqualMessage(slots[0], 1, "AAA sorts first, regardless of title");
+    Test.assertEqualMessage(slots[1], 2, "bbb sorts second, even without a title");
+    Test.assertEqualMessage(slots[2], 0, "zzz sorts last");
+    return true;
+}
+
+//! A stored value that is not one of the known sort orders must fall back to "Date added".
+(:test)
+function unknownSortOrderFallsBackToDate(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(SortOrder.SETTING, 99);
+    Test.assertEqualMessage(SortOrder.current(), SortOrder.DATE, "out-of-range value is ignored");
+    return true;
+}
+
+(:test)
 function orderedSlotsSkipsHolesSameAsOccupiedSlots(logger as Test.Logger) as Boolean {
     TestSupport.reset();
-    Application.Properties.setValue(OrderByTitle.SETTING, true);
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
     CodeStore.save(0, "Charlie", "ccc", CodeStore.TYPE_QR);
     CodeStore.save(1, "Alpha", "aaa", CodeStore.TYPE_QR);
     CodeStore.save(2, "Bravo", "bbb", CodeStore.TYPE_QR);
