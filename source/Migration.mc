@@ -57,6 +57,18 @@ module Migration {
         // key into every entry, and a literal null for a deleted code; neither is in the
         // settings schema, and together they are what made the Connect IQ settings editor fail
         // to save (issue #30). Rewriting from Storage leaves only the three declared keys.
+        //
+        // Only when Storage has codes, though. A fresh install has no schema marker either, so
+        // this runs on first launch too — and if the user configured their codes in the
+        // settings editor before ever opening the app, `codesList` is full while Storage is
+        // still empty. Publishing that empty Storage would delete exactly the codes they had
+        // just added. Nothing needs republishing in that case: `codesList` was written by the
+        // editor, so it is already in the declared shape, and `CodeStore.reconcile()` runs
+        // straight after this to copy it into Storage.
+        if (CodeStore.count() == 0) {
+            Log.debug("[Migration] no codes in storage, leaving codesList alone");
+            return;
+        }
         try {
             CodeStore.publishProperties();
         } catch (e) {
