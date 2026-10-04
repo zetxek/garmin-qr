@@ -127,6 +127,147 @@ function occupiedSlotsSkipsHoles(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! "Date added" is the default: order must match `occupiedSlots()` until another sort is chosen.
+(:test)
+function orderedSlotsMatchesSlotOrderByDefault(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    CodeStore.save(0, "Zebra", "zzz", CodeStore.TYPE_QR);
+    CodeStore.save(1, "Alpha", "aaa", CodeStore.TYPE_QR);
+
+    var slots = CodeStore.orderedSlots();
+    Test.assertEqualMessage(slots[0], 0, "slot order is unchanged for Date added");
+    Test.assertEqualMessage(slots[1], 1, "slot order is unchanged for Date added");
+    return true;
+}
+
+(:test)
+function orderedSlotsSortsByTitleCaseInsensitively(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    CodeStore.save(0, "zebra", "zzz", CodeStore.TYPE_QR);
+    CodeStore.save(1, "Alpha", "aaa", CodeStore.TYPE_QR);
+    CodeStore.save(2, "bravo", "bbb", CodeStore.TYPE_QR);
+
+    var slots = CodeStore.orderedSlots();
+    Test.assertEqualMessage(slots.size(), 3, "all codes are still present");
+    Test.assertEqualMessage(slots[0], 1, "Alpha sorts first, case-insensitively");
+    Test.assertEqualMessage(slots[1], 2, "bravo sorts second");
+    Test.assertEqualMessage(slots[2], 0, "zebra sorts last");
+    return true;
+}
+
+//! Insertion sort must not reorder codes that compare equal -- most commonly two untitled codes.
+(:test)
+function orderedSlotsIsStableForEqualTitles(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    CodeStore.save(0, null, "first-untitled", CodeStore.TYPE_QR);
+    CodeStore.save(1, null, "second-untitled", CodeStore.TYPE_QR);
+    CodeStore.save(2, "Alpha", "aaa", CodeStore.TYPE_QR);
+
+    var slots = CodeStore.orderedSlots();
+    Test.assertEqualMessage(slots[0], 2, "Alpha still sorts first");
+    Test.assertEqualMessage(slots[1], 0, "the two untitled codes keep their original slot order");
+    Test.assertEqualMessage(slots[2], 1, "the two untitled codes keep their original slot order");
+    return true;
+}
+
+(:test)
+function orderedSlotsSortsByCodeTextCaseInsensitively(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.CODE);
+    CodeStore.save(0, "Alpha", "zzz", CodeStore.TYPE_QR);
+    CodeStore.save(1, "Zulu", "AAA", CodeStore.TYPE_QR);
+    CodeStore.save(2, null, "bbb", CodeStore.TYPE_QR);
+
+    var slots = CodeStore.orderedSlots();
+    Test.assertEqualMessage(slots[0], 1, "AAA sorts first, regardless of title");
+    Test.assertEqualMessage(slots[1], 2, "bbb sorts second, even without a title");
+    Test.assertEqualMessage(slots[2], 0, "zzz sorts last");
+    return true;
+}
+
+//! A stored value that is not one of the known sort orders must fall back to "Date added".
+(:test)
+function unknownSortOrderFallsBackToDate(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(SortOrder.SETTING, 99);
+    Test.assertEqualMessage(SortOrder.current(), SortOrder.DATE, "out-of-range value is ignored");
+    return true;
+}
+
+//! The glance shows the first code of the list, whatever the sort: it must agree with
+//! `orderedSlots()` in every mode.
+(:test)
+function firstSlotFollowsTheSortOrder(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Test.assertEqualMessage(CodeStore.firstSlot(), -1, "no codes, nothing for the glance");
+
+    CodeStore.save(0, "Pizza", "ccc111", CodeStore.TYPE_QR);
+    CodeStore.save(1, "apple", "zzz999", CodeStore.TYPE_QR);
+    CodeStore.save(2, null, "bbb222", CodeStore.TYPE_QR);
+    CodeStore.save(3, "Zebra", "aaa000", CodeStore.TYPE_QR);
+
+    Test.assertEqualMessage(CodeStore.firstSlot(), 0, "Date added: the first slot");
+
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    Test.assertEqualMessage(CodeStore.firstSlot(), 1, "Title: apple, case-insensitively");
+    Test.assertEqualMessage(CodeStore.firstSlot(), CodeStore.orderedSlots()[0], "agrees with the list");
+
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.CODE);
+    Test.assertEqualMessage(CodeStore.firstSlot(), 3, "Code: aaa000");
+    Test.assertEqualMessage(CodeStore.firstSlot(), CodeStore.orderedSlots()[0], "agrees with the list");
+    return true;
+}
+
+//! Untitled codes sort last, so the glance must prefer a titled code -- and when none has a title,
+//! keep the lowest slot, as the stable sort does.
+(:test)
+function firstSlotSkipsUntitledCodesWhenSortingByTitle(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    CodeStore.save(0, null, "first-untitled", CodeStore.TYPE_QR);
+    CodeStore.save(1, null, "second-untitled", CodeStore.TYPE_QR);
+    Test.assertEqualMessage(CodeStore.firstSlot(), 0, "all untitled: lowest slot");
+
+    CodeStore.save(2, "Alpha", "aaa", CodeStore.TYPE_QR);
+    Test.assertEqualMessage(CodeStore.firstSlot(), 2, "a titled code beats untitled ones");
+    return true;
+}
+
+//! The cached glance image belongs to one code. Changing the sort changes which code the glance
+//! shows, so the cache must stop matching and be fetched again.
+(:test)
+function changingTheSortInvalidatesTheGlanceCache(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    CodeStore.save(0, "Pizza", "ccc111", CodeStore.TYPE_QR);
+    CodeStore.save(1, "apple", "zzz999", CodeStore.TYPE_QR);
+    Storage.setValue(CodeStore.GLANCE_IMAGE, "image");
+    Storage.setValue(CodeStore.GLANCE_META_TEXT, "ccc111");
+    Storage.setValue(CodeStore.GLANCE_META_TYPE, CodeStore.TYPE_QR);
+    Test.assertMessage(CodeStore.isGlanceCacheValid(), "cached for the first slot under Date added");
+
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    Test.assertMessage(!CodeStore.isGlanceCacheValid(), "the glance now shows another code");
+    return true;
+}
+
+(:test)
+function orderedSlotsSkipsHolesSameAsOccupiedSlots(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    CodeStore.save(0, "Charlie", "ccc", CodeStore.TYPE_QR);
+    CodeStore.save(1, "Alpha", "aaa", CodeStore.TYPE_QR);
+    CodeStore.save(2, "Bravo", "bbb", CodeStore.TYPE_QR);
+    CodeStore.deleteSlot(0);
+
+    var slots = CodeStore.orderedSlots();
+    Test.assertEqualMessage(slots.size(), 2, "the deleted slot is excluded");
+    Test.assertEqualMessage(slots[0], 1, "Alpha sorts first");
+    Test.assertEqualMessage(slots[1], 2, "Bravo sorts second");
+    return true;
+}
+
 (:test)
 function emptyTextIsNotSaved(logger as Test.Logger) as Boolean {
     TestSupport.reset();

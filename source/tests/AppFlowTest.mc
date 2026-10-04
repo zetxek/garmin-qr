@@ -650,3 +650,44 @@ function aCancelledRequestCannotLandOnAnotherSlot(logger as Test.Logger) as Bool
     logger.debug("a cancelled response is dropped rather than misattributed");
     return true;
 }
+
+//! The glance shows the first code of the list, and changing the sort changes which code that is.
+//! A glance request already in flight is for the old first code; its image must not be cached as
+//! the new one's, or the glance would draw one code's image under another code's title.
+(:test)
+function aGlanceResponseForAnOutdatedFirstCodeIsNotCached(logger as Test.Logger) as Boolean {
+    TestSupport.threeCodes();
+    CodeStore.save(0, "Zulu", "code-one", CodeStore.TYPE_QR);
+    var service = TestSupport.fakeService();
+
+    service.enqueueGlance();
+    service.pump();
+    Test.assertEqualMessage(service.inFlight, service.GLANCE, "the glance request is in flight");
+    Test.assertEqualMessage(CodeStore.firstSlot(), 0, "for the first code under Date added");
+
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    Test.assertEqualMessage(CodeStore.firstSlot(), 1, "sorting by title makes another code first");
+
+    service.respondOk();
+    Test.assertMessage(!CodeStore.isGlanceCacheValid(), "the stale image was not cached as the new first code's");
+    Test.assertEqualMessage(service.inFlight, service.GLANCE, "the glance is requested again for the current first code");
+
+    service.respondOk();
+    Test.assertMessage(CodeStore.isGlanceCacheValid(), "the refetched image is cached");
+    Test.assertEqualMessage(service.requested.size(), 2, "one request for each first code");
+    return true;
+}
+
+//! The ordinary case must still cache: nothing changed while the request was out.
+(:test)
+function aGlanceResponseForTheCurrentFirstCodeIsCached(logger as Test.Logger) as Boolean {
+    TestSupport.threeCodes();
+    var service = TestSupport.fakeService();
+
+    service.enqueueGlance();
+    service.pump();
+    service.respondOk();
+    Test.assertMessage(CodeStore.isGlanceCacheValid(), "cached when the first code is unchanged");
+    Test.assertMessage(!service.isQueued(service.GLANCE), "and not requeued");
+    return true;
+}

@@ -101,12 +101,64 @@ module CodeStore {
         return occupiedSlots().size();
     }
 
-    //! The slot the glance view shows, or -1 when there are no codes.
-    function firstSlot() as Number {
-        for (var i = 0; i < MAX_CODES; i++) {
-            if (getText(i) != null) { return i; }
+    //! Orders sort keys for `orderedSlots()`: an empty key (an untitled code) always sorts after any
+    //! non-empty one, regardless of alphabetical value, and is equal (not less-than) to another
+    //! empty key so that the insertion sort below leaves their relative order untouched.
+    function compareKeys(a as String, b as String) as Number {
+        if (a.equals("") && b.equals("")) { return 0; }
+        if (a.equals("")) { return 1; }
+        if (b.equals("")) { return -1; }
+        return a.compareTo(b);
+    }
+
+    function sortKey(slot as Number, order as Number) as String {
+        if (order == SortOrder.TITLE) { return getTitle(slot).toLower(); }
+        var text = getText(slot);
+        return text != null ? text.toLower() : "";
+    }
+
+    //! `occupiedSlots()`, ordered by the "Sort by" setting: by title or by code text, or -- for
+    //! "Date added" -- the slot order, same as `occupiedSlots()`. Sorting is case-insensitive and
+    //! stable -- an insertion sort rather than `Array.sort()`, so that codes sharing a key (notably
+    //! ones with no title at all) keep their existing relative order instead of shuffling on every
+    //! reload.
+    function orderedSlots() as Array<Number> {
+        var slots = occupiedSlots();
+        var order = SortOrder.current();
+        if (order == SortOrder.DATE) { return slots; }
+
+        for (var i = 1; i < slots.size(); i++) {
+            var slot = slots[i];
+            var key = sortKey(slot, order);
+            var j = i - 1;
+            while (j >= 0 && compareKeys(sortKey(slots[j], order), key) > 0) {
+                slots[j + 1] = slots[j];
+                j--;
+            }
+            slots[j + 1] = slot;
         }
-        return -1;
+        return slots;
+    }
+
+    //! The slot the glance view shows -- the first code in `orderedSlots()` order -- or -1 when
+    //! there are no codes. A single pass for the minimum rather than a full sort: the glance
+    //! process has little memory and time, and it asks on every draw. Ties keep the lowest slot,
+    //! which is what the stable sort in `orderedSlots()` does too.
+    function firstSlot() as Number {
+        var order = SortOrder.current();
+        var best = -1;
+        var bestKey = "";
+        for (var i = 0; i < MAX_CODES; i++) {
+            if (getText(i) == null) { continue; }
+            if (order == SortOrder.DATE) { return i; }
+
+            var key = sortKey(i, order);
+            if (best < 0 || compareKeys(key, bestKey) < 0) {
+                best = i;
+                bestKey = key;
+            }
+        }
+        return best;
     }
 
     function nextFreeSlot() as Number {
