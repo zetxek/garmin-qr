@@ -114,6 +114,11 @@ class ImageService {
     //! True when the in-flight request's result is no longer wanted. The request itself cannot
     //! be cancelled, so the slot stays occupied until it resolves and the result is dropped.
     var discardInFlight as Boolean;
+    //! What the in-flight glance request was for. The glance shows the first code of the list, and
+    //! that code can change while the request is out (the sort setting flips it in one tap), so
+    //! the response has to be checked against it before it is cached. Only read for GLANCE.
+    var glanceText as String?;
+    var glanceType as String?;
     var watchdog as Timer.Timer?;
     //! slot -> { :attempts, :readyAt, :code }
     var failures as Dictionary;
@@ -122,6 +127,8 @@ class ImageService {
         queue = [] as Array<Number>;
         inFlight = NONE;
         discardInFlight = false;
+        glanceText = null;
+        glanceType = null;
         watchdog = null;
         failures = {};
         restoreQueue();
@@ -282,6 +289,8 @@ class ImageService {
             text = CodeStore.getText(first);
             type = CodeStore.getType(first);
             size = glanceSize();
+            glanceText = text;
+            glanceType = type;
         } else {
             text = CodeStore.getText(slot);
             type = CodeStore.getType(slot);
@@ -353,7 +362,15 @@ class ImageService {
             var bitmap = resolveBitmap(data);
             if (responseCode == 200 && bitmap != null) {
                 if (slot == GLANCE) {
-                    CodeStore.putGlanceImage(bitmap);
+                    if (glanceRequestIsCurrent()) {
+                        CodeStore.putGlanceImage(bitmap);
+                    } else {
+                        // The first code changed while this was in flight, so the image is for
+                        // a code the glance no longer shows. Caching it would stamp it with the
+                        // new first code's text and make the cache look valid; fetch again.
+                        Log.debug("[ImageService] glance response is stale, requeueing");
+                        enqueueGlance();
+                    }
                 } else {
                     CodeStore.putImage(slot, bitmap);
                 }
@@ -370,6 +387,13 @@ class ImageService {
 
         WatchUi.requestUpdate();
         pump();
+    }
+
+    function glanceRequestIsCurrent() as Boolean {
+        var first = CodeStore.firstSlot();
+        if (first < 0 || glanceText == null || glanceType == null) { return false; }
+        var text = CodeStore.getText(first);
+        return text != null && text.equals(glanceText) && CodeStore.getType(first).equals(glanceType);
     }
 
     //! `makeImageRequest` hands back either a resource or a reference to one depending on the
