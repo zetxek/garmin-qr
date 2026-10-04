@@ -196,6 +196,62 @@ function unknownSortOrderFallsBackToDate(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! The glance shows the first code of the list, whatever the sort: it must agree with
+//! `orderedSlots()` in every mode.
+(:test)
+function firstSlotFollowsTheSortOrder(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Test.assertEqualMessage(CodeStore.firstSlot(), -1, "no codes, nothing for the glance");
+
+    CodeStore.save(0, "Pizza", "ccc111", CodeStore.TYPE_QR);
+    CodeStore.save(1, "apple", "zzz999", CodeStore.TYPE_QR);
+    CodeStore.save(2, null, "bbb222", CodeStore.TYPE_QR);
+    CodeStore.save(3, "Zebra", "aaa000", CodeStore.TYPE_QR);
+
+    Test.assertEqualMessage(CodeStore.firstSlot(), 0, "Date added: the first slot");
+
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    Test.assertEqualMessage(CodeStore.firstSlot(), 1, "Title: apple, case-insensitively");
+    Test.assertEqualMessage(CodeStore.firstSlot(), CodeStore.orderedSlots()[0], "agrees with the list");
+
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.CODE);
+    Test.assertEqualMessage(CodeStore.firstSlot(), 3, "Code: aaa000");
+    Test.assertEqualMessage(CodeStore.firstSlot(), CodeStore.orderedSlots()[0], "agrees with the list");
+    return true;
+}
+
+//! Untitled codes sort last, so the glance must prefer a titled code -- and when none has a title,
+//! keep the lowest slot, as the stable sort does.
+(:test)
+function firstSlotSkipsUntitledCodesWhenSortingByTitle(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    CodeStore.save(0, null, "first-untitled", CodeStore.TYPE_QR);
+    CodeStore.save(1, null, "second-untitled", CodeStore.TYPE_QR);
+    Test.assertEqualMessage(CodeStore.firstSlot(), 0, "all untitled: lowest slot");
+
+    CodeStore.save(2, "Alpha", "aaa", CodeStore.TYPE_QR);
+    Test.assertEqualMessage(CodeStore.firstSlot(), 2, "a titled code beats untitled ones");
+    return true;
+}
+
+//! The cached glance image belongs to one code. Changing the sort changes which code the glance
+//! shows, so the cache must stop matching and be fetched again.
+(:test)
+function changingTheSortInvalidatesTheGlanceCache(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    CodeStore.save(0, "Pizza", "ccc111", CodeStore.TYPE_QR);
+    CodeStore.save(1, "apple", "zzz999", CodeStore.TYPE_QR);
+    Storage.setValue(CodeStore.GLANCE_IMAGE, "image");
+    Storage.setValue(CodeStore.GLANCE_META_TEXT, "ccc111");
+    Storage.setValue(CodeStore.GLANCE_META_TYPE, CodeStore.TYPE_QR);
+    Test.assertMessage(CodeStore.isGlanceCacheValid(), "cached for the first slot under Date added");
+
+    Application.Properties.setValue(SortOrder.SETTING, SortOrder.TITLE);
+    Test.assertMessage(!CodeStore.isGlanceCacheValid(), "the glance now shows another code");
+    return true;
+}
+
 (:test)
 function orderedSlotsSkipsHolesSameAsOccupiedSlots(logger as Test.Logger) as Boolean {
     TestSupport.reset();

@@ -140,12 +140,25 @@ module CodeStore {
         return slots;
     }
 
-    //! The slot the glance view shows, or -1 when there are no codes.
+    //! The slot the glance view shows -- the first code in `orderedSlots()` order -- or -1 when
+    //! there are no codes. A single pass for the minimum rather than a full sort: the glance
+    //! process has little memory and time, and it asks on every draw. Ties keep the lowest slot,
+    //! which is what the stable sort in `orderedSlots()` does too.
     function firstSlot() as Number {
+        var order = SortOrder.current();
+        var best = -1;
+        var bestKey = "";
         for (var i = 0; i < MAX_CODES; i++) {
-            if (getText(i) != null) { return i; }
+            if (getText(i) == null) { continue; }
+            if (order == SortOrder.DATE) { return i; }
+
+            var key = sortKey(i, order);
+            if (best < 0 || compareKeys(key, bestKey) < 0) {
+                best = i;
+                bestKey = key;
+            }
         }
-        return -1;
+        return best;
     }
 
     function nextFreeSlot() as Number {
