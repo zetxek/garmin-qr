@@ -12,6 +12,7 @@ Using https://github.com/zetxek/qr-generator to generate QR codes and barcodes â
 - Store multiple codes for quick access
 - View codes in both full app and glance view
 - Edit or remove existing codes
+- Sort stored codes by date added, title or code, right from the watch
 - Support for various Garmin devices (Fenix, Epix, Edge, etc.)
 
 ## Supported Devices
@@ -27,7 +28,7 @@ Using https://github.com/zetxek/qr-generator to generate QR codes and barcodes â
 1. Edit the app settings from Garmin Connect IQ app or Garmin Express
 2. Open the app on your watch
 3. The code will be generated and displayed
-4. Use up/down keys to navigate between stored codes
+4. Use up/down keys to navigate between stored codes, in the order set by the **Sort by** setting (Date added by default)
 5. Press enter to access options
 
 ## Managing Codes
@@ -52,6 +53,32 @@ You can manage your QR and barcode entries using the Garmin Connect IQ app or Ga
 - **Refresh Codes on Device:**
   - On your watch, open the app and press the menu button (key 4) to access the code menu.
   - Select 'Refresh Codes' to reload the latest codes from storage.
+
+- **Code Info Menu (on Device):**
+  - The menu button (key 4) opens the **Code Info** menu.
+  - When a code is on screen, it also shows **Type** (QR Code or Barcode), **Title** (or
+    "N/A" if the code has none), **Text** (the encoded text, or "N/A") and **Delete Code**.
+  - Below that are **Add Code**, **Refresh Codes**, **Sync Now** (only shown while downloads
+    are pending, with the pending count as its sublabel), **Settings** and **About the app**.
+
+- **Add a Code (on Device):**
+  - From the Code Info menu, select **Add Code**.
+  - Enter a title and the text to encode, choose the type (QR Code or Barcode), then select
+    **Save**.
+
+- **Delete a Code (on Device):**
+  - From the Code Info menu, select **Delete Code**.
+  - Confirm with **Delete**, or choose **Keep** to cancel.
+
+- **Settings (on Device):**
+  - From the Code Info menu, select **Settings**. **Thicker bars** and **Sort by** are
+    watch-only settings; **Keep Screen On** is also available in the phone settings editor.
+  - **Keep Screen On** â€” Enabled or Disabled.
+  - **Thicker bars** â€” Enabled or Disabled. Turn this on if a code won't scan; it widens the
+    bars at the cost of a smaller quiet zone, so it's off by default.
+  - **Sort by** â€” opens a submenu to choose **Date added** (the order codes were added; the
+    default), **Title** (case-insensitive, untitled codes last) or **Code** (the encoded text).
+    The current choice is marked **Selected**.
 
 - **Navigate Codes:**
   - Use the up/down keys to switch between your saved codes.
