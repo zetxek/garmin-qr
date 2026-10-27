@@ -308,6 +308,22 @@ function publishedEntriesOnlyContainDeclaredKeys(logger as Test.Logger) as Boole
     return true;
 }
 
+//! `save` accepts a null title (the on-device add flow never sends one, but the signature
+//! allows it), and `codesList` has no way to represent a missing value for a declared key --
+//! writing one there is exactly the kind of entry the settings editor rejects (issue #30).
+(:test)
+function publishedEntriesNeverCarryANullTitle(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    CodeStore.save(0, null, "MEMBER-12345", CodeStore.TYPE_QR);
+    CodeStore.publishProperties();
+
+    var raw = Application.Properties.getValue(CodeStore.PROP_CODES) as Array;
+    var entry = raw[0] as Dictionary;
+    Test.assertMessage(entry.get(CodeStore.PROP_TITLE) != null, "title must not be null");
+    TestSupport.assertStringEquals(entry.get(CodeStore.PROP_TITLE) as String, "", "title falls back to empty");
+    return true;
+}
+
 //! Older releases wrote a literal `null` into the array when a code was deleted, which the
 //! settings editor cannot parse.
 (:test)

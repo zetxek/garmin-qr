@@ -308,6 +308,33 @@ function addingACodeDoesNotStartADownload(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! Regression test for issue #30, driven through the real on-device "Add Code" entry point
+//! rather than calling `CodeStore` directly: `AddCodeMenu.save()` is the only thing that ever
+//! writes `codesList` in response to something the user did on the watch, and it must leave the
+//! property in the exact shape `resources/settings.xml` declares, or the next save from the
+//! Connect IQ settings editor fails.
+(:test)
+function addingACodeOnTheWatchLeavesCodesListSchemaClean(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.codeTitle = "Gym";
+    menu.codeText = "MEMBER 12345";
+    menu.codeType = CodeStore.TYPE_BARCODE;
+    menu.save();
+
+    var raw = Application.Properties.getValue(CodeStore.PROP_CODES) as Array;
+    Test.assertEqualMessage(raw.size(), 1, "the code added on the watch reached codesList");
+
+    var entry = raw[0] as Dictionary;
+    Test.assertEqualMessage(entry.keys().size(), 3, "only the three declared keys are present");
+    Test.assertMessage(entry.get(CodeStore.PROP_TEXT) != null, "text is not null");
+    Test.assertMessage(entry.get(CodeStore.PROP_TITLE) != null, "title is not null");
+    Test.assertMessage(entry.get(CodeStore.PROP_TYPE) != null, "type is not null");
+    logger.debug("codesList after an on-watch add has exactly the declared keys");
+    return true;
+}
+
 //! "I go to the glance and see 'failed to load code' / 'open to load code'."
 //!
 //! The glance only ever read downloaded images, so with generation on it had nothing to show and
