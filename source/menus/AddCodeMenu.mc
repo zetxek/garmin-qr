@@ -1,7 +1,7 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-//! Add a code from the watch: title, text, type, save.
+//! Add a code from the watch, or edit an existing one: title, text, type, save.
 (:app)
 class AddCodeMenu {
 
@@ -9,6 +9,8 @@ class AddCodeMenu {
     var codeTitle as String;
     var codeText as String;
     var codeType as String;
+    //! The slot being edited, or -1 when this menu adds a new code.
+    var editSlot as Number;
     var menu as WatchUi.Menu2?;
 
     function initialize(view as AppView) {
@@ -16,7 +18,18 @@ class AddCodeMenu {
         codeTitle = "";
         codeText = "";
         codeType = CodeStore.TYPE_QR;
+        editSlot = -1;
         menu = null;
+    }
+
+    //! Turn this into an editor for an existing code: start from what is stored, and save back
+    //! into the same slot. Call before show().
+    function edit(slot as Number) as Void {
+        editSlot = slot;
+        codeTitle = CodeStore.getTitle(slot);
+        var text = CodeStore.getText(slot);
+        codeText = text != null ? text : "";
+        codeType = CodeStore.getType(slot);
     }
 
     function show() as Void {
@@ -24,7 +37,7 @@ class AddCodeMenu {
         var existing = menu;
 
         if (existing == null) {
-            var created = new WatchUi.Menu2({:title => "Add Code"});
+            var created = new WatchUi.Menu2({:title => editSlot >= 0 ? "Edit Code" : "Add Code"});
             created.addItem(titleItem());
             created.addItem(textItem());
             created.addItem(new WatchUi.MenuItem("Type", typeLabel, :input_type, {}));
@@ -59,7 +72,7 @@ class AddCodeMenu {
             return;
         }
 
-        var slot = CodeStore.nextFreeSlot();
+        var slot = editSlot >= 0 ? editSlot : CodeStore.nextFreeSlot();
         if (slot < 0) {
             Log.warn("[AddCodeMenu] no free slot, all " + CodeStore.MAX_CODES + " are in use");
             WatchUi.pushView(
@@ -77,14 +90,14 @@ class AddCodeMenu {
             return;
         }
         CodeStore.publishProperties();
-        Log.debug("[AddCodeMenu] saved new code in slot " + slot);
+        Log.debug("[AddCodeMenu] saved " + (editSlot >= 0 ? "edited" : "new") + " code in slot " + slot);
 
-        WatchUi.popView(WatchUi.SLIDE_DOWN); // add menu
+        WatchUi.popView(WatchUi.SLIDE_DOWN); // add/edit menu
         WatchUi.popView(WatchUi.SLIDE_DOWN); // code menu
 
         view.onCodesChanged();
 
-        // Show the code that was just added.
+        // Show the code that was just added or edited (an edited title can move it in the order).
         for (var i = 0; i < view.slots.size(); i++) {
             if (view.slots[i] == slot) {
                 view.position = i;

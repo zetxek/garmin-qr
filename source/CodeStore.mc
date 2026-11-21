@@ -175,10 +175,9 @@ module CodeStore {
     //!
     //! Returns false if the Object Store is full (`Lang.StorageFullException` -- the platform's
     //! only way of reporting this, since remaining space cannot be queried ahead of time) or any
-    //! other write failure occurs. The partial write is then rolled back by deleting the slot's
-    //! keys outright, which is only safe because every caller passes a slot from `nextFreeSlot()`
-    //! -- there is no edit path that overwrites an occupied slot, so rollback can never destroy a
-    //! previously saved code.
+    //! other write failure occurs. The partial write is then rolled back: a slot that held a code
+    //! gets that code back (editing overwrites an occupied slot, so deleting would destroy it);
+    //! an empty slot has its keys deleted.
     function save(slot as Number, title as String?, text as String, type as Object?) as Boolean {
         if (slot < 0 || slot >= MAX_CODES) { return false; }
         if (!(text instanceof String) || text.length() == 0) { return false; }
@@ -186,6 +185,7 @@ module CodeStore {
         var normalisedType = normaliseType(type);
         var previousText = getText(slot);
         var previousType = getType(slot);
+        var previousTitle = getTitle(slot);
 
         try {
             Storage.setValue(textKey(slot), text);
@@ -193,9 +193,16 @@ module CodeStore {
             Storage.setValue(typeKey(slot), normalisedType);
         } catch (e) {
             Log.warn("[CodeStore] could not save slot " + slot + ": " + e.getErrorMessage());
-            Storage.deleteValue(textKey(slot));
-            Storage.deleteValue(titleKey(slot));
-            Storage.deleteValue(typeKey(slot));
+            if (previousText == null) {
+                Storage.deleteValue(textKey(slot));
+                Storage.deleteValue(titleKey(slot));
+                Storage.deleteValue(typeKey(slot));
+            } else {
+                // Same sizes as before, so these writes fit where the new ones did not.
+                Storage.setValue(textKey(slot), previousText);
+                Storage.setValue(titleKey(slot), previousTitle);
+                Storage.setValue(typeKey(slot), previousType);
+            }
             return false;
         }
 

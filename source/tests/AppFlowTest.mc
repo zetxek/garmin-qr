@@ -308,6 +308,32 @@ function addingACodeDoesNotStartADownload(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! Selecting Type / Title / Text in the code menu used to just close the menu. It now opens an
+//! editor over the same slot, so saving rewrites that code instead of adding a second one.
+(:test)
+function editingACodeRewritesItsSlot(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "MEMBER 12345", CodeStore.TYPE_QR);
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.edit(0);
+    Test.assertEqualMessage(menu.codeTitle, "Gym", "the editor starts from the stored title");
+    Test.assertEqualMessage(menu.codeText, "MEMBER 12345", "and the stored text");
+    Test.assertEqualMessage(menu.codeType, CodeStore.TYPE_QR, "and the stored type");
+
+    menu.codeText = "MEMBER 99999";
+    menu.codeType = CodeStore.TYPE_BARCODE;
+    menu.save();
+
+    Test.assertEqualMessage(CodeStore.count(), 1, "editing did not add a second code");
+    Test.assertEqualMessage(CodeStore.getText(0), "MEMBER 99999", "the text changed in place");
+    Test.assertEqualMessage(CodeStore.getType(0), CodeStore.TYPE_BARCODE, "and so did the type");
+    logger.debug("edit saves back into the same slot");
+    return true;
+}
+
 //! "I go to the glance and see 'failed to load code' / 'open to load code'."
 //!
 //! The glance only ever read downloaded images, so with generation on it had nothing to show and

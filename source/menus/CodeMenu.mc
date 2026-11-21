@@ -1,3 +1,4 @@
+import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.WatchUi;
 
@@ -18,10 +19,12 @@ module CodeMenu {
                 "Title", title.length() > 0 ? title : "N/A", :info_title, {}));
             menu.addItem(new WatchUi.MenuItem(
                 "Text", text != null ? text : "N/A", :info_text, {}));
-            menu.addItem(new WatchUi.MenuItem("Delete Code", null, :delete_code, {}));
+            menu.addItem(new WatchUi.MenuItem(
+                "Delete Code", null, :delete_code, {:icon => new MenuIcon(Graphics.COLOR_RED, MenuIcon.CROSS)}));
         }
 
-        menu.addItem(new WatchUi.MenuItem("Add Code", null, :add_code, {}));
+        menu.addItem(new WatchUi.MenuItem(
+            "Add Code", null, :add_code, {:icon => new MenuIcon(Graphics.COLOR_GREEN, MenuIcon.PLUS)}));
         menu.addItem(new WatchUi.MenuItem(
             "Refresh Codes", null, :refresh_codes, {:icon => Rez.Drawables.refresh}));
 
@@ -65,6 +68,16 @@ class CodeMenuDelegate extends WatchUi.Menu2InputDelegate {
 
         } else if (id == :add_code) {
             new AddCodeMenu(view).show();
+
+        } else if (id == :info_type || id == :info_title || id == :info_text) {
+            // These rows show the code's fields, so selecting one edits them. They used to fall
+            // through to the final branch, which just closed the menu.
+            var slot = view.activeSlot();
+            if (slot >= 0) {
+                var editor = new AddCodeMenu(view);
+                editor.edit(slot);
+                editor.show();
+            }
 
         } else if (id == :delete_code) {
             var confirm = new WatchUi.Menu2({:title => "Delete this code?"});
