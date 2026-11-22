@@ -1,7 +1,7 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-//! Add a code from the watch: title, text, type, save.
+//! Add a code from the watch, or edit an existing one: title, text, type, save.
 (:app)
 class AddCodeMenu {
 
@@ -9,6 +9,13 @@ class AddCodeMenu {
     var codeTitle as String;
     var codeText as String;
     var codeType as String;
+    //! The slot being edited, or -1 when this menu adds a new code.
+    var editSlot as Number;
+    //! What the slot held when the editor opened. A phone settings sync can replace the code
+    //! while the editor is open; save() compares against this so it never overwrites that change.
+    var loadedTitle as String;
+    var loadedText as String;
+    var loadedType as String;
     var menu as WatchUi.Menu2?;
 
     function initialize(view as AppView) {
@@ -16,7 +23,33 @@ class AddCodeMenu {
         codeTitle = "";
         codeText = "";
         codeType = CodeStore.TYPE_QR;
+        editSlot = -1;
+        loadedTitle = "";
+        loadedText = "";
+        loadedType = CodeStore.TYPE_QR;
         menu = null;
+    }
+
+    //! Turn this into an editor for an existing code: start from what is stored, and save back
+    //! into the same slot. Call before show().
+    function edit(slot as Number) as Void {
+        editSlot = slot;
+        codeTitle = CodeStore.getTitle(slot);
+        var text = CodeStore.getText(slot);
+        codeText = text != null ? text : "";
+        codeType = CodeStore.getType(slot);
+        loadedTitle = codeTitle;
+        loadedText = codeText;
+        loadedType = codeType;
+    }
+
+    //! False when the slot was changed or removed since edit() read it.
+    function editIsCurrent() as Boolean {
+        var text = CodeStore.getText(editSlot);
+        return text != null
+            && text.equals(loadedText)
+            && CodeStore.getTitle(editSlot).equals(loadedTitle)
+            && CodeStore.getType(editSlot).equals(loadedType);
     }
 
     function show() as Void {
@@ -24,7 +57,7 @@ class AddCodeMenu {
         var existing = menu;
 
         if (existing == null) {
-            var created = new WatchUi.Menu2({:title => "Add Code"});
+            var created = new WatchUi.Menu2({:title => editSlot >= 0 ? "Edit Code" : "Add Code"});
             created.addItem(titleItem());
             created.addItem(textItem());
             created.addItem(new WatchUi.MenuItem("Type", typeLabel, :input_type, {}));
@@ -59,7 +92,16 @@ class AddCodeMenu {
             return;
         }
 
-        var slot = CodeStore.nextFreeSlot();
+        if (editSlot >= 0 && !editIsCurrent()) {
+            Log.warn("[AddCodeMenu] slot " + editSlot + " changed while editing, not overwriting it");
+            WatchUi.pushView(
+                new WatchUi.Confirmation("This code changed. Reopen it to edit"),
+                new AddCodeConfirmationDelegate(),
+                WatchUi.SLIDE_UP);
+            return;
+        }
+
+        var slot = editSlot >= 0 ? editSlot : CodeStore.nextFreeSlot();
         if (slot < 0) {
             Log.warn("[AddCodeMenu] no free slot, all " + CodeStore.MAX_CODES + " are in use");
             WatchUi.pushView(
@@ -77,14 +119,14 @@ class AddCodeMenu {
             return;
         }
         CodeStore.publishProperties();
-        Log.debug("[AddCodeMenu] saved new code in slot " + slot);
+        Log.debug("[AddCodeMenu] saved " + (editSlot >= 0 ? "edited" : "new") + " code in slot " + slot);
 
-        WatchUi.popView(WatchUi.SLIDE_DOWN); // add menu
+        WatchUi.popView(WatchUi.SLIDE_DOWN); // add/edit menu
         WatchUi.popView(WatchUi.SLIDE_DOWN); // code menu
 
         view.onCodesChanged();
 
-        // Show the code that was just added.
+        // Show the code that was just added or edited (an edited title can move it in the order).
         for (var i = 0; i < view.slots.size(); i++) {
             if (view.slots[i] == slot) {
                 view.position = i;
@@ -96,6 +138,11 @@ class AddCodeMenu {
         // used to queue a download the moment a code was saved, which is why adding a code
         // flashed "SYNCING..." and then failed with a 404.
         if (!CodeGeneration.enabled()) {
+            // A slot the service gave up on stays out of the queue. Once its content changes,
+            // that verdict is about a different code. An edit that kept the content keeps it.
+            if (editSlot >= 0 && (!codeText.equals(loadedText) || !codeType.equals(loadedType))) {
+                ImageService.get().clearFailure(slot);
+            }
             ImageService.get().enqueueFirst(slot);
             ImageService.get().pump();
         }

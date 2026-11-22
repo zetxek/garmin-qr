@@ -308,6 +308,124 @@ function addingACodeDoesNotStartADownload(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! Selecting Type / Title / Text in the code menu used to just close the menu. It now opens an
+//! editor over the same slot, so saving rewrites that code instead of adding a second one.
+(:test)
+function editingACodeRewritesItsSlot(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "MEMBER 12345", CodeStore.TYPE_QR);
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.edit(0);
+    Test.assertEqualMessage(menu.codeTitle, "Gym", "the editor starts from the stored title");
+    Test.assertEqualMessage(menu.codeText, "MEMBER 12345", "and the stored text");
+    Test.assertEqualMessage(menu.codeType, CodeStore.TYPE_QR, "and the stored type");
+
+    menu.codeText = "MEMBER 99999";
+    menu.codeType = CodeStore.TYPE_BARCODE;
+    menu.save();
+
+    Test.assertEqualMessage(CodeStore.count(), 1, "editing did not add a second code");
+    Test.assertEqualMessage(CodeStore.getText(0), "MEMBER 99999", "the text changed in place");
+    Test.assertEqualMessage(CodeStore.getType(0), CodeStore.TYPE_BARCODE, "and so did the type");
+    logger.debug("edit saves back into the same slot");
+    return true;
+}
+
+//! A phone settings sync can replace the code while the editor is open. Saving the stale draft
+//! would silently overwrite that change, so the editor refuses.
+(:test)
+function editingRefusesToOverwriteACodeChangedMeanwhile(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "MEMBER 12345", CodeStore.TYPE_QR);
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.edit(0);
+    CodeStore.save(0, "Gym", "CHANGED ON PHONE", CodeStore.TYPE_QR);
+
+    menu.codeTitle = "Gym 2";
+    menu.save();
+
+    Test.assertEqualMessage(CodeStore.getText(0), "CHANGED ON PHONE", "the newer code survived");
+    Test.assertEqualMessage(CodeStore.getTitle(0), "Gym", "and so did its title");
+    logger.debug("a stale edit does not overwrite the slot");
+    return true;
+}
+
+//! Same race for a full-size image: the code is edited while its download is out. The response is
+//! for the old text, so it must not be cached under the new one, and the new text must be fetched.
+(:test)
+function aFullSizeResponseForAnEditedCodeIsNotCached(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, false);
+    var service = TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "OLD TEXT", CodeStore.TYPE_QR);
+
+    service.enqueueFirst(0);
+    service.pump();
+    Test.assertEqualMessage(service.inFlight, 0, "slot 0 is downloading");
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.edit(0);
+    menu.codeText = "NEW TEXT";
+    menu.save();
+
+    service.respondOk();
+    Test.assertMessage(!CodeStore.isCacheValid(0), "the old text's image was not cached as the new text's");
+    Test.assertEqualMessage(service.inFlight, 0, "the edited code is requested");
+
+    service.respondOk();
+    Test.assertMessage(CodeStore.isCacheValid(0), "the refetched image is cached");
+    return true;
+}
+
+//! A title-only edit does not change the image, so a response that arrives meanwhile is still good.
+(:test)
+function aTitleOnlyEditKeepsTheInFlightImage(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, false);
+    var service = TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "SAME TEXT", CodeStore.TYPE_QR);
+
+    service.enqueueFirst(0);
+    service.pump();
+    CodeStore.save(0, "Gym renamed", "SAME TEXT", CodeStore.TYPE_QR);
+    service.respondOk();
+
+    Test.assertMessage(CodeStore.isCacheValid(0), "cached: nothing the image shows changed");
+    Test.assertEqualMessage(service.requested.size(), 1, "and no second request");
+    return true;
+}
+
+//! A slot the service gave up on is skipped by the queue. Editing it to different content must
+//! lift that, or the edited code would never be requested.
+(:test)
+function editingAPermanentlyFailedCodeRetriesIt(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, false);
+    var service = TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "OLD TEXT", CodeStore.TYPE_QR);
+
+    service.enqueueFirst(0);
+    service.pump();
+    service.respondWith(400);
+    Test.assertMessage(service.isPermanentlyFailed(0), "the service gave up on the old text");
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.edit(0);
+    menu.codeText = "NEW TEXT";
+    menu.save();
+
+    Test.assertMessage(!service.isPermanentlyFailed(0), "the failure record was cleared");
+    // Queued, not necessarily in flight: a glance request may already be out ahead of it.
+    Test.assertMessage(service.isQueued(0) || service.inFlight == 0, "and the edited code is queued for download");
+    return true;
+}
+
 //! Regression test for issue #30, driven through the real on-device "Add Code" entry point
 //! rather than calling `CodeStore` directly: `AddCodeMenu.save()` is the only thing that ever
 //! writes `codesList` in response to something the user did on the watch, and it must leave the

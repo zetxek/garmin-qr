@@ -1,9 +1,15 @@
+import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.WatchUi;
 
 //! The menu behind the start/menu button on the code screen.
 (:app)
 module CodeMenu {
+
+    //! Every row has an icon on its left, like Garmin's own menus. A colour makes it a disc.
+    function row(label as String, sub as String?, id as Symbol, color as Number?, glyph as Number) as WatchUi.IconMenuItem {
+        return new WatchUi.IconMenuItem(label, sub, id, new MenuIcon(color, glyph), null);
+    }
 
     function build(view as AppView) as WatchUi.Menu2 {
         var menu = new WatchUi.Menu2({:title => "Code Info"});
@@ -12,26 +18,22 @@ module CodeMenu {
         if (slot >= 0) {
             var text = CodeStore.getText(slot);
             var title = CodeStore.getTitle(slot);
-            menu.addItem(new WatchUi.MenuItem(
-                "Type", CodeStore.isBarcode(slot) ? "Barcode" : "QR Code", :info_type, {}));
-            menu.addItem(new WatchUi.MenuItem(
-                "Title", title.length() > 0 ? title : "N/A", :info_title, {}));
-            menu.addItem(new WatchUi.MenuItem(
-                "Text", text != null ? text : "N/A", :info_text, {}));
-            menu.addItem(new WatchUi.MenuItem("Delete Code", null, :delete_code, {}));
+            menu.addItem(row("Type", CodeStore.isBarcode(slot) ? "Barcode" : "QR Code", :info_type, null, MenuIcon.TYPE));
+            menu.addItem(row("Title", title.length() > 0 ? title : "N/A", :info_title, null, MenuIcon.TITLE));
+            menu.addItem(row("Text", text != null ? text : "N/A", :info_text, null, MenuIcon.TEXT));
+            menu.addItem(row("Delete Code", null, :delete_code, Graphics.COLOR_RED, MenuIcon.CROSS));
         }
 
-        menu.addItem(new WatchUi.MenuItem("Add Code", null, :add_code, {}));
-        menu.addItem(new WatchUi.MenuItem(
-            "Refresh Codes", null, :refresh_codes, {:icon => Rez.Drawables.refresh}));
+        menu.addItem(row("Add Code", null, :add_code, Graphics.COLOR_GREEN, MenuIcon.PLUS));
+        menu.addItem(row("Refresh Codes", null, :refresh_codes, null, MenuIcon.REFRESH));
 
         var pending = ImageService.get().pendingCount();
         if (pending > 0) {
-            menu.addItem(new WatchUi.MenuItem("Sync Now", pending.toString() + " pending", :sync_now, {}));
+            menu.addItem(row("Sync Now", pending.toString() + " pending", :sync_now, null, MenuIcon.REFRESH));
         }
 
-        menu.addItem(new WatchUi.MenuItem("Settings", null, :app_settings, {}));
-        menu.addItem(new WatchUi.MenuItem("About the app", null, :about_app, {}));
+        menu.addItem(row("Settings", null, :app_settings, null, MenuIcon.SETTINGS));
+        menu.addItem(row("About the app", null, :about_app, null, MenuIcon.ABOUT));
         return menu;
     }
 }
@@ -39,10 +41,14 @@ module CodeMenu {
 (:app)
 class CodeMenuDelegate extends WatchUi.Menu2InputDelegate {
     var view as AppView;
+    //! The slot whose fields the menu shows, fixed when the menu opens. A settings sync can
+    //! reorder the list while the menu is up, so view.activeSlot() may point elsewhere by then.
+    var slot as Number;
 
     function initialize(view as AppView) {
         Menu2InputDelegate.initialize();
         self.view = view;
+        slot = view.activeSlot();
     }
 
     function onSelect(item) as Void {
@@ -65,6 +71,15 @@ class CodeMenuDelegate extends WatchUi.Menu2InputDelegate {
 
         } else if (id == :add_code) {
             new AddCodeMenu(view).show();
+
+        } else if (id == :info_type || id == :info_title || id == :info_text) {
+            // These rows show the code's fields, so selecting one edits them. They used to fall
+            // through to the final branch, which just closed the menu.
+            if (slot >= 0) {
+                var editor = new AddCodeMenu(view);
+                editor.edit(slot);
+                editor.show();
+            }
 
         } else if (id == :delete_code) {
             var confirm = new WatchUi.Menu2({:title => "Delete this code?"});

@@ -119,6 +119,10 @@ class ImageService {
     //! the response has to be checked against it before it is cached. Only read for GLANCE.
     var glanceText as String?;
     var glanceType as String?;
+    //! The same for the in-flight full-size request: the text and type it encoded. The code can
+    //! be edited or replaced by a phone sync while the request is out. Only read for a slot.
+    var slotText as String?;
+    var slotType as String?;
     var watchdog as Timer.Timer?;
     //! slot -> { :attempts, :readyAt, :code }
     var failures as Dictionary;
@@ -129,6 +133,8 @@ class ImageService {
         discardInFlight = false;
         glanceText = null;
         glanceType = null;
+        slotText = null;
+        slotType = null;
         watchdog = null;
         failures = {};
         restoreQueue();
@@ -295,6 +301,8 @@ class ImageService {
             text = CodeStore.getText(slot);
             type = CodeStore.getType(slot);
             size = fullSize();
+            slotText = text;
+            slotType = type;
         }
         if (text == null) { return false; }
 
@@ -371,8 +379,15 @@ class ImageService {
                         Log.debug("[ImageService] glance response is stale, requeueing");
                         enqueueGlance();
                     }
-                } else {
+                } else if (slotRequestIsCurrent(slot)) {
                     CodeStore.putImage(slot, bitmap);
+                } else {
+                    // The code was edited (or replaced) while this was in flight. Caching the
+                    // image would stamp it with the new text and make the cache look valid, so
+                    // the new code would never be downloaded. `inFlight` is already clear, so
+                    // this queues, unlike the enqueueFirst made by the edit itself.
+                    Log.debug("[ImageService] slot " + slot + " response is stale, requeueing");
+                    enqueueFirst(slot);
                 }
                 clearFailure(slot);
                 Log.debug("[ImageService] slot " + slot + " downloaded");
@@ -387,6 +402,13 @@ class ImageService {
 
         WatchUi.requestUpdate();
         pump();
+    }
+
+    //! Title is not compared: a title-only edit does not change the image.
+    function slotRequestIsCurrent(slot as Number) as Boolean {
+        var text = CodeStore.getText(slot);
+        return text != null && slotText != null && slotType != null
+            && text.equals(slotText) && CodeStore.getType(slot).equals(slotType);
     }
 
     function glanceRequestIsCurrent() as Boolean {
