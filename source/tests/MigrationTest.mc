@@ -116,3 +116,69 @@ function upgradeRunsOnceAndIsSafeOnAFreshInstall(logger as Test.Logger) as Boole
     logger.debug("migration is idempotent and safe with no data");
     return true;
 }
+
+//! The reproduction in issue #30, from a fresh install: the codes are configured in the Connect
+//! IQ settings editor *before* the app is ever opened, so `codesList` is full and Storage is
+//! still empty on the first launch.
+(:test)
+function freshInstallKeepsCodesConfiguredFromThePhone(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Storage.deleteValue(Migration.SCHEMA_KEY);
+
+    var pushed = [] as Array<Dictionary>;
+    for (var i = 0; i < 2; i++) {
+        var entry = {};
+        entry.put(CodeStore.PROP_TYPE, CodeStore.TYPE_QR);
+        entry.put(CodeStore.PROP_TITLE, "From phone " + i);
+        entry.put(CodeStore.PROP_TEXT, "pushed-" + i);
+        pushed.add(entry);
+    }
+    Application.Properties.setValue(CodeStore.PROP_CODES, pushed as Application.PropertyValueType);
+
+    // Exactly what App.getInitialView does, in that order.
+    Migration.run();
+    CodeStore.reconcile();
+
+    Test.assertEqualMessage(CodeStore.count(), 2, "both codes reached Storage");
+    Test.assertEqualMessage(TestSupport.propertiesEntryCount(), 2,
+        "and the settings editor still has them");
+    TestSupport.assertStringEquals(CodeStore.getText(0), "pushed-0", "code 1 text");
+    TestSupport.assertStringEquals(CodeStore.getText(1), "pushed-1", "code 2 text");
+
+    logger.debug("codes configured before the first launch survive it");
+    return true;
+}
+
+//! The republish must be driven by the *shape* of `codesList`, not by the values that survive
+//! reading it. An entry whose only defect is the undeclared timestamp key reads back clean, so
+//! comparing sanitised values reports "nothing to do" and leaves the editor broken.
+(:test)
+function upgradeRewritesAnEntryThatOnlyDiffersByAnUndeclaredKey(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Storage.deleteValue(Migration.SCHEMA_KEY);
+
+    Storage.setValue("code_0_text", "MEMBER 12345");
+    Storage.setValue("code_0_title", "Loyalty");
+    Storage.setValue("code_0_type", CodeStore.TYPE_QR);
+
+    var legacy = [
+        {
+            "code_$index_text" => "MEMBER 12345",
+            "code_$index_title" => "Loyalty",
+            "code_$index_type" => "0",
+            "code_$index_timestamp" => 123456
+        }
+    ] as Array<Application.PropertyValueType>;
+    Application.Properties.setValue(CodeStore.PROP_CODES, legacy);
+
+    Migration.run();
+
+    var raw = Application.Properties.getValue(CodeStore.PROP_CODES) as Array;
+    Test.assertEqualMessage(raw.size(), 1, "still one code");
+    var entry = raw[0] as Dictionary;
+    Test.assertEqualMessage(entry.keys().size(), 3, "the undeclared key was rewritten away");
+    Test.assertMessage(entry.get("code_$index_timestamp") == null, "no timestamp key survives");
+
+    logger.debug("a lone legacy entry is republished, not skipped");
+    return true;
+}
