@@ -19,12 +19,12 @@ module CodeMenu {
                 "Title", title.length() > 0 ? title : "N/A", :info_title, {}));
             menu.addItem(new WatchUi.MenuItem(
                 "Text", text != null ? text : "N/A", :info_text, {}));
-            menu.addItem(new WatchUi.MenuItem(
-                "Delete Code", null, :delete_code, {:icon => new MenuIcon(Graphics.COLOR_RED, MenuIcon.CROSS)}));
+            menu.addItem(new WatchUi.IconMenuItem(
+                "Delete Code", null, :delete_code, new MenuIcon(Graphics.COLOR_RED, MenuIcon.CROSS), null));
         }
 
-        menu.addItem(new WatchUi.MenuItem(
-            "Add Code", null, :add_code, {:icon => new MenuIcon(Graphics.COLOR_GREEN, MenuIcon.PLUS)}));
+        menu.addItem(new WatchUi.IconMenuItem(
+            "Add Code", null, :add_code, new MenuIcon(Graphics.COLOR_GREEN, MenuIcon.PLUS), null));
         menu.addItem(new WatchUi.MenuItem(
             "Refresh Codes", null, :refresh_codes, {:icon => Rez.Drawables.refresh}));
 
