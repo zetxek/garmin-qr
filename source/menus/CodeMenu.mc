@@ -6,6 +6,11 @@ import Toybox.WatchUi;
 (:app)
 module CodeMenu {
 
+    //! Every row has an icon on its left, like Garmin's own menus. A colour makes it a disc.
+    function row(label as String, sub as String?, id as Symbol, color as Number?, glyph as Number) as WatchUi.IconMenuItem {
+        return new WatchUi.IconMenuItem(label, sub, id, new MenuIcon(color, glyph), null);
+    }
+
     function build(view as AppView) as WatchUi.Menu2 {
         var menu = new WatchUi.Menu2({:title => "Code Info"});
         var slot = view.activeSlot();
@@ -13,28 +18,22 @@ module CodeMenu {
         if (slot >= 0) {
             var text = CodeStore.getText(slot);
             var title = CodeStore.getTitle(slot);
-            menu.addItem(new WatchUi.MenuItem(
-                "Type", CodeStore.isBarcode(slot) ? "Barcode" : "QR Code", :info_type, {}));
-            menu.addItem(new WatchUi.MenuItem(
-                "Title", title.length() > 0 ? title : "N/A", :info_title, {}));
-            menu.addItem(new WatchUi.MenuItem(
-                "Text", text != null ? text : "N/A", :info_text, {}));
-            menu.addItem(new WatchUi.IconMenuItem(
-                "Delete Code", null, :delete_code, new MenuIcon(Graphics.COLOR_RED, MenuIcon.CROSS), null));
+            menu.addItem(row("Type", CodeStore.isBarcode(slot) ? "Barcode" : "QR Code", :info_type, null, MenuIcon.TYPE));
+            menu.addItem(row("Title", title.length() > 0 ? title : "N/A", :info_title, null, MenuIcon.TITLE));
+            menu.addItem(row("Text", text != null ? text : "N/A", :info_text, null, MenuIcon.TEXT));
+            menu.addItem(row("Delete Code", null, :delete_code, Graphics.COLOR_RED, MenuIcon.CROSS));
         }
 
-        menu.addItem(new WatchUi.IconMenuItem(
-            "Add Code", null, :add_code, new MenuIcon(Graphics.COLOR_GREEN, MenuIcon.PLUS), null));
-        menu.addItem(new WatchUi.MenuItem(
-            "Refresh Codes", null, :refresh_codes, {:icon => Rez.Drawables.refresh}));
+        menu.addItem(row("Add Code", null, :add_code, Graphics.COLOR_GREEN, MenuIcon.PLUS));
+        menu.addItem(row("Refresh Codes", null, :refresh_codes, null, MenuIcon.REFRESH));
 
         var pending = ImageService.get().pendingCount();
         if (pending > 0) {
-            menu.addItem(new WatchUi.MenuItem("Sync Now", pending.toString() + " pending", :sync_now, {}));
+            menu.addItem(row("Sync Now", pending.toString() + " pending", :sync_now, null, MenuIcon.REFRESH));
         }
 
-        menu.addItem(new WatchUi.MenuItem("Settings", null, :app_settings, {}));
-        menu.addItem(new WatchUi.MenuItem("About the app", null, :about_app, {}));
+        menu.addItem(row("Settings", null, :app_settings, null, MenuIcon.SETTINGS));
+        menu.addItem(row("About the app", null, :about_app, null, MenuIcon.ABOUT));
         return menu;
     }
 }
