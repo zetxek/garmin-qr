@@ -68,13 +68,23 @@ You can manage your QR and barcode entries using the Garmin Connect IQ app or Ga
   - The menu button (key 4) opens the **Code Info** menu.
   - When a code is on screen, it also shows **Type** (QR Code or Barcode), **Title** (or
     "N/A" if the code has none), **Text** (the encoded text, or "N/A") and **Delete Code**.
+    Select **Type**, **Title** or **Text** to edit the code.
   - Below that are **Add Code**, **Refresh Codes**, **Sync Now** (only shown while downloads
     are pending, with the pending count as its sublabel), **Settings** and **About the app**.
+  - Every entry has an icon on its left. **Add Code** is green and **Delete Code** is red, so the
+    two are easy to tell apart.
 
 - **Add a Code (on Device):**
   - From the Code Info menu, select **Add Code**.
   - Enter a title and the text to encode, choose the type (QR Code or Barcode), then select
     **Save**.
+
+- **Edit a Code (on Device):**
+  - From the Code Info menu, select **Type**, **Title** or **Text**.
+  - Change any of them, then select **Save**. The code keeps its place in the list, and a new title
+    can move it if you sort by title.
+  - If the code was changed from the phone while you were editing, the watch asks you to reopen it
+    instead of overwriting the newer version.
 
 - **Delete a Code (on Device):**
   - From the Code Info menu, select **Delete Code**.
