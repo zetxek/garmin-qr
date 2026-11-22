@@ -42,10 +42,14 @@ module CodeMenu {
 (:app)
 class CodeMenuDelegate extends WatchUi.Menu2InputDelegate {
     var view as AppView;
+    //! The slot whose fields the menu shows, fixed when the menu opens. A settings sync can
+    //! reorder the list while the menu is up, so view.activeSlot() may point elsewhere by then.
+    var slot as Number;
 
     function initialize(view as AppView) {
         Menu2InputDelegate.initialize();
         self.view = view;
+        slot = view.activeSlot();
     }
 
     function onSelect(item) as Void {
@@ -72,7 +76,6 @@ class CodeMenuDelegate extends WatchUi.Menu2InputDelegate {
         } else if (id == :info_type || id == :info_title || id == :info_text) {
             // These rows show the code's fields, so selecting one edits them. They used to fall
             // through to the final branch, which just closed the menu.
-            var slot = view.activeSlot();
             if (slot >= 0) {
                 var editor = new AddCodeMenu(view);
                 editor.edit(slot);

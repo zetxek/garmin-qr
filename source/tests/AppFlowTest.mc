@@ -334,6 +334,28 @@ function editingACodeRewritesItsSlot(logger as Test.Logger) as Boolean {
     return true;
 }
 
+//! A phone settings sync can replace the code while the editor is open. Saving the stale draft
+//! would silently overwrite that change, so the editor refuses.
+(:test)
+function editingRefusesToOverwriteACodeChangedMeanwhile(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, true);
+    TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "MEMBER 12345", CodeStore.TYPE_QR);
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.edit(0);
+    CodeStore.save(0, "Gym", "CHANGED ON PHONE", CodeStore.TYPE_QR);
+
+    menu.codeTitle = "Gym 2";
+    menu.save();
+
+    Test.assertEqualMessage(CodeStore.getText(0), "CHANGED ON PHONE", "the newer code survived");
+    Test.assertEqualMessage(CodeStore.getTitle(0), "Gym", "and so did its title");
+    logger.debug("a stale edit does not overwrite the slot");
+    return true;
+}
+
 //! "I go to the glance and see 'failed to load code' / 'open to load code'."
 //!
 //! The glance only ever read downloaded images, so with generation on it had nothing to show and

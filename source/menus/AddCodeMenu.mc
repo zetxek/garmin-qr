@@ -11,6 +11,11 @@ class AddCodeMenu {
     var codeType as String;
     //! The slot being edited, or -1 when this menu adds a new code.
     var editSlot as Number;
+    //! What the slot held when the editor opened. A phone settings sync can replace the code
+    //! while the editor is open; save() compares against this so it never overwrites that change.
+    var loadedTitle as String;
+    var loadedText as String;
+    var loadedType as String;
     var menu as WatchUi.Menu2?;
 
     function initialize(view as AppView) {
@@ -19,6 +24,9 @@ class AddCodeMenu {
         codeText = "";
         codeType = CodeStore.TYPE_QR;
         editSlot = -1;
+        loadedTitle = "";
+        loadedText = "";
+        loadedType = CodeStore.TYPE_QR;
         menu = null;
     }
 
@@ -30,6 +38,18 @@ class AddCodeMenu {
         var text = CodeStore.getText(slot);
         codeText = text != null ? text : "";
         codeType = CodeStore.getType(slot);
+        loadedTitle = codeTitle;
+        loadedText = codeText;
+        loadedType = codeType;
+    }
+
+    //! False when the slot was changed or removed since edit() read it.
+    function editIsCurrent() as Boolean {
+        var text = CodeStore.getText(editSlot);
+        return text != null
+            && text.equals(loadedText)
+            && CodeStore.getTitle(editSlot).equals(loadedTitle)
+            && CodeStore.getType(editSlot).equals(loadedType);
     }
 
     function show() as Void {
@@ -67,6 +87,15 @@ class AddCodeMenu {
             Log.debug("[AddCodeMenu] refusing to save an empty code");
             WatchUi.pushView(
                 new WatchUi.Confirmation("Code text is required"),
+                new AddCodeConfirmationDelegate(),
+                WatchUi.SLIDE_UP);
+            return;
+        }
+
+        if (editSlot >= 0 && !editIsCurrent()) {
+            Log.warn("[AddCodeMenu] slot " + editSlot + " changed while editing, not overwriting it");
+            WatchUi.pushView(
+                new WatchUi.Confirmation("This code changed. Reopen it to edit"),
                 new AddCodeConfirmationDelegate(),
                 WatchUi.SLIDE_UP);
             return;
