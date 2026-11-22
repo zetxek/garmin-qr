@@ -356,6 +356,76 @@ function editingRefusesToOverwriteACodeChangedMeanwhile(logger as Test.Logger) a
     return true;
 }
 
+//! Same race for a full-size image: the code is edited while its download is out. The response is
+//! for the old text, so it must not be cached under the new one, and the new text must be fetched.
+(:test)
+function aFullSizeResponseForAnEditedCodeIsNotCached(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, false);
+    var service = TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "OLD TEXT", CodeStore.TYPE_QR);
+
+    service.enqueueFirst(0);
+    service.pump();
+    Test.assertEqualMessage(service.inFlight, 0, "slot 0 is downloading");
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.edit(0);
+    menu.codeText = "NEW TEXT";
+    menu.save();
+
+    service.respondOk();
+    Test.assertMessage(!CodeStore.isCacheValid(0), "the old text's image was not cached as the new text's");
+    Test.assertEqualMessage(service.inFlight, 0, "the edited code is requested");
+
+    service.respondOk();
+    Test.assertMessage(CodeStore.isCacheValid(0), "the refetched image is cached");
+    return true;
+}
+
+//! A title-only edit does not change the image, so a response that arrives meanwhile is still good.
+(:test)
+function aTitleOnlyEditKeepsTheInFlightImage(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, false);
+    var service = TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "SAME TEXT", CodeStore.TYPE_QR);
+
+    service.enqueueFirst(0);
+    service.pump();
+    CodeStore.save(0, "Gym renamed", "SAME TEXT", CodeStore.TYPE_QR);
+    service.respondOk();
+
+    Test.assertMessage(CodeStore.isCacheValid(0), "cached: nothing the image shows changed");
+    Test.assertEqualMessage(service.requested.size(), 1, "and no second request");
+    return true;
+}
+
+//! A slot the service gave up on is skipped by the queue. Editing it to different content must
+//! lift that, or the edited code would never be requested.
+(:test)
+function editingAPermanentlyFailedCodeRetriesIt(logger as Test.Logger) as Boolean {
+    TestSupport.reset();
+    Application.Properties.setValue(CodeGeneration.SETTING, false);
+    var service = TestSupport.fakeService();
+    CodeStore.save(0, "Gym", "OLD TEXT", CodeStore.TYPE_QR);
+
+    service.enqueueFirst(0);
+    service.pump();
+    service.respondWith(400);
+    Test.assertMessage(service.isPermanentlyFailed(0), "the service gave up on the old text");
+
+    var menu = new AddCodeMenu(new AppView());
+    menu.edit(0);
+    menu.codeText = "NEW TEXT";
+    menu.save();
+
+    Test.assertMessage(!service.isPermanentlyFailed(0), "the failure record was cleared");
+    // Queued, not necessarily in flight: a glance request may already be out ahead of it.
+    Test.assertMessage(service.isQueued(0) || service.inFlight == 0, "and the edited code is queued for download");
+    return true;
+}
+
 //! "I go to the glance and see 'failed to load code' / 'open to load code'."
 //!
 //! The glance only ever read downloaded images, so with generation on it had nothing to show and

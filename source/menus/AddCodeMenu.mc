@@ -138,6 +138,11 @@ class AddCodeMenu {
         // used to queue a download the moment a code was saved, which is why adding a code
         // flashed "SYNCING..." and then failed with a 404.
         if (!CodeGeneration.enabled()) {
+            // A slot the service gave up on stays out of the queue. Once its content changes,
+            // that verdict is about a different code. An edit that kept the content keeps it.
+            if (editSlot >= 0 && (!codeText.equals(loadedText) || !codeType.equals(loadedType))) {
+                ImageService.get().clearFailure(slot);
+            }
             ImageService.get().enqueueFirst(slot);
             ImageService.get().pump();
         }
