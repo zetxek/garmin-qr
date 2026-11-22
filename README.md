@@ -81,8 +81,8 @@ You can manage your QR and barcode entries using the Garmin Connect IQ app or Ga
 
 - **Edit a Code (on Device):**
   - From the Code Info menu, select **Type**, **Title** or **Text**.
-  - Change any of them, then select **Save**. The code keeps its place in the list, and a new title
-    can move it if you sort by title.
+  - Change any of them, then select **Save**. The edited code replaces the original; it is not added
+    a second time. If you sort by title, a new title can move it in the list.
   - If the code was changed from the phone while you were editing, the watch asks you to reopen it
     instead of overwriting the newer version.
 
