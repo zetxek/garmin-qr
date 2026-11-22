@@ -16,11 +16,21 @@ Using https://github.com/zetxek/qr-generator to generate QR codes and barcodes â
 
 ## Supported Devices
 
-- Fenix 7 & 8 series
-- Epix 2 series
-- Edge series
-- Approach series
-- And more (see manifest.xml for full list)
+- **Fenix**: 7, 8, 9 series, Fenix E
+- **Forerunner**: 70, 165, 170, 255, 265, 570, 955, 965, 970
+- **Edge**: 540, 550, 840, 850, 1040, 1050, Explore 2, MTB
+- **Venu**: 2, 3, 4, Sq 2, X1
+- **Epix**: 2 series (incl. Pro)
+- **Instinct**: 3, Instinct E, Crossover
+- **Enduro**: 3
+- **Descent**: G2, Mk3
+- **D2**: Air X10, Mach 1, Mach 2
+- **MARQ**: 2
+- **Approach**: S50, S70
+- **vivoactive**: 5, 6
+- **Other**: eTrex Touch, GPSMAP handhelds
+
+See [manifest.xml](manifest.xml) for the full list of supported device variants.
 
 ## Usage
 
